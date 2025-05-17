@@ -6,8 +6,6 @@ import {
 	Alert,
 	CircularProgress,
 	Typography,
-	Paper,
-	Divider,
 	Snackbar,
 	Card,
 	CardContent,
@@ -18,11 +16,11 @@ import {
 	Chip,
 } from "@mui/material";
 import PlaylistAddCheckIcon from "@mui/icons-material/PlaylistAddCheck";
-import GitHubIcon from "@mui/icons-material/GitHub";
+import Public from "@mui/icons-material/Public";
 import KeyIcon from "@mui/icons-material/Key";
-import HourglassTopIcon from '@mui/icons-material/HourglassTop';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import ErrorIcon from '@mui/icons-material/Error';
+import HourglassTopIcon from "@mui/icons-material/HourglassTop";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import ErrorIcon from "@mui/icons-material/Error";
 import type { FunctionComponent } from "../../common/types";
 import BatchResults from "./BatchResults";
 import {
@@ -67,8 +65,8 @@ const BatchRepoForm = (): FunctionComponent => {
 	const [error, setError] = useState<string | null>(null);
 	const [token, setToken] = useState<string>("");
 	const [success, setSuccess] = useState<boolean>(false);
-	const [results, setResults] = useState<RepoResult[]>([]);
-	const [repoItems, setRepoItems] = useState<RepoListItem[]>([]);
+	const [results, setResults] = useState<Array<RepoResult>>([]);
+	const [repoItems, setRepoItems] = useState<Array<RepoListItem>>([]);
 	const [currentIndex, setCurrentIndex] = useState<number>(-1);
 	const [progress, setProgress] = useState<number>(0);
 
@@ -83,8 +81,8 @@ const BatchRepoForm = (): FunctionComponent => {
 	// Check if there's a preset token in environment variables
 	const hasPresetToken = !!import.meta.env["VITE_GITHUB_API_TOKEN"];
 
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
+	const handleSubmit = async (_error: React.FormEvent): Promise<void> => {
+		_error.preventDefault();
 
 		if (!repoUrls.trim()) {
 			setError("Please enter GitHub repository URLs");
@@ -115,8 +113,8 @@ const BatchRepoForm = (): FunctionComponent => {
 
 		try {
 			// Process each URL
-			const items: RepoListItem[] = [];
-			const invalidUrls: string[] = [];
+			const items: Array<RepoListItem> = [];
+			const invalidUrls: Array<string> = [];
 
 			// Validate URLs first
 			for (const url of urlList) {
@@ -139,7 +137,8 @@ const BatchRepoForm = (): FunctionComponent => {
 				}
 
 				items.push({
-					id: Date.now().toString() + Math.random().toString(36).substring(2, 9),
+					id:
+						Date.now().toString() + Math.random().toString(36).substring(2, 9),
 					url: trimmedUrl,
 					status: "pending",
 				});
@@ -160,20 +159,20 @@ const BatchRepoForm = (): FunctionComponent => {
 			setRepoItems(items);
 
 			// Process each repository sequentially
-			const analysisResults: RepoResult[] = [];
-			
+			const analysisResults: Array<RepoResult> = [];
+
 			for (let index = 0; index < items.length; index++) {
 				// Update current processing repository index
 				setCurrentIndex(index);
-				
+
 				// Update progress percentage
-				const progressPercent = Math.round(((index) / items.length) * 100);
+				const progressPercent = Math.round((index / items.length) * 100);
 				setProgress(progressPercent);
-				
+
 				// Update status to processing
-				setRepoItems((prevItems) => {
-					return prevItems.map((item, i) => 
-						i === index ? { ...item, status: "processing" } : item
+				setRepoItems((previousItems) => {
+					return previousItems.map((item, index_) =>
+						index_ === index ? { ...item, status: "processing" } : item
 					);
 				});
 
@@ -222,14 +221,14 @@ const BatchRepoForm = (): FunctionComponent => {
 					};
 
 					analysisResults.push(result);
-					
+
 					// Update status to completed and add result
-					setRepoItems((prevItems) => {
-						return prevItems.map((item, i) => 
-							i === index ? { ...item, status: "completed", result } : item
+					setRepoItems((previousItems) => {
+						return previousItems.map((item, index_) =>
+							index_ === index ? { ...item, status: "completed", result } : item
 						);
 					});
-					
+
 					// Update results as they complete
 					setResults([...analysisResults]);
 				} catch (error_) {
@@ -237,26 +236,30 @@ const BatchRepoForm = (): FunctionComponent => {
 					if (currentItem) {
 						console.error(`Error analyzing ${currentItem.url}:`, error_);
 					}
-					
+
 					// Update status to error
-					setRepoItems((prevItems) => {
-						return prevItems.map((item, i) => 
-							i === index ? { 
-								...item, 
-								status: "error", 
-								error: `Failed to analyze: ${(error_ as Error).message}` 
-							} : item
+					setRepoItems((previousItems) => {
+						return previousItems.map((item, index_) =>
+							index_ === index
+								? {
+										...item,
+										status: "error",
+										error: `Failed to analyze: ${(error_ as Error).message}`,
+									}
+								: item
 						);
 					});
 				}
-				
+
 				// Short delay to make progress visible
-				await new Promise(resolve => setTimeout(resolve, 300));
+				await new Promise((resolve) => {
+					setTimeout(resolve, 300);
+				});
 			}
 
 			// Set final progress
 			setProgress(100);
-			
+
 			if (analysisResults.length === 0) {
 				setError(
 					"Failed to analyze any repositories. Please check your input or token."
@@ -272,11 +275,11 @@ const BatchRepoForm = (): FunctionComponent => {
 		}
 	};
 
-	const handleCloseSnackbar = () => {
+	const handleCloseSnackbar = (): void => {
 		setSuccess(false);
 	};
 
-	const getStatusColor = (status: RepoStatus) => {
+	const getStatusColor = (status: RepoStatus): any => {
 		switch (status) {
 			case "pending":
 				return "default";
@@ -291,7 +294,7 @@ const BatchRepoForm = (): FunctionComponent => {
 		}
 	};
 
-	const getStatusIcon = (status: RepoStatus) => {
+	const getStatusIcon = (status: RepoStatus): JSX.Element | null => {
 		switch (status) {
 			case "pending":
 				return <HourglassTopIcon fontSize="small" />;
@@ -311,7 +314,10 @@ const BatchRepoForm = (): FunctionComponent => {
 			<Card className="rounded-lg overflow-hidden border-0">
 				<CardContent className="p-6">
 					<form onSubmit={handleSubmit}>
-						<Typography className="font-semibold mb-6 text-gray-800 text-lg" variant="h6">
+						<Typography
+							className="font-semibold mb-6 text-gray-800 text-lg"
+							variant="h6"
+						>
 							Batch Analysis Configuration
 						</Typography>
 
@@ -325,35 +331,38 @@ const BatchRepoForm = (): FunctionComponent => {
 								className="mb-2"
 								placeholder="Enter GitHub repository URLs (one per line)"
 								rows={4}
-								variant="outlined"
 								value={repoUrls}
+								variant="outlined"
 								InputLabelProps={{
 									shrink: true,
 								}}
 								InputProps={{
 									className: "rounded-md bg-white",
 									sx: {
-										'& fieldset': {
-											borderColor: 'rgba(0,0,0,0.08)',
+										"& fieldset": {
+											borderColor: "rgba(0,0,0,0.08)",
 										},
-										'&:hover fieldset': {
-											borderColor: 'rgba(59, 130, 246, 0.3) !important',
+										"&:hover fieldset": {
+											borderColor: "rgba(59, 130, 246, 0.3) !important",
 										},
-										'&.Mui-focused fieldset': {
-											borderColor: 'rgba(59, 130, 246, 0.6) !important',
-											borderWidth: '1px !important',
+										"&.Mui-focused fieldset": {
+											borderColor: "rgba(59, 130, 246, 0.6) !important",
+											borderWidth: "1px !important",
 										},
 									},
 									startAdornment: (
 										<InputAdornment position="start">
-											<GitHubIcon color="action" sx={{ opacity: 0.6 }} />
+											<Public color="action" sx={{ opacity: 0.6 }} />
 										</InputAdornment>
 									),
 								}}
-								onChange={(e): void => setRepoUrls(e.target.value)}
+								onChange={(_error): void => {
+									setRepoUrls(_error.target.value);
+								}}
 							/>
 							<Typography className="text-xs text-gray-500 mt-1">
-								Enter one repository URL per line (e.g., https://github.com/facebook/react)
+								Enter one repository URL per line (e.g.,
+								https://github.com/facebook/react)
 							</Typography>
 						</Box>
 
@@ -363,23 +372,23 @@ const BatchRepoForm = (): FunctionComponent => {
 							</Typography>
 							<TextField
 								fullWidth
-								type="password"
-								variant="outlined"
-								value={token}
-								placeholder="Enter your GitHub token"
 								disabled={false}
+								placeholder="Enter your GitHub token"
+								type="password"
+								value={token}
+								variant="outlined"
 								InputProps={{
 									className: "rounded-md bg-white",
 									sx: {
-										'& fieldset': {
-											borderColor: 'rgba(0,0,0,0.08)',
+										"& fieldset": {
+											borderColor: "rgba(0,0,0,0.08)",
 										},
-										'&:hover fieldset': {
-											borderColor: 'rgba(59, 130, 246, 0.3) !important',
+										"&:hover fieldset": {
+											borderColor: "rgba(59, 130, 246, 0.3) !important",
 										},
-										'&.Mui-focused fieldset': {
-											borderColor: 'rgba(59, 130, 246, 0.6) !important',
-											borderWidth: '1px !important',
+										"&.Mui-focused fieldset": {
+											borderColor: "rgba(59, 130, 246, 0.6) !important",
+											borderWidth: "1px !important",
 										},
 									},
 									startAdornment: (
@@ -388,7 +397,9 @@ const BatchRepoForm = (): FunctionComponent => {
 										</InputAdornment>
 									),
 								}}
-								onChange={(e): void => setToken(e.target.value)}
+								onChange={(_error): void => {
+									setToken(_error.target.value);
+								}}
 							/>
 							<Typography className="text-xs text-gray-500 mt-1">
 								{hasPresetToken
@@ -401,20 +412,20 @@ const BatchRepoForm = (): FunctionComponent => {
 							<Button
 								className="px-6 py-2 rounded-md font-medium text-[15px] transition-all shadow-sm hover:shadow"
 								color="primary"
-								variant="contained"
-								type="submit"
 								disabled={loading}
+								type="submit"
+								variant="contained"
 								startIcon={
 									<PlaylistAddCheckIcon
 										fontSize="small"
-										sx={{ marginRight: '4px' }}
+										sx={{ marginRight: "4px" }}
 									/>
 								}
 								sx={{
-									background: 'linear-gradient(45deg, #2563eb, #4f46e5)',
-									textTransform: 'none',
-									'&:hover': {
-										background: 'linear-gradient(45deg, #1d4ed8, #4338ca)',
+									background: "linear-gradient(45deg, #2563eb, #4f46e5)",
+									textTransform: "none",
+									"&:hover": {
+										background: "linear-gradient(45deg, #1d4ed8, #4338ca)",
 									},
 								}}
 							>
@@ -422,13 +433,13 @@ const BatchRepoForm = (): FunctionComponent => {
 									<>
 										<CircularProgress
 											size={20}
+											sx={{ marginRight: "8px", color: "white" }}
 											thickness={5}
-											sx={{ marginRight: '8px', color: 'white' }}
 										/>
 										Analyzing...
 									</>
 								) : (
-									'Analyze Repositories'
+									"Analyze Repositories"
 								)}
 							</Button>
 						</Box>
@@ -438,7 +449,9 @@ const BatchRepoForm = (): FunctionComponent => {
 								<Alert
 									className="mt-5 rounded-md font-medium text-sm shadow-sm"
 									severity="error"
-									onClose={(): void => setError(null)}
+									onClose={(): void => {
+										setError(null);
+									}}
 								>
 									{error}
 								</Alert>
@@ -461,51 +474,65 @@ const BatchRepoForm = (): FunctionComponent => {
 									{`${currentIndex + 1} of ${repoItems.length} repositories (${progress}%)`}
 								</Typography>
 							</Box>
-							
-							<LinearProgress 
-								variant="determinate" 
-								value={progress} 
-								sx={{ 
+
+							<LinearProgress
+								value={progress}
+								variant="determinate"
+								sx={{
 									height: 8,
 									borderRadius: 4,
 									mb: 3,
-									backgroundColor: 'rgba(59, 130, 246, 0.1)',
-									'& .MuiLinearProgress-bar': {
-										background: 'linear-gradient(45deg, #2563eb, #4f46e5)',
+									backgroundColor: "rgba(59, 130, 246, 0.1)",
+									"& .MuiLinearProgress-bar": {
+										background: "linear-gradient(45deg, #2563eb, #4f46e5)",
 										borderRadius: 4,
-									}
-								}} 
+									},
+								}}
 							/>
-							
-							<Stack spacing={1} maxHeight="200px" sx={{ overflowY: 'auto' }}>
+
+							<Stack maxHeight="200px" spacing={1} sx={{ overflowY: "auto" }}>
 								{repoItems.map((repo, index) => (
-									<Box 
+									<Box
 										key={repo.id}
 										className={`p-2 rounded-md flex items-center justify-between ${
-											index === currentIndex && repo.status === 'processing' 
-												? 'bg-blue-50' 
-												: repo.status === 'completed'
-												? 'bg-green-50'
-												: repo.status === 'error'
-												? 'bg-red-50'
-												: ''
+											index === currentIndex && repo.status === "processing"
+												? "bg-blue-50"
+												: repo.status === "completed"
+													? "bg-green-50"
+													: repo.status === "error"
+														? "bg-red-50"
+														: ""
 										}`}
 									>
 										<Box className="flex items-center">
-											<Box sx={{ width: 24, mr: 1.5, display: 'flex', justifyContent: 'center' }}>
+											<Box
+												sx={{
+													width: 24,
+													mr: 1.5,
+													display: "flex",
+													justifyContent: "center",
+												}}
+											>
 												{getStatusIcon(repo.status)}
 											</Box>
-											<Typography className="text-sm text-gray-700 font-medium" noWrap sx={{ maxWidth: 250 }}>
-												{repo.url.replace('https://github.com/', '')}
+											<Typography
+												noWrap
+												className="text-sm text-gray-700 font-medium"
+												sx={{ maxWidth: 250 }}
+											>
+												{repo.url.replace("https://github.com/", "")}
 											</Typography>
 										</Box>
-										<Chip 
-											label={repo.status.charAt(0).toUpperCase() + repo.status.slice(1)} 
-											size="small"
-											color={getStatusColor(repo.status)}
-											variant="outlined"
+										<Chip
 											className="min-w-[90px]"
+											color={getStatusColor(repo.status)}
+											size="small"
 											sx={{ fontWeight: 500 }}
+											variant="outlined"
+											label={
+												repo.status.charAt(0).toUpperCase() +
+												repo.status.slice(1)
+											}
 										/>
 									</Box>
 								))}
@@ -527,14 +554,14 @@ const BatchRepoForm = (): FunctionComponent => {
 
 			{/* Success message */}
 			<Snackbar
-				open={success}
 				autoHideDuration={5000}
+				open={success}
 				onClose={handleCloseSnackbar}
 			>
 				<Alert
-					onClose={handleCloseSnackbar}
-					severity="success"
 					className="font-medium shadow-lg rounded-md"
+					severity="success"
+					onClose={handleCloseSnackbar}
 				>
 					Successfully analyzed repositories
 				</Alert>

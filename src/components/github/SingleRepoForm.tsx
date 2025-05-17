@@ -48,8 +48,8 @@ const SingleRepoForm = (): FunctionComponent => {
 		}
 	}, []);
 
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
+	const handleSubmit = async (_error: React.FormEvent): Promise<void> => {
+		_error.preventDefault();
 
 		if (!repoUrl.trim()) {
 			setError("Please enter a GitHub repository URL or owner/repo format");
@@ -77,11 +77,11 @@ const SingleRepoForm = (): FunctionComponent => {
 		}
 	};
 
-	const handleCloseSnackbar = () => {
+	const handleCloseSnackbar = (): void => {
 		setSuccess(false);
 	};
 
-	const extractRepoName = () => {
+	const extractRepoName = (): string => {
 		if (!repoUrl) return "";
 
 		const repoInfo = parseRepoUrl(repoUrl);
@@ -91,9 +91,6 @@ const SingleRepoForm = (): FunctionComponent => {
 
 		return repoUrl;
 	};
-
-	// Check if there's a preset token in environment variables
-	const hasPresetToken = !!import.meta.env["VITE_GITHUB_API_TOKEN"];
 
 	return (
 		<Box>
@@ -136,8 +133,8 @@ const SingleRepoForm = (): FunctionComponent => {
 										</InputAdornment>
 									),
 								}}
-								onChange={(e): void => {
-									setRepoUrl(e.target.value);
+								onChange={(_error): void => {
+									setRepoUrl(_error.target.value);
 								}}
 							/>
 							<Typography className="text-xs text-gray-500 mt-1">
@@ -177,8 +174,8 @@ const SingleRepoForm = (): FunctionComponent => {
 										</InputAdornment>
 									),
 								}}
-								onChange={(e): void => {
-									setToken(e.target.value);
+								onChange={(_error): void => {
+									setToken(_error.target.value);
 								}}
 							/>
 						</Box>

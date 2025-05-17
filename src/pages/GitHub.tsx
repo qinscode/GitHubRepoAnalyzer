@@ -1,11 +1,9 @@
-import type React from "react";
-import { useState } from "react";
-import { Container, Box, Typography, useTheme } from "@mui/material";
+import { Container, Box, Typography } from "@mui/material";
 import GitHubIcon from "@mui/icons-material/GitHub";
-import AnalyticsIcon from "@mui/icons-material/Analytics";
 import SingleRepoForm from "../components/github/SingleRepoForm";
 import BatchRepoForm from "../components/github/BatchRepoForm";
 import RepoTabs from "../components/github/RepoTabs";
+import { useState } from "react";
 
 export const GitHub = (): React.ReactElement => {
 	const [activeTab, setActiveTab] = useState(0);
@@ -23,13 +21,6 @@ export const GitHub = (): React.ReactElement => {
 						sx={{
 							fontSize: "2.5rem",
 							filter: "drop-shadow(0 2px 3px rgba(37, 99, 235, 0.2))",
-						}}
-					/>
-					<AnalyticsIcon
-						className="text-3xl ml-1 text-indigo-600"
-						sx={{
-							fontSize: "2rem",
-							filter: "drop-shadow(0 2px 3px rgba(79, 70, 229, 0.2))",
 						}}
 					/>
 				</Box>
