@@ -22,20 +22,14 @@
     "lint": "eslint --max-warnings 0",
     "lint:fix": "eslint --max-warnings 0 --fix",
     "dev": "vite",
-    "test": "vitest run src/ && playwright test",
-    "test:unit": "vitest src/",
-    "test:unit:coverage": "vitest --coverage src/",
-    "test:e2e": "playwright test",
-    "test:e2e:report": "playwright show-report",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "commitlint": "commitlint --edit",
-    "commitizen": "exec < /dev/tty && git cz --hook || true",
     "prepare": "husky",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
-    "tauri:build": "tauri build"
-
+    "tauri:build": "tauri build",
+    "commitlint": "commitlint --edit",
+    "commitizen": "exec < /dev/tty && git cz --hook || true"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

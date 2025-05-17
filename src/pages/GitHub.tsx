@@ -14,9 +14,9 @@ export const GitHub = (): React.ReactElement => {
 	};
 
 	return (
-		<Container className="mt-10 mb-16" maxWidth="lg">
+		<Container className="!p-0" maxWidth="lg">
 			<Paper
-				className="p-6 md:p-8 rounded-xl bg-white shadow-xl bg-gradient-to-b from-white to-blue-50/30"
+				className="!shadow-none ![--Paper-shadow:none] !border-0 rounded-xl bg-white  bg-gradient-to-b from-white to-blue-50/30"
 				elevation={3}
 			>
 				<Box className="mb-8 text-center">
@@ -26,14 +26,6 @@ export const GitHub = (): React.ReactElement => {
 						variant="h3"
 					>
 						GitHub Repository Analyzer
-					</Typography>
-					<Typography
-						className="max-w-2xl mx-auto"
-						color="text.secondary"
-						variant="subtitle1"
-					>
-						Analyze GitHub repositories individually or in batch to gain
-						valuable insights
 					</Typography>
 				</Box>
 

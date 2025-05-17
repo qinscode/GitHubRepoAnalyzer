@@ -26,9 +26,6 @@ const theme = createTheme({
 			"sans-serif",
 		].join(","),
 	},
-	shape: {
-		borderRadius: 8,
-	},
 });
 
 // Root component, contains the basic layout of the application
@@ -36,8 +33,8 @@ export default function Root(): React.ReactElement {
 	return (
 		<ThemeProvider theme={theme}>
 			<CssBaseline />
-			<div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-blue-50">
-				<main className="flex-grow container mx-auto px-4 py-4">
+			<div className=" flex flex-col">
+				<main className="flex-grow px-4">
 					<Outlet />
 				</main>
 			</div>

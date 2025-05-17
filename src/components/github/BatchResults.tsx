@@ -59,17 +59,17 @@ function BatchResults({ results }: BatchResultsProps): JSX.Element {
 
 	return (
 		<Box>
-			{/* 汇总表格 */}
+			{/* Summary Table */}
 			<TableContainer className="mb-8 rounded-xl overflow-hidden shadow-md" component={Paper} variant="outlined">
 				<Table>
 					<TableHead className="bg-gray-50">
 						<TableRow>
-							<TableCell className="font-medium">仓库名称</TableCell>
-							<TableCell align="center" className="font-medium">提交数</TableCell>
-							<TableCell align="center" className="font-medium">问题数</TableCell>
-							<TableCell align="center" className="font-medium">PR数</TableCell>
-							<TableCell align="center" className="font-medium">贡献者数</TableCell>
-							<TableCell align="right" className="font-medium">操作</TableCell>
+							<TableCell className="font-medium">Repository Name</TableCell>
+							<TableCell align="center" className="font-medium">Commits</TableCell>
+							<TableCell align="center" className="font-medium">Issues</TableCell>
+							<TableCell align="center" className="font-medium">PRs</TableCell>
+							<TableCell align="center" className="font-medium">Contributors</TableCell>
+							<TableCell align="right" className="font-medium">Actions</TableCell>
 						</TableRow>
 					</TableHead>
 					<TableBody>
@@ -126,7 +126,7 @@ function BatchResults({ results }: BatchResultsProps): JSX.Element {
 											setExpandedRepo(result.repoUrl === expandedRepo ? null : result.repoUrl);
 										}}
 									>
-										{result.repoUrl === expandedRepo ? '收起详情' : '查看详情'}
+										{result.repoUrl === expandedRepo ? 'Hide Details' : 'View Details'}
 									</Button>
 								</TableCell>
 							</TableRow>
@@ -135,7 +135,7 @@ function BatchResults({ results }: BatchResultsProps): JSX.Element {
 				</Table>
 			</TableContainer>
 
-			{/* 仓库详情手风琴 */}
+			{/* Repository Details Accordion */}
 			{results.map((result) => (
 				<Accordion
 					key={result.repoUrl}
@@ -158,19 +158,19 @@ function BatchResults({ results }: BatchResultsProps): JSX.Element {
 								<Chip
 									color="primary"
 									icon={<CommitIcon />}
-									label={`${result.commits} 提交`}
+									label={`${result.commits} Commits`}
 									size="small"
 								/>
 								<Chip
 									color="secondary"
 									icon={<IssueIcon />}
-									label={`${result.issues} 问题`}
+									label={`${result.issues} Issues`}
 									size="small"
 								/>
 								<Chip
 									color="info"
 									icon={<PRIcon />}
-									label={`${result.prs} PR`}
+									label={`${result.prs} PRs`}
 									size="small"
 								/>
 							</Box>
