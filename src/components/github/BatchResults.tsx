@@ -172,13 +172,13 @@ function BatchResults({ results }: BatchResultsProps): JSX.Element {
 									<Tooltip title="Total number of commits">
 										<Chip
 											className="font-medium"
+											label={result.commits}
+											size="small"
 											icon={
 												<CommitIcon
 													sx={{ fontSize: "0.9rem", color: "#2563eb" }}
 												/>
 											}
-											label={result.commits}
-											size="small"
 											sx={{
 												backgroundColor: "rgba(37, 99, 235, 0.08)",
 												color: "#2563eb",
@@ -197,13 +197,13 @@ function BatchResults({ results }: BatchResultsProps): JSX.Element {
 									<Tooltip title="Total number of issues">
 										<Chip
 											className="font-medium"
+											label={result.issues}
+											size="small"
 											icon={
 												<IssueIcon
 													sx={{ fontSize: "0.9rem", color: "#8e44ad" }}
 												/>
 											}
-											label={result.issues}
-											size="small"
 											sx={{
 												backgroundColor: "rgba(155, 89, 182, 0.08)",
 												color: "#8e44ad",
@@ -222,11 +222,11 @@ function BatchResults({ results }: BatchResultsProps): JSX.Element {
 									<Tooltip title="Total number of pull requests">
 										<Chip
 											className="font-medium"
+											label={result.prs}
+											size="small"
 											icon={
 												<PRIcon sx={{ fontSize: "0.9rem", color: "#00acc1" }} />
 											}
-											label={result.prs}
-											size="small"
 											sx={{
 												backgroundColor: "rgba(0, 184, 212, 0.08)",
 												color: "#00acc1",
@@ -245,13 +245,13 @@ function BatchResults({ results }: BatchResultsProps): JSX.Element {
 									<Tooltip title="Total number of contributors">
 										<Chip
 											className="font-medium"
+											label={result.contributors}
+											size="small"
 											icon={
 												<TeamIcon
 													sx={{ fontSize: "0.9rem", color: "#2e7d32" }}
 												/>
 											}
-											label={result.contributors}
-											size="small"
 											sx={{
 												backgroundColor: "rgba(68, 189, 50, 0.08)",
 												color: "#2e7d32",
@@ -270,6 +270,8 @@ function BatchResults({ results }: BatchResultsProps): JSX.Element {
 									<Button
 										className="text-xs rounded-md"
 										color="primary"
+										size="small"
+										variant="text"
 										endIcon={
 											expandedRepo === result.repoUrl ? (
 												<CollapseIcon />
@@ -277,8 +279,6 @@ function BatchResults({ results }: BatchResultsProps): JSX.Element {
 												<ExpandIcon />
 											)
 										}
-										size="small"
-										variant="text"
 										sx={{
 											fontWeight: 500,
 											textTransform: "none",

@@ -12,9 +12,11 @@
   "app": {
     "windows": [
       {
-        "title": "githubrepoanalyzer",
+        "title": "",
         "width": 800,
-        "height": 600
+        "height": 600,
+        "transparent": false,
+        "decorations": true
       }
     ],
     "security": {
