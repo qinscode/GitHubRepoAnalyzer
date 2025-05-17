@@ -63,17 +63,19 @@ function BatchResults({ results }: BatchResultsProps): JSX.Element {
 			variant="outlined"
 			sx={{ 
 				borderColor: 'rgba(0,0,0,0.06)',
+				width: '100%',
+				overflowX: 'hidden',
 			}}
 		>
-			<Table>
+			<Table sx={{ tableLayout: 'fixed', width: '100%' }}>
 				<TableHead className="bg-gray-50">
 					<TableRow>
-						<TableCell className="font-medium text-gray-600 py-3">Repository</TableCell>
-						<TableCell align="center" className="font-medium text-gray-600">Commits</TableCell>
-						<TableCell align="center" className="font-medium text-gray-600">Issues</TableCell>
-						<TableCell align="center" className="font-medium text-gray-600">PRs</TableCell>
-						<TableCell align="center" className="font-medium text-gray-600">Contributors</TableCell>
-						<TableCell align="right" className="font-medium text-gray-600">Actions</TableCell>
+						<TableCell className="font-medium text-gray-600 py-3" width="30%">Repository</TableCell>
+						<TableCell align="center" className="font-medium text-gray-600" width="12%">Commits</TableCell>
+						<TableCell align="center" className="font-medium text-gray-600" width="12%">Issues</TableCell>
+						<TableCell align="center" className="font-medium text-gray-600" width="12%">PRs</TableCell>
+						<TableCell align="center" className="font-medium text-gray-600" width="14%">Contributors</TableCell>
+						<TableCell align="right" className="font-medium text-gray-600" width="20%">Actions</TableCell>
 					</TableRow>
 				</TableHead>
 				<TableBody>
@@ -85,10 +87,16 @@ function BatchResults({ results }: BatchResultsProps): JSX.Element {
 									borderBottom: expandedRepo === result.repoUrl ? 'none' : '1px solid rgba(224, 224, 224, 1)',
 								}}
 							>
-								<TableCell component="th" scope="row" className="py-3 border-b border-gray-100">
+								<TableCell 
+                                    component="th" 
+                                    scope="row" 
+                                    className="py-3 border-b border-gray-100"
+                                    width="30%"
+                                    sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}
+                                >
 									<Box className="flex items-center">
 										<Avatar 
-											className="w-8 h-8 mr-3" 
+											className="w-8 h-8 mr-3 flex-shrink-0" 
 											sx={{ 
 												background: 'linear-gradient(135deg, #3b82f6, #6366f1)',
 												fontSize: '0.9rem',
@@ -97,15 +105,31 @@ function BatchResults({ results }: BatchResultsProps): JSX.Element {
 										>
 											{result.repoName.charAt(0).toUpperCase()}
 										</Avatar>
-										<Box>
-											<Typography className="font-medium text-gray-800">{result.repoName}</Typography>
-											<Typography className="text-xs text-gray-500 mt-0.5">
+										<Box className="min-w-0 flex-grow">
+											<Typography 
+                                                className="font-medium text-gray-800" 
+                                                sx={{ 
+                                                    overflow: 'hidden', 
+                                                    textOverflow: 'ellipsis', 
+                                                    whiteSpace: 'nowrap' 
+                                                }}
+                                            >
+                                                {result.repoName}
+                                            </Typography>
+											<Typography 
+                                                className="text-xs text-gray-500 mt-0.5"
+                                                sx={{ 
+                                                    overflow: 'hidden', 
+                                                    textOverflow: 'ellipsis', 
+                                                    whiteSpace: 'nowrap' 
+                                                }}
+                                            >
 												{result.repoUrl.replace('https://github.com/', '')}
 											</Typography>
 										</Box>
 									</Box>
 								</TableCell>
-								<TableCell align="center" className="border-b border-gray-100">
+								<TableCell align="center" className="border-b border-gray-100" width="12%">
 									<Tooltip title="Total number of commits">
 										<Chip
 											className="font-medium"
@@ -122,7 +146,7 @@ function BatchResults({ results }: BatchResultsProps): JSX.Element {
 										/>
 									</Tooltip>
 								</TableCell>
-								<TableCell align="center" className="border-b border-gray-100">
+								<TableCell align="center" className="border-b border-gray-100" width="12%">
 									<Tooltip title="Total number of issues">
 										<Chip
 											className="font-medium"
@@ -139,7 +163,7 @@ function BatchResults({ results }: BatchResultsProps): JSX.Element {
 										/>
 									</Tooltip>
 								</TableCell>
-								<TableCell align="center" className="border-b border-gray-100">
+								<TableCell align="center" className="border-b border-gray-100" width="12%">
 									<Tooltip title="Total number of pull requests">
 										<Chip
 											className="font-medium"
@@ -156,7 +180,7 @@ function BatchResults({ results }: BatchResultsProps): JSX.Element {
 										/>
 									</Tooltip>
 								</TableCell>
-								<TableCell align="center" className="border-b border-gray-100">
+								<TableCell align="center" className="border-b border-gray-100" width="14%">
 									<Tooltip title="Total number of contributors">
 										<Chip
 											className="font-medium"
@@ -173,7 +197,7 @@ function BatchResults({ results }: BatchResultsProps): JSX.Element {
 										/>
 									</Tooltip>
 								</TableCell>
-								<TableCell align="right" className="border-b border-gray-100">
+								<TableCell align="right" className="border-b border-gray-100" width="20%">
 									<Button
 										className="text-xs rounded-md"
 										size="small"
