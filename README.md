@@ -91,6 +91,22 @@ pnpm tauri:build   # Tauri app build
 
 MIT License - See [LICENSE](LICENSE) file for details.
 
+## macOS Installation Note
+
+As this application is not signed with an Apple Developer Certificate, macOS users may encounter the following error when opening the app:
+
+```
+"GH Analyzer.app" is damaged and can't be opened. You should move it to the Bin.
+```
+
+To resolve this issue, open Terminal and run the following command:
+
+```bash
+sudo xattr -rd com.apple.quarantine "/path/to/GH Analyzer.app"
+```
+
+Replace `/path/to/GH Analyzer.app` with the actual path to the application. This command removes the macOS quarantine attribute that's blocking the app from running.
+
 ## Author
 
 Fudong Qin

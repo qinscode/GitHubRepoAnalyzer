@@ -31,7 +31,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
-          cache: 'pnpm'
 
       - name: Install pnpm
         run: npm install -g pnpm
@@ -41,7 +40,11 @@ jobs:
         with:
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
-      - name: Install Linux dependencies
+      - name: Add ARM64 Rust target
+        if: matrix.args == '--target aarch64-unknown-linux-gnu'
+        run: rustup target add aarch64-unknown-linux-gnu
+
+      - name: Install Linux build dependencies
         if: matrix.platform == 'ubuntu-22.04'
         run: |
           sudo apt-get update
@@ -61,8 +64,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: app-v__VERSION__
-          releaseName: 'App v__VERSION__'
+          releaseName: 'GH Analyzer v__VERSION__'
           releaseBody: 'See the assets to download this version and install.'
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}
+
+      - name: Remove quarantine flag from .app (macOS only)
+        if: startsWith(matrix.platform, 'macos')
+        run: |
+          find src-tauri/target/release/bundle/macos -name "*.app" -exec xattr -cr {} +
