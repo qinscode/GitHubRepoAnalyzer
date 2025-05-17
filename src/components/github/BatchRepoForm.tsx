@@ -403,7 +403,7 @@ const BatchRepoForm = (): FunctionComponent => {
 							/>
 							<Typography className="text-xs text-gray-500 mt-1">
 								{hasPresetToken
-									? "Using preset token from environment variables (you can modify it if needed)"
+									? "Preset token from environment variables is loaded, but you can modify it"
 									: "Required for API access (needs repo scope permissions)"}
 							</Typography>
 						</Box>
