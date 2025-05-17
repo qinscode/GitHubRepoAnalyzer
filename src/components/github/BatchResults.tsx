@@ -13,7 +13,8 @@ import {
 	Chip,
 	Accordion,
 	AccordionSummary,
-	AccordionDetails
+	AccordionDetails,
+	Collapse
 } from '@mui/material';
 import {
 	Commit as CommitIcon,
@@ -51,30 +52,27 @@ interface BatchResultsProps {
 function BatchResults({ results }: BatchResultsProps): JSX.Element {
 	const [expandedRepo, setExpandedRepo] = React.useState<string | null>(null);
 
-	const handleAccordionChange =
-		(repoUrl: string): ((event: React.SyntheticEvent, isExpanded: boolean) => void) =>
-			(_event: React.SyntheticEvent, isExpanded: boolean): void => {
-				setExpandedRepo(isExpanded ? repoUrl : null);
-			};
+	const handleToggleDetails = (repoUrl: string): void => {
+		setExpandedRepo(expandedRepo === repoUrl ? null : repoUrl);
+	};
 
 	return (
-		<Box>
-			{/* Summary Table */}
-			<TableContainer className="mb-8 rounded-xl overflow-hidden shadow-md" component={Paper} variant="outlined">
-				<Table>
-					<TableHead className="bg-gray-50">
-						<TableRow>
-							<TableCell className="font-medium">Repository Name</TableCell>
-							<TableCell align="center" className="font-medium">Commits</TableCell>
-							<TableCell align="center" className="font-medium">Issues</TableCell>
-							<TableCell align="center" className="font-medium">PRs</TableCell>
-							<TableCell align="center" className="font-medium">Contributors</TableCell>
-							<TableCell align="right" className="font-medium">Actions</TableCell>
-						</TableRow>
-					</TableHead>
-					<TableBody>
-						{results.map((result) => (
-							<TableRow key={result.repoUrl} className="hover:bg-blue-50/30 transition-colors duration-150">
+		<TableContainer className="rounded-xl overflow-hidden shadow-md" component={Paper} variant="outlined">
+			<Table>
+				<TableHead className="bg-gray-50">
+					<TableRow>
+						<TableCell className="font-medium">Repository Name</TableCell>
+						<TableCell align="center" className="font-medium">Commits</TableCell>
+						<TableCell align="center" className="font-medium">Issues</TableCell>
+						<TableCell align="center" className="font-medium">PRs</TableCell>
+						<TableCell align="center" className="font-medium">Contributors</TableCell>
+						<TableCell align="right" className="font-medium">Actions</TableCell>
+					</TableRow>
+				</TableHead>
+				<TableBody>
+					{results.map((result) => (
+						<React.Fragment key={result.repoUrl}>
+							<TableRow className="hover:bg-blue-50/30 transition-colors duration-150">
 								<TableCell component="th" scope="row">
 									<Typography className="font-medium">{result.repoName}</Typography>
 									<Typography className="block" color="text.secondary" variant="caption">
@@ -122,66 +120,29 @@ function BatchResults({ results }: BatchResultsProps): JSX.Element {
 										className="text-sm"
 										size="small"
 										variant="outlined"
-										onClick={(): void => {
-											setExpandedRepo(result.repoUrl === expandedRepo ? null : result.repoUrl);
-										}}
+										onClick={(): void => handleToggleDetails(result.repoUrl)}
 									>
-										{result.repoUrl === expandedRepo ? 'Hide Details' : 'View Details'}
+										{expandedRepo === result.repoUrl ? "Hide Details" : "View Details"}
 									</Button>
 								</TableCell>
 							</TableRow>
-						))}
-					</TableBody>
-				</Table>
-			</TableContainer>
-
-			{/* Repository Details Accordion */}
-			{results.map((result) => (
-				<Accordion
-					key={result.repoUrl}
-					className="mb-4 rounded-xl overflow-hidden shadow-md"
-					expanded={expandedRepo === result.repoUrl}
-					onChange={handleAccordionChange(result.repoUrl)}
-				>
-					<AccordionSummary
-						className="bg-gray-50"
-						expandIcon={<ExpandMoreIcon />}
-					>
-						<Box className="flex items-center justify-between w-full">
-							<Typography className="font-bold text-lg">
-								{result.repoName}
-								<Typography className="ml-2 text-sm text-gray-500" component="span">
-									({result.repoUrl})
-								</Typography>
-							</Typography>
-							<Box className="flex gap-3">
-								<Chip
-									color="primary"
-									icon={<CommitIcon />}
-									label={`${result.commits} Commits`}
-									size="small"
-								/>
-								<Chip
-									color="secondary"
-									icon={<IssueIcon />}
-									label={`${result.issues} Issues`}
-									size="small"
-								/>
-								<Chip
-									color="info"
-									icon={<PRIcon />}
-									label={`${result.prs} PRs`}
-									size="small"
-								/>
-							</Box>
-						</Box>
-					</AccordionSummary>
-					<AccordionDetails>
-						<RepoResults data={result.data} />
-					</AccordionDetails>
-				</Accordion>
-			))}
-		</Box>
+							<TableRow>
+								<TableCell colSpan={6} className="p-0 border-b-0">
+									<Collapse in={expandedRepo === result.repoUrl} timeout="auto" unmountOnExit>
+										<Box className="p-4 bg-gray-50/50">
+											<Typography className="font-bold text-lg mb-4">
+												Details for {result.repoName}
+											</Typography>
+											<RepoResults data={result.data} />
+										</Box>
+									</Collapse>
+								</TableCell>
+							</TableRow>
+						</React.Fragment>
+					))}
+				</TableBody>
+			</Table>
+		</TableContainer>
 	);
 }
 
