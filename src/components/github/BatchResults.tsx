@@ -11,17 +11,17 @@ import {
 	Paper,
 	Button,
 	Chip,
-	Accordion,
-	AccordionSummary,
-	AccordionDetails,
-	Collapse
+	Collapse,
+	Avatar,
+	Tooltip,
 } from '@mui/material';
 import {
 	Commit as CommitIcon,
 	BugReport as IssueIcon,
 	MergeType as PRIcon,
 	Group as TeamIcon,
-	ExpandMore as ExpandMoreIcon
+	KeyboardArrowDown as ExpandIcon,
+	KeyboardArrowUp as CollapseIcon,
 } from '@mui/icons-material';
 import RepoResults from './RepoResults';
 
@@ -57,80 +57,144 @@ function BatchResults({ results }: BatchResultsProps): JSX.Element {
 	};
 
 	return (
-		<TableContainer className="rounded-xl overflow-hidden shadow-md" component={Paper} variant="outlined">
+		<TableContainer 
+			className="rounded-md overflow-hidden shadow-sm" 
+			component={Paper} 
+			variant="outlined"
+			sx={{ 
+				borderColor: 'rgba(0,0,0,0.06)',
+			}}
+		>
 			<Table>
 				<TableHead className="bg-gray-50">
 					<TableRow>
-						<TableCell className="font-medium">Repository Name</TableCell>
-						<TableCell align="center" className="font-medium">Commits</TableCell>
-						<TableCell align="center" className="font-medium">Issues</TableCell>
-						<TableCell align="center" className="font-medium">PRs</TableCell>
-						<TableCell align="center" className="font-medium">Contributors</TableCell>
-						<TableCell align="right" className="font-medium">Actions</TableCell>
+						<TableCell className="font-medium text-gray-600 py-3">Repository</TableCell>
+						<TableCell align="center" className="font-medium text-gray-600">Commits</TableCell>
+						<TableCell align="center" className="font-medium text-gray-600">Issues</TableCell>
+						<TableCell align="center" className="font-medium text-gray-600">PRs</TableCell>
+						<TableCell align="center" className="font-medium text-gray-600">Contributors</TableCell>
+						<TableCell align="right" className="font-medium text-gray-600">Actions</TableCell>
 					</TableRow>
 				</TableHead>
 				<TableBody>
 					{results.map((result) => (
 						<React.Fragment key={result.repoUrl}>
-							<TableRow className="hover:bg-blue-50/30 transition-colors duration-150">
-								<TableCell component="th" scope="row">
-									<Typography className="font-medium">{result.repoName}</Typography>
-									<Typography className="block" color="text.secondary" variant="caption">
-										{result.repoUrl}
-									</Typography>
+							<TableRow 
+								className={`hover:bg-blue-50/20 transition-colors ${expandedRepo === result.repoUrl ? 'bg-blue-50/10' : ''}`}
+								sx={{ 
+									borderBottom: expandedRepo === result.repoUrl ? 'none' : '1px solid rgba(224, 224, 224, 1)',
+								}}
+							>
+								<TableCell component="th" scope="row" className="py-3 border-b border-gray-100">
+									<Box className="flex items-center">
+										<Avatar 
+											className="w-8 h-8 mr-3" 
+											sx={{ 
+												background: 'linear-gradient(135deg, #3b82f6, #6366f1)',
+												fontSize: '0.9rem',
+												fontWeight: 'bold',
+											}}
+										>
+											{result.repoName.charAt(0).toUpperCase()}
+										</Avatar>
+										<Box>
+											<Typography className="font-medium text-gray-800">{result.repoName}</Typography>
+											<Typography className="text-xs text-gray-500 mt-0.5">
+												{result.repoUrl.replace('https://github.com/', '')}
+											</Typography>
+										</Box>
+									</Box>
 								</TableCell>
-								<TableCell align="center">
-									<Chip
-										className="font-medium"
-										color="primary"
-										icon={<CommitIcon />}
-										label={result.commits}
-										size="small"
-									/>
+								<TableCell align="center" className="border-b border-gray-100">
+									<Tooltip title="Total number of commits">
+										<Chip
+											className="font-medium"
+											size="small"
+											label={result.commits}
+											sx={{
+												backgroundColor: 'rgba(37, 99, 235, 0.08)',
+												color: '#2563eb',
+												fontWeight: 600,
+												borderRadius: '6px',
+												border: 'none',
+											}}
+											icon={<CommitIcon sx={{ fontSize: '0.9rem', color: '#2563eb' }} />}
+										/>
+									</Tooltip>
 								</TableCell>
-								<TableCell align="center">
-									<Chip
-										className="font-medium"
-										color="secondary"
-										icon={<IssueIcon />}
-										label={result.issues}
-										size="small"
-									/>
+								<TableCell align="center" className="border-b border-gray-100">
+									<Tooltip title="Total number of issues">
+										<Chip
+											className="font-medium"
+											size="small"
+											label={result.issues}
+											sx={{
+												backgroundColor: 'rgba(155, 89, 182, 0.08)',
+												color: '#8e44ad',
+												fontWeight: 600,
+												borderRadius: '6px',
+												border: 'none',
+											}}
+											icon={<IssueIcon sx={{ fontSize: '0.9rem', color: '#8e44ad' }} />}
+										/>
+									</Tooltip>
 								</TableCell>
-								<TableCell align="center">
-									<Chip
-										className="font-medium"
-										color="info"
-										icon={<PRIcon />}
-										label={result.prs}
-										size="small"
-									/>
+								<TableCell align="center" className="border-b border-gray-100">
+									<Tooltip title="Total number of pull requests">
+										<Chip
+											className="font-medium"
+											size="small"
+											label={result.prs}
+											sx={{
+												backgroundColor: 'rgba(0, 184, 212, 0.08)',
+												color: '#00acc1',
+												fontWeight: 600,
+												borderRadius: '6px',
+												border: 'none',
+											}}
+											icon={<PRIcon sx={{ fontSize: '0.9rem', color: '#00acc1' }} />}
+										/>
+									</Tooltip>
 								</TableCell>
-								<TableCell align="center">
-									<Chip
-										className="font-medium"
-										color="success"
-										icon={<TeamIcon />}
-										label={result.contributors}
-										size="small"
-									/>
+								<TableCell align="center" className="border-b border-gray-100">
+									<Tooltip title="Total number of contributors">
+										<Chip
+											className="font-medium"
+											size="small"
+											label={result.contributors}
+											sx={{
+												backgroundColor: 'rgba(68, 189, 50, 0.08)',
+												color: '#2e7d32',
+												fontWeight: 600,
+												borderRadius: '6px',
+												border: 'none',
+											}}
+											icon={<TeamIcon sx={{ fontSize: '0.9rem', color: '#2e7d32' }} />}
+										/>
+									</Tooltip>
 								</TableCell>
-								<TableCell align="right">
+								<TableCell align="right" className="border-b border-gray-100">
 									<Button
-										className="text-sm"
+										className="text-xs rounded-md"
 										size="small"
-										variant="outlined"
+										color="primary"
+										variant="text"
+										endIcon={expandedRepo === result.repoUrl ? <CollapseIcon /> : <ExpandIcon />}
 										onClick={(): void => handleToggleDetails(result.repoUrl)}
+										sx={{
+											fontWeight: 500,
+											textTransform: 'none',
+										}}
 									>
 										{expandedRepo === result.repoUrl ? "Hide Details" : "View Details"}
 									</Button>
 								</TableCell>
 							</TableRow>
 							<TableRow>
-								<TableCell colSpan={6} className="p-0 border-b-0">
+								<TableCell colSpan={6} className="p-0 border-b border-gray-100">
 									<Collapse in={expandedRepo === result.repoUrl} timeout="auto" unmountOnExit>
-										<Box className="p-4 bg-gray-50/50">
-											<Typography className="font-bold text-lg mb-4">
+										<Box className="p-5 bg-gray-50/50">
+											<Typography className="font-semibold text-lg mb-4 text-gray-800">
 												Details for {result.repoName}
 											</Typography>
 											<RepoResults data={result.data} />

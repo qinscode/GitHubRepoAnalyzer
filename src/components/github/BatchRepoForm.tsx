@@ -9,8 +9,14 @@ import {
 	Paper,
 	Divider,
 	Snackbar,
+	Card,
+	CardContent,
+	InputAdornment,
+	Fade,
 } from "@mui/material";
 import PlaylistAddCheckIcon from "@mui/icons-material/PlaylistAddCheck";
+import GitHubIcon from "@mui/icons-material/GitHub";
+import KeyIcon from "@mui/icons-material/Key";
 import type { FunctionComponent } from "../../common/types";
 import BatchResults from "./BatchResults";
 import {
@@ -213,113 +219,170 @@ const BatchRepoForm = (): FunctionComponent => {
 
 	return (
 		<Box>
-			<Paper
-				className="p-6 bg-white/50 rounded-xl border border-gray-100 !border-0"
-				elevation={0}
-			>
-				<form onSubmit={handleSubmit}>
-					<Typography className="font-bold mb-4 text-gray-800" variant="h6">
-						Batch Analysis Configuration
-					</Typography>
+			<Card className="rounded-lg overflow-hidden border-0">
+				<CardContent className="p-6">
+					<form onSubmit={handleSubmit}>
+						<Typography className="font-semibold mb-6 text-gray-800 text-lg" variant="h6">
+							Batch Analysis Configuration
+						</Typography>
 
-					<TextField
-						fullWidth
-						multiline
-						className="mb-4"
-						label="GitHub Repository URLs"
-						rows={4}
-						size="medium"
-						value={repoUrls}
-						variant="outlined"
-						InputLabelProps={{
-							shrink: true,
-							className: "bg-white px-1",
-						}}
-						InputProps={{
-							className: "rounded-lg bg-white shadow-sm",
-						}}
-						placeholder={`Enter each repository URL per line, e.g.:
-https://github.com/owner/repo
-https://github.com/owner/repo2`}
-						onChange={(e) => {
-							setRepoUrls(e.target.value);
-						}}
-					/>
+						<Box className="mb-5 relative">
+							<Typography className="text-sm font-medium mb-2 text-gray-600">
+								GitHub Repository URLs
+							</Typography>
+							<TextField
+								fullWidth
+								multiline
+								className="mb-2"
+								placeholder="Enter GitHub repository URLs (one per line)"
+								rows={4}
+								variant="outlined"
+								value={repoUrls}
+								InputLabelProps={{
+									shrink: true,
+								}}
+								InputProps={{
+									className: "rounded-md bg-white",
+									sx: {
+										'& fieldset': {
+											borderColor: 'rgba(0,0,0,0.08)',
+										},
+										'&:hover fieldset': {
+											borderColor: 'rgba(59, 130, 246, 0.3) !important',
+										},
+										'&.Mui-focused fieldset': {
+											borderColor: 'rgba(59, 130, 246, 0.6) !important',
+											borderWidth: '1px !important',
+										},
+									},
+									startAdornment: (
+										<InputAdornment position="start">
+											<GitHubIcon color="action" sx={{ opacity: 0.6 }} />
+										</InputAdornment>
+									),
+								}}
+								onChange={(e): void => setRepoUrls(e.target.value)}
+							/>
+							<Typography className="text-xs text-gray-500 mt-1">
+								Enter one repository URL per line (e.g., https://github.com/facebook/react)
+							</Typography>
+						</Box>
 
-					<TextField
-						fullWidth
-						className="mb-2"
-						label="GitHub Token"
-						margin="normal"
-						placeholder="Enter your GitHub personal access token"
-						type="password"
-						value={token}
-						variant="outlined"
-						InputProps={{
-							className: "rounded-lg bg-white shadow-sm",
-						}}
-						helperText={
-							hasPresetToken
-								? "Use preset token, you can modify it"
-								: "Token is required for repo access"
-						}
-						onChange={(e) => {
-							setToken(e.target.value);
-						}}
-					/>
+						<Box className="mb-5">
+							<Typography className="text-sm font-medium mb-2 text-gray-600">
+								GitHub Personal Access Token
+							</Typography>
+							<TextField
+								fullWidth
+								type="password"
+								variant="outlined"
+								value={token}
+								placeholder="Enter your GitHub token"
+								disabled={hasPresetToken}
+								InputProps={{
+									className: "rounded-md bg-white",
+									sx: {
+										'& fieldset': {
+											borderColor: 'rgba(0,0,0,0.08)',
+										},
+										'&:hover fieldset': {
+											borderColor: 'rgba(59, 130, 246, 0.3) !important',
+										},
+										'&.Mui-focused fieldset': {
+											borderColor: 'rgba(59, 130, 246, 0.6) !important',
+											borderWidth: '1px !important',
+										},
+									},
+									startAdornment: (
+										<InputAdornment position="start">
+											<KeyIcon color="action" sx={{ opacity: 0.6 }} />
+										</InputAdornment>
+									),
+								}}
+								onChange={(e): void => setToken(e.target.value)}
+							/>
+							<Typography className="text-xs text-gray-500 mt-1">
+								{hasPresetToken
+									? "Using preset token from environment variables"
+									: "Required for API access (needs repo scope permissions)"}
+							</Typography>
+						</Box>
 
-					{error && (
-						<Alert className="mt-4 mb-4 rounded-lg" severity="error">
-							{error.split("\n").map((line, index) => (
-								<div key={index}>{line}</div>
-							))}
-						</Alert>
-					)}
-
-					<Box className="mt-6 flex justify-center">
-						<Button
-							className="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 font-medium"
-							disabled={loading}
-							size="large"
-							type="submit"
-							variant="contained"
-							startIcon={
-								loading ? (
-									<CircularProgress color="inherit" size={20} />
+						<Box className="flex justify-end mt-8">
+							<Button
+								className="px-6 py-2 rounded-md font-medium text-[15px] transition-all shadow-sm hover:shadow"
+								color="primary"
+								variant="contained"
+								type="submit"
+								disabled={loading}
+								startIcon={
+									<PlaylistAddCheckIcon
+										fontSize="small"
+										sx={{ marginRight: '4px' }}
+									/>
+								}
+								sx={{
+									background: 'linear-gradient(45deg, #2563eb, #4f46e5)',
+									textTransform: 'none',
+									'&:hover': {
+										background: 'linear-gradient(45deg, #1d4ed8, #4338ca)',
+									},
+								}}
+							>
+								{loading ? (
+									<>
+										<CircularProgress
+											size={20}
+											thickness={5}
+											sx={{ marginRight: '8px', color: 'white' }}
+										/>
+										Analyzing...
+									</>
 								) : (
-									<PlaylistAddCheckIcon />
-								)
-							}
-						>
-							{loading ? "Analyzing..." : "Analyze Repositories"}
-						</Button>
-					</Box>
-				</form>
-			</Paper>
+									'Analyze Repositories'
+								)}
+							</Button>
+						</Box>
 
+						{error && (
+							<Fade in={!!error}>
+								<Alert
+									className="mt-5 rounded-md font-medium text-sm shadow-sm"
+									severity="error"
+									onClose={(): void => setError(null)}
+								>
+									{error}
+								</Alert>
+							</Fade>
+						)}
+					</form>
+				</CardContent>
+			</Card>
+
+			{/* Results Section */}
+			{results.length > 0 && (
+				<Box className="mt-8">
+					<Typography className="font-semibold mb-4 text-xl text-gray-800">
+						Repository Analysis Results
+					</Typography>
+					<BatchResults results={results} />
+				</Box>
+			)}
+
+			{/* Success message */}
 			<Snackbar
-				autoHideDuration={6000}
 				open={success}
+				autoHideDuration={5000}
 				onClose={handleCloseSnackbar}
 			>
 				<Alert
-					className="rounded-lg shadow-lg"
-					severity="success"
 					onClose={handleCloseSnackbar}
+					severity="success"
+					className="font-medium shadow-lg rounded-md"
 				>
-					Batch analysis completed!
+					Successfully analyzed repositories
 				</Alert>
 			</Snackbar>
-
-			{results.length > 0 && (
-				<>
-					<Divider className="my-8" />
-					<Typography className="mb-6 font-bold text-gray-800" variant="h5">
-						Batch Analysis Results
-					</Typography>
-					<BatchResults results={results} />
-				</>
-			)}
 		</Box>
 	);
 };

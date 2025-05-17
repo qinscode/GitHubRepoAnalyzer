@@ -5,6 +5,7 @@ import {
 	BugReport as IssueIcon,
 	MergeType as PRIcon,
 	Group as TeamIcon,
+	Assessment as SummaryIcon,
 } from "@mui/icons-material";
 import type { RepoResultsProps } from "./types";
 import TabPanel from "./TabPanel";
@@ -27,26 +28,65 @@ function RepoResults({ data }: RepoResultsProps): JSX.Element {
 	return (
 		<Box>
 			<Paper
-				className="!shadow-none ![--Paper-shadow:none]"
-				elevation={0}
-				sx={{ mb: 4 }}
+				className="mb-5 rounded-md overflow-hidden"
+				variant="outlined"
+				sx={{ 
+					boxShadow: 'none',
+					borderColor: 'rgba(0,0,0,0.06)'
+				}}
 			>
 				<Tabs
 					aria-label="repo analysis tabs"
 					scrollButtons="auto"
 					value={tabValue}
 					variant="scrollable"
+					TabIndicatorProps={{
+						sx: {
+							backgroundColor: '#3b82f6',
+							height: 3,
+							borderRadius: '3px 3px 0 0',
+						}
+					}}
+					sx={{
+						'& .MuiTab-root': {
+							textTransform: 'none',
+							fontSize: '0.95rem',
+							fontWeight: 500,
+							minHeight: '48px',
+							color: 'rgba(75, 85, 99, 0.9)',
+							'&.Mui-selected': {
+								color: '#3b82f6',
+								fontWeight: 600,
+							}
+						}
+					}}
 					onChange={handleTabChange}
 				>
 					<Tab
-						icon={<Box sx={{ display: "flex" }}>📊</Box>}
+						icon={<SummaryIcon sx={{ fontSize: '1.1rem' }} />}
 						iconPosition="start"
 						label="Summary"
 					/>
-					<Tab icon={<CommitIcon />} iconPosition="start" label="Commits" />
-					<Tab icon={<IssueIcon />} iconPosition="start" label="Issues" />
-					<Tab icon={<PRIcon />} iconPosition="start" label="Pull Requests" />
-					<Tab icon={<TeamIcon />} iconPosition="start" label="Teamwork" />
+					<Tab 
+						icon={<CommitIcon sx={{ fontSize: '1.1rem' }} />} 
+						iconPosition="start" 
+						label="Commits" 
+					/>
+					<Tab 
+						icon={<IssueIcon sx={{ fontSize: '1.1rem' }} />} 
+						iconPosition="start" 
+						label="Issues" 
+					/>
+					<Tab 
+						icon={<PRIcon sx={{ fontSize: '1.1rem' }} />} 
+						iconPosition="start" 
+						label="Pull Requests" 
+					/>
+					<Tab 
+						icon={<TeamIcon sx={{ fontSize: '1.1rem' }} />} 
+						iconPosition="start" 
+						label="Teamwork" 
+					/>
 				</Tabs>
 			</Paper>
 
