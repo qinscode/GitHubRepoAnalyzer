@@ -73,4 +73,11 @@ jobs:
       - name: Remove quarantine flag from .app (macOS only)
         if: startsWith(matrix.platform, 'macos')
         run: |
-          find src-tauri/target/release/bundle/macos -name "*.app" -exec xattr -cr {} +
+          TARGET_ARCH="${{ matrix.args == '--target aarch64-apple-darwin' && 'aarch64' || 'x86_64' }}"
+          APP_DIR="src-tauri/target/${TARGET_ARCH}-apple-darwin/release/bundle/macos"
+          if [ -d "$APP_DIR" ]; then
+            find "$APP_DIR" -name "*.app" -exec xattr -cr {} +
+          else
+            echo "No .app found at $APP_DIR, skipping xattr"
+          fi
+          
