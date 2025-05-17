@@ -75,3 +75,8 @@ jobs:
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}
+
+      - name: Remove quarantine flag from .app (macOS only)
+        if: startsWith(matrix.platform, 'macos')
+        run: |
+          find src-tauri/target/release/bundle/macos -name "*.app" -exec xattr -cr {} +
