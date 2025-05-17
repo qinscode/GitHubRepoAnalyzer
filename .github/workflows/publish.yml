@@ -30,8 +30,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'pnpm'
+          node-version: lts/*
 
       - name: Install pnpm
         run: npm install -g pnpm
