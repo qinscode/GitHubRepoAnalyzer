@@ -35,7 +35,7 @@ const SingleRepoForm = (): FunctionComponent => {
   const [repoData, setRepoData] = useState<RepoData | null>(null);
   const [token, setToken] = useState<string>('');
   
-  // 从环境变量中获取预设的 GitHub 令牌
+  // Get the preset GitHub token from environment variables
   useEffect(() => {
     const presetToken = import.meta.env['VITE_GITHUB_API_TOKEN'];
     if (presetToken) {
@@ -47,12 +47,12 @@ const SingleRepoForm = (): FunctionComponent => {
     e.preventDefault();
     
     if (!repoUrl.trim()) {
-      setError('请输入GitHub仓库URL或owner/repo格式');
+      setError('Please enter a GitHub repository URL or owner/repo format');
       return;
     }
 
     if (!token.trim()) {
-      setError('请输入GitHub令牌');
+      setError('Please enter a GitHub token');
       return;
     }
 
@@ -60,12 +60,12 @@ const SingleRepoForm = (): FunctionComponent => {
     setError(null);
 
     try {
-      // 使用GraphQL服务获取仓库数据
+      // Use GraphQL service to fetch repository data
       const data = await fetchRepositoryData(repoUrl, token);
       setRepoData(data);
       setSuccess(true);
     } catch (error_) {
-      setError(`仓库分析失败: ${(error_ as Error).message}`);
+      setError(`Repository analysis failed: ${(error_ as Error).message}`);
       console.error(error_);
     } finally {
       setLoading(false);
@@ -87,7 +87,7 @@ const SingleRepoForm = (): FunctionComponent => {
     return repoUrl;
   };
 
-  // 检查环境变量中是否有预设令牌
+  // Check if there's a preset token in environment variables
   const hasPresetToken = !!import.meta.env['VITE_GITHUB_API_TOKEN'];
 
   return (
@@ -95,15 +95,15 @@ const SingleRepoForm = (): FunctionComponent => {
       <Paper className="p-6 bg-white/50 rounded-xl border border-gray-100" elevation={0}>
         <form onSubmit={handleSubmit}>
           <Typography className="font-bold mb-4 text-gray-800" variant="h6">
-            仓库信息
+            Repository Information
           </Typography>
           
           <TextField
             fullWidth
             className="mb-4"
-            label="GitHub仓库"
+            label="GitHub Repository"
             margin="normal"
-            placeholder="例如: https://github.com/owner/repo 或 owner/repo"
+            placeholder="Example: https://github.com/owner/repo or owner/repo"
             value={repoUrl}
             variant="outlined"
             InputProps={{
@@ -120,10 +120,10 @@ const SingleRepoForm = (): FunctionComponent => {
           <TextField
             fullWidth
             className="mb-2"
-            helperText={hasPresetToken ? "使用预设令牌，您可以修改它" : "令牌需要repo访问权限"}
-            label="GitHub令牌"
+            helperText={hasPresetToken ? "Using preset token, you can modify it" : "Token needs repo access permission"}
+            label="GitHub Token"
             margin="normal"
-            placeholder="输入您的GitHub个人访问令牌"
+            placeholder="Enter your GitHub personal access token"
             type="password"
             value={token}
             variant="outlined"
@@ -148,7 +148,7 @@ const SingleRepoForm = (): FunctionComponent => {
               type="submit"
               variant="contained"
             >
-              {loading ? '分析中...' : '分析仓库'}
+              {loading ? 'Analyzing...' : 'Analyze Repository'}
             </Button>
           </Box>
         </form>
@@ -160,7 +160,7 @@ const SingleRepoForm = (): FunctionComponent => {
         onClose={handleCloseSnackbar}
       >
         <Alert className="rounded-lg shadow-lg" severity="success" onClose={handleCloseSnackbar}>
-          仓库分析成功!
+          Repository analysis successful!
         </Alert>
       </Snackbar>
       
@@ -168,7 +168,7 @@ const SingleRepoForm = (): FunctionComponent => {
         <>
           <Divider className="my-8" />
           <Typography className="mb-6 font-bold text-gray-800" variant="h5">
-            分析结果: <span className="text-blue-600">{extractRepoName()}</span>
+            Analysis Results: <span className="text-blue-600">{extractRepoName()}</span>
           </Typography>
           <RepoResults data={repoData} />
         </>

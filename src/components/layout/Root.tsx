@@ -1,46 +1,46 @@
+import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 import { Outlet } from "@tanstack/react-router";
-import Navbar from "./Navbar";
-import { Box, CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 
-// 创建自定义主题
+// Create custom theme
 const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#2563eb', // 蓝色调整为Tailwind的blue-600
-    },
-    secondary: {
-      main: '#9333ea', // 紫色调整为Tailwind的purple-600
-    },
-  },
-  typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-    h3: {
-      fontWeight: 600,
-    },
-  },
-  components: {
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          textTransform: 'none',
-          borderRadius: 8,
-        },
-      },
-    },
-  },
+	palette: {
+		primary: {
+			main: "#2563eb", // Blue - adjusted to Tailwind's blue-600
+			contrastText: "#ffffff",
+		},
+		secondary: {
+			main: "#9333ea", // Purple - adjusted to Tailwind's purple-600
+			contrastText: "#ffffff",
+		},
+	},
+	typography: {
+		fontFamily: [
+			"Inter",
+			"system-ui",
+			"-apple-system",
+			"BlinkMacSystemFont",
+			"Segoe UI",
+			"Roboto",
+			"Helvetica Neue",
+			"Arial",
+			"sans-serif",
+		].join(","),
+	},
+	shape: {
+		borderRadius: 8,
+	},
 });
 
-// 根组件，包含应用的基本布局
-export const RootComponent = () => {
-  return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Box className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-blue-50/30">
-        <Navbar />
-        <Box className="flex-grow py-4" component="main">
-          <Outlet />
-        </Box>
-      </Box>
-    </ThemeProvider>
-  );
-}; 
+// Root component, contains the basic layout of the application
+export default function Root(): React.ReactElement {
+	return (
+		<ThemeProvider theme={theme}>
+			<CssBaseline />
+			<div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-blue-50">
+				<main className="flex-grow container mx-auto px-4 py-4">
+					<Outlet />
+				</main>
+			</div>
+		</ThemeProvider>
+	);
+}

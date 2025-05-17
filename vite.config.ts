@@ -1,29 +1,35 @@
-import { TanStackRouterVite } from "@tanstack/router-plugin/vite"
+import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "node:path";
 import { normalizePath } from "vite";
 import { viteStaticCopy } from "vite-plugin-static-copy";
-import { defineConfig } from "vitest/config";
+import { defineConfig } from "vite";
+
+const host = process.env.TAURI_DEV_HOST;
 
 // https://vitejs.dev/config/
 export default defineConfig({
-	plugins: [react(), TanStackRouterVite(), 
-		viteStaticCopy({
-		targets: [
-		  {
-			src: normalizePath(path.resolve('./src/assets/locales')),
-			dest: normalizePath(path.resolve('./dist'))
-		  }
-		]
-	  })],
+	plugins: [react(), TanStackRouterVite()],
 	server: {
-		host: true,
+		port: 1420,
 		strictPort: true,
+		host: host || false,
+		hmr: host
+			? {
+					protocol: "ws",
+					host,
+					port: 1421,
+				}
+			: undefined,
+		watch: {
+			// 3. tell vite to ignore watching `src-tauri`
+			ignored: ["**/src-tauri/**"],
+		},
 	},
 	resolve: {
-		extensions: ['.js', '.ts', '.jsx', '.tsx', '.json'],
+		extensions: [".js", ".ts", ".jsx", ".tsx", ".json"],
 		alias: {
-			'@': path.resolve(__dirname, './src')
-		}
-	}
+			"@": path.resolve(__dirname, "./src"),
+		},
+	},
 });

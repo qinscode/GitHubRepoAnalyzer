@@ -78,6 +78,7 @@ const typescriptConfig = {
     "@typescript-eslint/prefer-readonly": "error",
     "no-return-await": "off",
 		"no-await-in-loop": "off",
+		"no-duplicate-import": "off",
 		"@typescript-eslint/no-explicit-any": "off",
 		"@typescript-eslint/no-unsafe-assignment": "off",
 		"@typescript-eslint/no-unsafe-call": "off",

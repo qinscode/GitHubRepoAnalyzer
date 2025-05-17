@@ -56,8 +56,6 @@ function TeamworkTable({
                 </TableCell>
                 <TableCell align="center">
                   <Chip
-                    label={count}
-                    size="small"
                     color={
                       count > 5
                         ? "success"
@@ -65,6 +63,8 @@ function TeamworkTable({
                           ? "primary"
                           : "default"
                     }
+                    label={count}
+                    size="small"
                   />
                 </TableCell>
               </TableRow>
@@ -76,7 +76,7 @@ function TeamworkTable({
   );
 }
 
-function TeamworkInteractionsTable({ data }: { data: Array<TeamworkStats> }): JSX.Element {
+function TeamworkInteractionsTable({ data }: { data: TeamworkStats[] }): JSX.Element {
   return (
     <Box sx={{ mt: 4 }}>
       <Typography gutterBottom variant="subtitle1">
@@ -114,8 +114,6 @@ function TeamworkInteractionsTable({ data }: { data: Array<TeamworkStats> }): JS
                 <TableCell>{prReviews}</TableCell>
                 <TableCell>
                   <Chip
-                    label={total}
-                    size="small"
                     color={
                       total > 10
                         ? "success"
@@ -123,6 +121,8 @@ function TeamworkInteractionsTable({ data }: { data: Array<TeamworkStats> }): JS
                           ? "primary"
                           : "default"
                     }
+                    label={total}
+                    size="small"
                   />
                 </TableCell>
               </TableRow>
@@ -136,15 +136,15 @@ function TeamworkInteractionsTable({ data }: { data: Array<TeamworkStats> }): JS
 
 function TeamworkTab({ data }: TeamworkTabProps): JSX.Element {
   const { issueCommentsByUser, prReviewsByUser, teamworkStats } = useMemo(() => {
-    // 按值排序的 issue 评论
+    // Sort issue comments by value
     const issueCommentsByUser = Object.entries(data.teamwork.issueComments)
       .sort(([, a], [, b]) => b - a);
     
-    // 按值排序的 PR 评审
+    // Sort PR reviews by value
     const prReviewsByUser = Object.entries(data.teamwork.prReviews)
       .sort(([, a], [, b]) => b - a);
     
-    // 合并两种数据，计算总互动
+    // Merge both data types and calculate total interactions
     const teamworkStats = Array.from(
       new Set([
         ...Object.keys(data.teamwork.issueComments),
@@ -171,14 +171,14 @@ function TeamworkTab({ data }: TeamworkTabProps): JSX.Element {
       
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
         <TeamworkTable 
-          data={issueCommentsByUser} 
           title="Issues Commented On" 
+          data={issueCommentsByUser} 
           valueLabel="Comments on Others' Issues" 
         />
         
         <TeamworkTable 
-          data={prReviewsByUser} 
           title="Pull Requests Reviewed" 
+          data={prReviewsByUser} 
           valueLabel="Reviews on Others' PRs" 
         />
       </Box>

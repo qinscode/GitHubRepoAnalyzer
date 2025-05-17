@@ -22,7 +22,7 @@ import type { FunctionComponent } from '../../common/types';
 import BatchResults from './BatchResults';
 import { fetchRepositoryData, parseRepoUrl } from '../../services/githubGraphQLService';
 
-// 定义仓库数据类型
+// Define repository data types
 interface RepoData {
   commits: Record<string, Array<{message: string, id: string}>>;
   issues: Record<string, Array<{title: string, body: string}>>;
@@ -60,7 +60,7 @@ const BatchRepoForm = (): FunctionComponent => {
   const [success, setSuccess] = useState<boolean>(false);
   const [results, setResults] = useState<Array<RepoResult>>([]);
   
-  // 从环境变量中获取预设的 GitHub 令牌
+  // Get preset GitHub token from environment variables
   useEffect(() => {
     const presetToken = import.meta.env['VITE_GITHUB_API_TOKEN'];
     if (presetToken) {
@@ -68,19 +68,19 @@ const BatchRepoForm = (): FunctionComponent => {
     }
   }, []);
   
-  // 检查环境变量中是否有预设令牌
+  // Check if there's a preset token in environment variables
   const hasPresetToken = !!import.meta.env['VITE_GITHUB_API_TOKEN'];
 
   const addRepos = () => {
     if (!repoUrls.trim()) {
-      setError('请输入GitHub仓库URL');
+      setError('Please enter GitHub repository URLs');
       return;
     }
 
     const urlList = repoUrls.trim().split('\n').filter(url => url.trim() !== '');
     
     if (urlList.length === 0) {
-      setError('请输入至少一个有效的GitHub仓库URL');
+      setError('Please enter at least one valid GitHub repository URL');
       return;
     }
 
@@ -88,19 +88,19 @@ const BatchRepoForm = (): FunctionComponent => {
     const errors: Array<string> = [];
 
     urlList.forEach(url => {
-      // 验证URL格式
+      // Validate URL format
       const trimmedUrl = url.trim();
       const repoInfo = parseRepoUrl(trimmedUrl);
       
       if (!repoInfo) {
-        errors.push(`无效的仓库URL格式: ${trimmedUrl}`);
+        errors.push(`Invalid repository URL format: ${trimmedUrl}`);
         return;
       }
 
-      // 检查重复添加
+      // Check for duplicates
       if (repoList.some(repo => repo.url.toLowerCase() === trimmedUrl.toLowerCase()) || 
           newRepos.some(repo => repo.url.toLowerCase() === trimmedUrl.toLowerCase())) {
-        errors.push(`仓库已添加到列表中: ${trimmedUrl}`);
+        errors.push(`Repository already added to the list: ${trimmedUrl}`);
         return;
       }
 
@@ -113,7 +113,7 @@ const BatchRepoForm = (): FunctionComponent => {
 
     if (errors.length > 0) {
       setError(errors.join('\n'));
-      // 如果有一些有效的仓库，我们仍然添加它们
+      // If there are some valid repositories, we still add them
       if (newRepos.length > 0) {
         setRepoList([...repoList, ...newRepos]);
         setRepoUrls('');
@@ -134,12 +134,12 @@ const BatchRepoForm = (): FunctionComponent => {
     e.preventDefault();
     
     if (repoList.length === 0) {
-      setError('请至少添加一个仓库进行分析');
+      setError('Please add at least one repository for analysis');
       return;
     }
 
     if (!token.trim()) {
-      setError('请输入GitHub令牌');
+      setError('Please enter a GitHub token');
       return;
     }
 
@@ -147,7 +147,7 @@ const BatchRepoForm = (): FunctionComponent => {
     setError(null);
 
     try {
-      // 将所有仓库状态更新为处理中
+      // Update all repositories status to processing
       setRepoList(previous => 
         previous.map(repo => ({ ...repo, status: 'processing' }))
       );
@@ -155,20 +155,20 @@ const BatchRepoForm = (): FunctionComponent => {
       const updatedRepos = [...repoList];
       const analysisResults: Array<RepoResult> = [];
 
-      // 依次处理每个仓库
+      // Process each repository sequentially
       for (let index = 0; index < updatedRepos.length; index++) {
-        // 确保使用前有效检查
+        // Ensure valid check before use
         if (index < 0 || index >= updatedRepos.length) continue;
         
         const currentRepo = updatedRepos[index];
-        // 确保 currentRepo 有定义
+        // Ensure currentRepo is defined
         if (!currentRepo) continue;
         
         try {
-          // 使用GraphQL API获取仓库数据
+          // Use GraphQL API to get repository data
           const repoData = await fetchRepositoryData(currentRepo.url, token);
           
-          // 计算仓库统计指标
+          // Calculate repository statistics
           const totalCommits = Object.values(repoData.commits).reduce((sum, commits) => sum + commits.length, 0);
           const totalIssues = Object.values(repoData.issues).reduce((sum, issues) => sum + issues.length, 0);
           const totalPRs = Object.values(repoData.prs).reduce((sum, prs) => sum + prs.length, 0);
@@ -178,11 +178,11 @@ const BatchRepoForm = (): FunctionComponent => {
             ...Object.keys(repoData.prs),
           ]).size;
           
-          // 获取仓库名称
+          // Get repository name
           const repoInfo = parseRepoUrl(currentRepo.url);
           const repoName = repoInfo ? repoInfo.repo : currentRepo.url.split('/').pop() || currentRepo.url;
           
-          // 创建结果对象
+          // Create result object
           const result: RepoResult = {
             repoUrl: currentRepo.url,
             repoName,
@@ -195,7 +195,7 @@ const BatchRepoForm = (): FunctionComponent => {
           
           analysisResults.push(result);
           
-          // 更新已处理仓库的状态
+          // Update processed repository status
           updatedRepos[index] = { 
             id: currentRepo.id,
             url: currentRepo.url,
@@ -203,7 +203,7 @@ const BatchRepoForm = (): FunctionComponent => {
             result
           };
         } catch (error_) {
-          // 处理单个仓库失败
+          // Handle single repository failure
           updatedRepos[index] = {
             id: currentRepo.id,
             url: currentRepo.url,
@@ -212,17 +212,17 @@ const BatchRepoForm = (): FunctionComponent => {
           };
         }
         
-        // 更新UI显示
+        // Update UI display
         setRepoList([...updatedRepos]);
       }
       
       setResults(analysisResults);
       setSuccess(true);
     } catch (error_) {
-      setError(`批量分析失败: ${(error_ as Error).message}`);
+      setError(`Batch analysis failed: ${(error_ as Error).message}`);
       console.error(error_);
       
-      // 标记所有为错误状态
+      // Mark all as error status
       setRepoList(previous => 
         previous.map(repo => {
           if (repo.status !== 'completed') {
@@ -253,21 +253,31 @@ const BatchRepoForm = (): FunctionComponent => {
     }
   };
 
+  const getStatusLabel = (status?: string) => {
+    switch (status) {
+      case 'pending': return 'Pending';
+      case 'processing': return 'Processing';
+      case 'completed': return 'Completed';
+      case 'error': return 'Error';
+      default: return 'Unknown';
+    }
+  };
+
   return (
     <Box>
       <Paper className="p-6 bg-white/50 rounded-xl border border-gray-100" elevation={0}>
         <form onSubmit={handleSubmit}>
           <Typography className="font-bold mb-4 text-gray-800" variant="h6">
-            批量分析配置
+            Batch analysis configuration
           </Typography>
           
-          <Box className="flex flex-col gap-2 mb-4">
+          <Box className="flex items-start gap-2">
             <TextField
               fullWidth
               multiline
               className="flex-grow"
-              label="GitHub仓库列表"
-              placeholder="每行输入一个仓库地址，例如:\nhttps://github.com/owner/repo\nowner/repo2"
+              label="GitHub repository list"
+              placeholder="Enter each repository URL per line, e.g.:\nhttps://github.com/owner/repo\nowner/repo2"
               rows={4}
               size="medium"
               value={repoUrls}
@@ -277,50 +287,55 @@ const BatchRepoForm = (): FunctionComponent => {
               }}
               onChange={(e) => { setRepoUrls(e.target.value); }}
             />
-            <Button 
-              className="whitespace-nowrap min-w-[120px] rounded-lg" 
+            
+            <Button
+              className="mt-2 min-w-[120px] bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
               startIcon={<AddIcon />}
-              variant="outlined"
+              variant="contained"
               onClick={addRepos}
             >
-              添加仓库
+              Add repository
             </Button>
           </Box>
           
           {repoList.length > 0 && (
             <Box className="mt-4 mb-6">
               <Typography className="font-medium mb-2" variant="subtitle1">
-                待分析仓库列表
+                Pending repositories
               </Typography>
               <Paper className="max-h-60 overflow-y-auto rounded-lg" variant="outlined">
                 <List dense>
-                  {repoList.map(repo => (
+                  {repoList.map((repo) => (
                     <ListItem
                       key={repo.id}
-                      className="border-b border-gray-100 last:border-b-0 hover:bg-gray-50"
                       secondaryAction={
-                        <IconButton 
-                          aria-label="delete" 
-                          disabled={loading}
-                          edge="end"
-                          onClick={() => { removeRepo(repo.id); }}
-                        >
-                          <DeleteIcon />
-                        </IconButton>
+                        <Box className="flex items-center">
+                          <Chip 
+                            className="mr-2"
+                            color={getStatusColor(repo.status)}
+                            label={getStatusLabel(repo.status)}
+                            size="small"
+                          />
+                          <IconButton 
+                            aria-label="delete" 
+                            disabled={loading || repo.status === 'processing'} 
+                            edge="end" 
+                            onClick={() => removeRepo(repo.id)}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </Box>
                       }
                     >
                       <ListItemText 
                         primary={repo.url} 
-                        secondary={
-                          repo.status && (
-                            <Chip 
-                              className="mt-1" 
-                              color={getStatusColor(repo.status)} 
-                              label={repo.status}
-                              size="small"
-                            />
-                          )
-                        }
+                        secondary={repo.error ? `Error: ${repo.error}` : null}
+                        primaryTypographyProps={{
+                          className: repo.status === 'error' ? 'line-through text-gray-500' : ''
+                        }}
+                        secondaryTypographyProps={{
+                          className: 'text-red-500'
+                        }}
                       />
                     </ListItem>
                   ))}
@@ -332,10 +347,10 @@ const BatchRepoForm = (): FunctionComponent => {
           <TextField
             fullWidth
             className="mb-2"
-            helperText={hasPresetToken ? "使用预设令牌，您可以修改它" : "令牌需要repo访问权限"}
-            label="GitHub令牌"
+            helperText={hasPresetToken ? "Use preset token, you can modify it" : "Token is required for repo access"}
+            label="GitHub token"
             margin="normal"
-            placeholder="输入您的GitHub个人访问令牌"
+            placeholder="Enter your GitHub personal access token"
             type="password"
             value={token}
             variant="outlined"
@@ -346,8 +361,10 @@ const BatchRepoForm = (): FunctionComponent => {
           />
           
           {error && (
-            <Alert className="mt-4 rounded-lg" severity="error">
-              {error}
+            <Alert className="mt-4 mb-4 rounded-lg" severity="error">
+              {error.split('\n').map((line, i) => (
+                <div key={i}>{line}</div>
+              ))}
             </Alert>
           )}
           
@@ -360,7 +377,7 @@ const BatchRepoForm = (): FunctionComponent => {
               type="submit"
               variant="contained"
             >
-              {loading ? '分析中...' : '批量分析'}
+              {loading ? 'Analyzing...' : 'Batch analyze'}
             </Button>
           </Box>
         </form>
@@ -372,7 +389,7 @@ const BatchRepoForm = (): FunctionComponent => {
         onClose={handleCloseSnackbar}
       >
         <Alert className="rounded-lg shadow-lg" severity="success" onClose={handleCloseSnackbar}>
-          批量分析完成!
+          Batch analysis completed!
         </Alert>
       </Snackbar>
       
@@ -380,7 +397,7 @@ const BatchRepoForm = (): FunctionComponent => {
         <>
           <Divider className="my-8" />
           <Typography className="mb-6 font-bold text-gray-800" variant="h5">
-            批量分析结果
+            Batch analysis results
           </Typography>
           <BatchResults results={results} />
         </>

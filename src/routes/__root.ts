@@ -1,9 +1,9 @@
 import { createRootRoute } from "@tanstack/react-router";
-import { RootComponent } from "../components/layout/Root";
+import Root from "../components/layout/Root";
 
-// 创建根路由
+// Create root route
 export const rootRoute = createRootRoute({
-  component: RootComponent,
+  component: Root,
 });
 
 export { rootRoute as Route };

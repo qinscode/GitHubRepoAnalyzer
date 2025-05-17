@@ -132,7 +132,7 @@ function ContributionTable({
 }
 
 function SummaryTab({ data }: SummaryTabProps): JSX.Element {
-  // 计算统计数据
+  // Calculate statistics data
   const {
     totalCommits,
     totalIssues,
@@ -165,7 +165,7 @@ function SummaryTab({ data }: SummaryTabProps): JSX.Element {
       ...Object.keys(data.teamwork.prReviews),
     ]).size;
 
-    // 计算各用户的贡献百分比
+    // Calculate contribution percentage for each user
     const commitsByUser = Object.entries(data.commits)
       .map(([user, commits]) => ({
         user,
@@ -236,7 +236,7 @@ function SummaryTab({ data }: SummaryTabProps): JSX.Element {
 
       <Box>
         <ContributionTable 
-          color="primary"
+          color="primary" 
           data={commitsByUser} 
           title="Commits by Contributor" 
         />
