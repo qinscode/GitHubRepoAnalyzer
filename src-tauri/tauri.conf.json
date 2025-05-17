@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "githubrepoanalyzer",
+  "productName": "GH Analyzer",
   "version": "0.1.0",
-  "identifier": "com.githubrepoanalyzer.app",
+  "identifier": "com.fudong.app",
   "build": {
     "beforeDevCommand": "pnpm dev",
     "devUrl": "http://localhost:1420",
