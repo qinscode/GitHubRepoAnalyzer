@@ -24,7 +24,7 @@
 		"noImplicitOverride": true,
 		"noImplicitReturns": true,
 		"noPropertyAccessFromIndexSignature": true,
-		"noUncheckedIndexedAccess": true
+		"noUncheckedIndexedAccess": true,
 	},
 	"include": ["src", "e2e"],
 	"references": [{ "path": "./tsconfig.node.json" }]

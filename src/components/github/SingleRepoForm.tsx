@@ -100,7 +100,10 @@ const SingleRepoForm = (): FunctionComponent => {
 			<Card className="rounded-lg overflow-hidden border-0">
 				<CardContent className="p-6">
 					<form onSubmit={handleSubmit}>
-						<Typography className="font-semibold mb-6 text-gray-800 text-lg" variant="h6">
+						<Typography
+							className="font-semibold mb-6 text-gray-800 text-lg"
+							variant="h6"
+						>
 							Repository Information
 						</Typography>
 
@@ -111,20 +114,20 @@ const SingleRepoForm = (): FunctionComponent => {
 							<TextField
 								fullWidth
 								placeholder="Enter repository URL (e.g., https://github.com/owner/repo)"
-								variant="outlined"
 								value={repoUrl}
+								variant="outlined"
 								InputProps={{
 									className: "rounded-md bg-white",
 									sx: {
-										'& fieldset': {
-											borderColor: 'rgba(0,0,0,0.08)',
+										"& fieldset": {
+											borderColor: "rgba(0,0,0,0.08)",
 										},
-										'&:hover fieldset': {
-											borderColor: 'rgba(59, 130, 246, 0.3) !important',
+										"&:hover fieldset": {
+											borderColor: "rgba(59, 130, 246, 0.3) !important",
 										},
-										'&.Mui-focused fieldset': {
-											borderColor: 'rgba(59, 130, 246, 0.6) !important',
-											borderWidth: '1px !important',
+										"&.Mui-focused fieldset": {
+											borderColor: "rgba(59, 130, 246, 0.6) !important",
+											borderWidth: "1px !important",
 										},
 									},
 									startAdornment: (
@@ -133,10 +136,13 @@ const SingleRepoForm = (): FunctionComponent => {
 										</InputAdornment>
 									),
 								}}
-								onChange={(e): void => setRepoUrl(e.target.value)}
+								onChange={(e): void => {
+									setRepoUrl(e.target.value);
+								}}
 							/>
 							<Typography className="text-xs text-gray-500 mt-1">
-								Enter URL in format https://github.com/owner/repo or simply owner/repo
+								Enter URL in format https://github.com/owner/repo or simply
+								owner/repo
 							</Typography>
 						</Box>
 
@@ -146,23 +152,23 @@ const SingleRepoForm = (): FunctionComponent => {
 							</Typography>
 							<TextField
 								fullWidth
-								type="password"
-								variant="outlined"
-								value={token}
+								disabled={false}
 								placeholder="Enter your GitHub token"
-								disabled={hasPresetToken}
+								type="password"
+								value={token}
+								variant="outlined"
 								InputProps={{
 									className: "rounded-md bg-white",
 									sx: {
-										'& fieldset': {
-											borderColor: 'rgba(0,0,0,0.08)',
+										"& fieldset": {
+											borderColor: "rgba(0,0,0,0.08)",
 										},
-										'&:hover fieldset': {
-											borderColor: 'rgba(59, 130, 246, 0.3) !important',
+										"&:hover fieldset": {
+											borderColor: "rgba(59, 130, 246, 0.3) !important",
 										},
-										'&.Mui-focused fieldset': {
-											borderColor: 'rgba(59, 130, 246, 0.6) !important',
-											borderWidth: '1px !important',
+										"&.Mui-focused fieldset": {
+											borderColor: "rgba(59, 130, 246, 0.6) !important",
+											borderWidth: "1px !important",
 										},
 									},
 									startAdornment: (
@@ -171,33 +177,27 @@ const SingleRepoForm = (): FunctionComponent => {
 										</InputAdornment>
 									),
 								}}
-								onChange={(e): void => setToken(e.target.value)}
+								onChange={(e): void => {
+									setToken(e.target.value);
+								}}
 							/>
-							<Typography className="text-xs text-gray-500 mt-1">
-								{hasPresetToken
-									? "Using preset token from environment variables"
-									: "Required for API access (needs repo scope permissions)"}
-							</Typography>
 						</Box>
 
 						<Box className="flex justify-end mt-8">
 							<Button
 								className="px-6 py-2 rounded-md font-medium text-[15px] transition-all shadow-sm hover:shadow"
 								color="primary"
-								variant="contained"
-								type="submit"
 								disabled={loading}
+								type="submit"
+								variant="contained"
 								startIcon={
-									<SearchIcon
-										fontSize="small"
-										sx={{ marginRight: '4px' }}
-									/>
+									<SearchIcon fontSize="small" sx={{ marginRight: "4px" }} />
 								}
 								sx={{
-									background: 'linear-gradient(45deg, #2563eb, #4f46e5)',
-									textTransform: 'none',
-									'&:hover': {
-										background: 'linear-gradient(45deg, #1d4ed8, #4338ca)',
+									background: "linear-gradient(45deg, #2563eb, #4f46e5)",
+									textTransform: "none",
+									"&:hover": {
+										background: "linear-gradient(45deg, #1d4ed8, #4338ca)",
 									},
 								}}
 							>
@@ -205,13 +205,13 @@ const SingleRepoForm = (): FunctionComponent => {
 									<>
 										<CircularProgress
 											size={20}
+											sx={{ marginRight: "8px", color: "white" }}
 											thickness={5}
-											sx={{ marginRight: '8px', color: 'white' }}
 										/>
 										Analyzing...
 									</>
 								) : (
-									'Analyze Repository'
+									"Analyze Repository"
 								)}
 							</Button>
 						</Box>
@@ -221,7 +221,9 @@ const SingleRepoForm = (): FunctionComponent => {
 								<Alert
 									className="mt-5 rounded-md font-medium text-sm shadow-sm"
 									severity="error"
-									onClose={(): void => setError(null)}
+									onClose={(): void => {
+										setError(null);
+									}}
 								>
 									{error}
 								</Alert>
@@ -233,14 +235,14 @@ const SingleRepoForm = (): FunctionComponent => {
 
 			{/* Success message */}
 			<Snackbar
-				open={success}
 				autoHideDuration={5000}
+				open={success}
 				onClose={handleCloseSnackbar}
 			>
 				<Alert
-					onClose={handleCloseSnackbar}
-					severity="success"
 					className="font-medium shadow-lg rounded-md"
+					severity="success"
+					onClose={handleCloseSnackbar}
 				>
 					Successfully analyzed repository
 				</Alert>
@@ -250,7 +252,8 @@ const SingleRepoForm = (): FunctionComponent => {
 			{repoData && (
 				<Box className="mt-8">
 					<Typography className="font-semibold mb-4 text-xl text-gray-800">
-						Analysis Results: <span className="text-blue-600">{extractRepoName()}</span>
+						Analysis Results:{" "}
+						<span className="text-blue-600">{extractRepoName()}</span>
 					</Typography>
 					<RepoResults data={repoData} />
 				</Box>

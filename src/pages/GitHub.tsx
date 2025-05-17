@@ -9,7 +9,6 @@ import RepoTabs from "../components/github/RepoTabs";
 
 export const GitHub = (): React.ReactElement => {
 	const [activeTab, setActiveTab] = useState(0);
-	const theme = useTheme();
 
 	const handleTabChange = (newValue: number): void => {
 		setActiveTab(newValue);

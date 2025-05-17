@@ -13,10 +13,16 @@ import {
 	CardContent,
 	InputAdornment,
 	Fade,
+	LinearProgress,
+	Stack,
+	Chip,
 } from "@mui/material";
 import PlaylistAddCheckIcon from "@mui/icons-material/PlaylistAddCheck";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import KeyIcon from "@mui/icons-material/Key";
+import HourglassTopIcon from '@mui/icons-material/HourglassTop';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import ErrorIcon from '@mui/icons-material/Error';
 import type { FunctionComponent } from "../../common/types";
 import BatchResults from "./BatchResults";
 import {
@@ -45,10 +51,12 @@ interface RepoResult {
 	data: RepoData;
 }
 
+type RepoStatus = "pending" | "processing" | "completed" | "error";
+
 interface RepoListItem {
 	id: string;
 	url: string;
-	status?: "pending" | "processing" | "completed" | "error";
+	status: RepoStatus;
 	result?: RepoResult;
 	error?: string;
 }
@@ -59,7 +67,10 @@ const BatchRepoForm = (): FunctionComponent => {
 	const [error, setError] = useState<string | null>(null);
 	const [token, setToken] = useState<string>("");
 	const [success, setSuccess] = useState<boolean>(false);
-	const [results, setResults] = useState<Array<RepoResult>>([]);
+	const [results, setResults] = useState<RepoResult[]>([]);
+	const [repoItems, setRepoItems] = useState<RepoListItem[]>([]);
+	const [currentIndex, setCurrentIndex] = useState<number>(-1);
+	const [progress, setProgress] = useState<number>(0);
 
 	// Get preset GitHub token from environment variables
 	useEffect(() => {
@@ -98,11 +109,14 @@ const BatchRepoForm = (): FunctionComponent => {
 
 		setLoading(true);
 		setError(null);
+		setResults([]);
+		setCurrentIndex(-1);
+		setProgress(0);
 
 		try {
 			// Process each URL
-			const repoItems: Array<RepoListItem> = [];
-			const invalidUrls: Array<string> = [];
+			const items: RepoListItem[] = [];
+			const invalidUrls: string[] = [];
 
 			// Validate URLs first
 			for (const url of urlList) {
@@ -116,7 +130,7 @@ const BatchRepoForm = (): FunctionComponent => {
 
 				// Check for duplicates
 				if (
-					repoItems.some(
+					items.some(
 						(repo) => repo.url.toLowerCase() === trimmedUrl.toLowerCase()
 					)
 				) {
@@ -124,15 +138,14 @@ const BatchRepoForm = (): FunctionComponent => {
 					continue;
 				}
 
-				repoItems.push({
-					id:
-						Date.now().toString() + Math.random().toString(36).substring(2, 9),
+				items.push({
+					id: Date.now().toString() + Math.random().toString(36).substring(2, 9),
 					url: trimmedUrl,
-					status: "processing",
+					status: "pending",
 				});
 			}
 
-			if (repoItems.length === 0) {
+			if (items.length === 0) {
 				setError("No valid repository URLs found. Please check your input.");
 				setLoading(false);
 				return;
@@ -144,16 +157,33 @@ const BatchRepoForm = (): FunctionComponent => {
 				);
 			}
 
-			const analysisResults: Array<RepoResult> = [];
+			setRepoItems(items);
 
 			// Process each repository sequentially
-			for (let index = 0; index < repoItems.length; index++) {
-				const currentRepo = repoItems[index];
-				if (!currentRepo) continue; // Skip if undefined (shouldn't happen)
+			const analysisResults: RepoResult[] = [];
+			
+			for (let index = 0; index < items.length; index++) {
+				// Update current processing repository index
+				setCurrentIndex(index);
+				
+				// Update progress percentage
+				const progressPercent = Math.round(((index) / items.length) * 100);
+				setProgress(progressPercent);
+				
+				// Update status to processing
+				setRepoItems((prevItems) => {
+					return prevItems.map((item, i) => 
+						i === index ? { ...item, status: "processing" } : item
+					);
+				});
 
 				try {
 					// Use GraphQL API to get repository data
-					const repoData = await fetchRepositoryData(currentRepo.url, token);
+					const currentItem = items[index];
+					if (!currentItem) continue;
+
+					const currentUrl = currentItem.url;
+					const repoData = await fetchRepositoryData(currentUrl, token);
 
 					// Calculate repository statistics
 					const totalCommits = Object.values(repoData.commits).reduce(
@@ -175,14 +205,14 @@ const BatchRepoForm = (): FunctionComponent => {
 					]).size;
 
 					// Get repository name
-					const repoInfo = parseRepoUrl(currentRepo.url);
+					const repoInfo = parseRepoUrl(currentUrl);
 					const repoName = repoInfo
 						? repoInfo.repo
-						: currentRepo.url.split("/").pop() || currentRepo.url;
+						: currentUrl.split("/").pop() || currentUrl;
 
 					// Create result object
 					const result: RepoResult = {
-						repoUrl: currentRepo.url,
+						repoUrl: currentUrl,
 						repoName,
 						commits: totalCommits,
 						issues: totalIssues,
@@ -192,17 +222,46 @@ const BatchRepoForm = (): FunctionComponent => {
 					};
 
 					analysisResults.push(result);
+					
+					// Update status to completed and add result
+					setRepoItems((prevItems) => {
+						return prevItems.map((item, i) => 
+							i === index ? { ...item, status: "completed", result } : item
+						);
+					});
+					
+					// Update results as they complete
+					setResults([...analysisResults]);
 				} catch (error_) {
-					console.error(`Error analyzing ${currentRepo.url}:`, error_);
+					const currentItem = items[index];
+					if (currentItem) {
+						console.error(`Error analyzing ${currentItem.url}:`, error_);
+					}
+					
+					// Update status to error
+					setRepoItems((prevItems) => {
+						return prevItems.map((item, i) => 
+							i === index ? { 
+								...item, 
+								status: "error", 
+								error: `Failed to analyze: ${(error_ as Error).message}` 
+							} : item
+						);
+					});
 				}
+				
+				// Short delay to make progress visible
+				await new Promise(resolve => setTimeout(resolve, 300));
 			}
 
+			// Set final progress
+			setProgress(100);
+			
 			if (analysisResults.length === 0) {
 				setError(
 					"Failed to analyze any repositories. Please check your input or token."
 				);
 			} else {
-				setResults(analysisResults);
 				setSuccess(true);
 			}
 		} catch (error_) {
@@ -215,6 +274,36 @@ const BatchRepoForm = (): FunctionComponent => {
 
 	const handleCloseSnackbar = () => {
 		setSuccess(false);
+	};
+
+	const getStatusColor = (status: RepoStatus) => {
+		switch (status) {
+			case "pending":
+				return "default";
+			case "processing":
+				return "primary";
+			case "completed":
+				return "success";
+			case "error":
+				return "error";
+			default:
+				return "default";
+		}
+	};
+
+	const getStatusIcon = (status: RepoStatus) => {
+		switch (status) {
+			case "pending":
+				return <HourglassTopIcon fontSize="small" />;
+			case "processing":
+				return <CircularProgress size={16} />;
+			case "completed":
+				return <CheckCircleIcon fontSize="small" />;
+			case "error":
+				return <ErrorIcon fontSize="small" />;
+			default:
+				return null;
+		}
 	};
 
 	return (
@@ -278,7 +367,7 @@ const BatchRepoForm = (): FunctionComponent => {
 								variant="outlined"
 								value={token}
 								placeholder="Enter your GitHub token"
-								disabled={hasPresetToken}
+								disabled={false}
 								InputProps={{
 									className: "rounded-md bg-white",
 									sx: {
@@ -303,7 +392,7 @@ const BatchRepoForm = (): FunctionComponent => {
 							/>
 							<Typography className="text-xs text-gray-500 mt-1">
 								{hasPresetToken
-									? "Using preset token from environment variables"
+									? "Using preset token from environment variables (you can modify it if needed)"
 									: "Required for API access (needs repo scope permissions)"}
 							</Typography>
 						</Box>
@@ -358,6 +447,73 @@ const BatchRepoForm = (): FunctionComponent => {
 					</form>
 				</CardContent>
 			</Card>
+
+			{/* Progress Section */}
+			{loading && repoItems.length > 0 && (
+				<Box className="mt-8">
+					<Card className="rounded-lg overflow-hidden border border-gray-100">
+						<CardContent className="p-5">
+							<Box className="flex justify-between items-center mb-3">
+								<Typography className="font-semibold text-gray-700">
+									Analysis Progress
+								</Typography>
+								<Typography className="text-sm text-gray-600">
+									{`${currentIndex + 1} of ${repoItems.length} repositories (${progress}%)`}
+								</Typography>
+							</Box>
+							
+							<LinearProgress 
+								variant="determinate" 
+								value={progress} 
+								sx={{ 
+									height: 8,
+									borderRadius: 4,
+									mb: 3,
+									backgroundColor: 'rgba(59, 130, 246, 0.1)',
+									'& .MuiLinearProgress-bar': {
+										background: 'linear-gradient(45deg, #2563eb, #4f46e5)',
+										borderRadius: 4,
+									}
+								}} 
+							/>
+							
+							<Stack spacing={1} maxHeight="200px" sx={{ overflowY: 'auto' }}>
+								{repoItems.map((repo, index) => (
+									<Box 
+										key={repo.id}
+										className={`p-2 rounded-md flex items-center justify-between ${
+											index === currentIndex && repo.status === 'processing' 
+												? 'bg-blue-50' 
+												: repo.status === 'completed'
+												? 'bg-green-50'
+												: repo.status === 'error'
+												? 'bg-red-50'
+												: ''
+										}`}
+									>
+										<Box className="flex items-center">
+											<Box sx={{ width: 24, mr: 1.5, display: 'flex', justifyContent: 'center' }}>
+												{getStatusIcon(repo.status)}
+											</Box>
+											<Typography className="text-sm text-gray-700 font-medium" noWrap sx={{ maxWidth: 250 }}>
+												{repo.url.replace('https://github.com/', '')}
+											</Typography>
+										</Box>
+										<Chip 
+											label={repo.status.charAt(0).toUpperCase() + repo.status.slice(1)} 
+											size="small"
+											color={getStatusColor(repo.status)}
+											variant="outlined"
+											className="min-w-[90px]"
+											sx={{ fontWeight: 500 }}
+										/>
+									</Box>
+								))}
+							</Stack>
+						</CardContent>
+					</Card>
+				</Box>
+			)}
 
 			{/* Results Section */}
 			{results.length > 0 && (
