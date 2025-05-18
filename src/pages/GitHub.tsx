@@ -5,7 +5,7 @@ import RepoTabs from "../components/github/RepoTabs";
 
 export const GitHub = (): React.ReactElement => {
 	return (
-		<Container className="!p-4 md:!p-8" maxWidth="lg">
+		<Container className="!p-4 md:!p-8" maxWidth="xl">
 			<Box className="mb-10 text-center">
 				<Box className="inline-flex items-center justify-center p-3 mb-4 rounded-full bg-gradient-to-br from-blue-500/5 to-indigo-500/10">
 					<GitHubIcon
@@ -38,7 +38,7 @@ export const GitHub = (): React.ReactElement => {
 			</Box>
 
 			<Box
-				className="max-w-4xl mx-auto"
+				className="max-w-8xl mx-auto"
 				sx={{
 					borderRadius: "16px",
 					boxShadow: "0 4px 20px rgba(0,0,0,0.03), 0 1px 3px rgba(0,0,0,0.05)",

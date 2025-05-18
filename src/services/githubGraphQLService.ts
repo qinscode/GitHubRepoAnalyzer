@@ -72,7 +72,7 @@ const fetchCommits = async (
   owner: string, 
   repo: string, 
   token: string, 
-  options: { hideMergeCommits?: boolean } = {}
+  options: { hideMergeCommits?: boolean; signal?: AbortSignal } = {}
 ): Promise<Record<string, Array<{message: string, id: string}>>> => {
   const query = `
     query GetCommits($owner: String!, $repo: String!, $cursor: String) {
@@ -111,6 +111,11 @@ const fetchCommits = async (
     
     // Use pagination to get more data
     while (hasNextPage) {
+      // Check if operation was aborted
+      if (options.signal?.aborted) {
+        throw new Error('Operation was aborted');
+      }
+    
       const response = await axios.post(
         'https://api.github.com/graphql',
         {
@@ -121,7 +126,8 @@ const fetchCommits = async (
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
-          }
+          },
+          signal: options.signal // Pass signal to axios for abort support
         }
       );
       
@@ -178,7 +184,12 @@ const fetchCommits = async (
 };
 
 // Fetch issues data using GraphQL API
-const fetchIssues = async (owner: string, repo: string, token: string): Promise<{
+const fetchIssues = async (
+  owner: string, 
+  repo: string, 
+  token: string,
+  options: { signal?: AbortSignal } = {}
+): Promise<{
   issuesByUser: Record<string, Array<{title: string, body: string}>>;
   issueCommentsByUser: Record<string, number>;
 }> => {
@@ -220,6 +231,11 @@ const fetchIssues = async (owner: string, repo: string, token: string): Promise<
     
     // Use pagination to get more data
     while (hasNextPage) {
+      // Check if operation was aborted
+      if (options.signal?.aborted) {
+        throw new Error('Operation was aborted');
+      }
+    
       const response = await axios.post(
         'https://api.github.com/graphql',
         {
@@ -230,7 +246,8 @@ const fetchIssues = async (owner: string, repo: string, token: string): Promise<
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
-          }
+          },
+          signal: options.signal // Pass signal to axios for abort support
         }
       );
       
@@ -296,7 +313,12 @@ const fetchIssues = async (owner: string, repo: string, token: string): Promise<
 };
 
 // Fetch pull request data using GraphQL API
-const fetchPullRequests = async (owner: string, repo: string, token: string): Promise<{
+const fetchPullRequests = async (
+  owner: string, 
+  repo: string, 
+  token: string,
+  options: { signal?: AbortSignal } = {}
+): Promise<{
   prsByUser: Record<string, Array<{title: string}>>;
   prReviewsByUser: Record<string, number>;
 }> => {
@@ -337,6 +359,11 @@ const fetchPullRequests = async (owner: string, repo: string, token: string): Pr
     
     // Use pagination to get more data
     while (hasNextPage) {
+      // Check if operation was aborted
+      if (options.signal?.aborted) {
+        throw new Error('Operation was aborted');
+      }
+    
       const response = await axios.post(
         'https://api.github.com/graphql',
         {
@@ -347,7 +374,8 @@ const fetchPullRequests = async (owner: string, repo: string, token: string): Pr
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
-          }
+          },
+          signal: options.signal // Pass signal to axios for abort support
         }
       );
       
@@ -415,7 +443,7 @@ const fetchPullRequests = async (owner: string, repo: string, token: string): Pr
 export const fetchRepositoryData = async (
   repoUrl: string, 
   token: string, 
-  options: { hideMergeCommits?: boolean } = {}
+  options: { hideMergeCommits?: boolean; signal?: AbortSignal } = {}
 ): Promise<RepoData> => {
 	const repoInfo = parseRepoUrl(repoUrl);
 
@@ -424,16 +452,32 @@ export const fetchRepositoryData = async (
 	}
 
 	const { owner, repo } = repoInfo;
+	const { signal } = options;
 
 	try {
+		// Check if aborted before starting
+		if (signal?.aborted) {
+			throw new Error('Operation was aborted');
+		}
+
 		// 1. Fetch commit data with filtering options
 		const commits = await fetchCommits(owner, repo, token, options);
 
+		// Check if aborted after commits fetch
+		if (signal?.aborted) {
+			throw new Error('Operation was aborted');
+		}
+
 		// 2. Fetch issues data
-		const { issuesByUser, issueCommentsByUser } = await fetchIssues(owner, repo, token);
+		const { issuesByUser, issueCommentsByUser } = await fetchIssues(owner, repo, token, { signal });
+
+		// Check if aborted after issues fetch
+		if (signal?.aborted) {
+			throw new Error('Operation was aborted');
+		}
 
 		// 3. Fetch PR data
-		const { prsByUser, prReviewsByUser } = await fetchPullRequests(owner, repo, token);
+		const { prsByUser, prReviewsByUser } = await fetchPullRequests(owner, repo, token, { signal });
 
 		// 4. Build teamwork data
 		const teamwork = {
@@ -449,6 +493,9 @@ export const fetchRepositoryData = async (
 		};
 	} catch (error) {
 		console.error('Failed to fetch repository data:', error);
+		if ((error as Error).name === 'AbortError' || (error as Error).message.includes('aborted')) {
+			throw new Error('Analysis was interrupted');
+		}
 		throw new Error(`Failed to fetch repository data: ${(error as Error).message}`);
 	}
 };

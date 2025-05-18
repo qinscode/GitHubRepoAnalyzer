@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
 	Box,
 	TextField,
@@ -28,6 +28,7 @@ import ViewListIcon from "@mui/icons-material/ViewList";
 import HourglassTopIcon from "@mui/icons-material/HourglassTop";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ErrorIcon from "@mui/icons-material/Error";
+import StopIcon from "@mui/icons-material/Stop";
 import type { FunctionComponent } from "../../common/types";
 import RepoResults from "./RepoResults";
 import BatchResults from "./BatchResults";
@@ -67,12 +68,28 @@ interface RepoListItem {
 	error?: string;
 }
 
-const RepoAnalysisForm = (): FunctionComponent => {
+// 在组件外部声明类型
+declare global {
+	interface Window {
+		_abortController?: AbortController;
+	}
+}
+
+// 在组件外部定义一个全局变量来跟踪进行中的分析
+let globalAnalysisInProgress = false;
+let globalForceStop = false;
+
+const RepoAnalysisForm = (): React.ReactElement => {
 	// Common state
 	const [token, setToken] = useState<string>("");
 	const [loading, setLoading] = useState<boolean>(false);
 	const [error, setError] = useState<string | null>(null);
 	const [success, setSuccess] = useState<boolean>(false);
+	const [isInterrupted, setIsInterrupted] = useState<boolean>(false);
+	
+	// useRef for tracking interrupt state in async functions
+	const interruptRef = useRef<boolean>(false);
+	const abortControllerRef = useRef<AbortController | null>(null);
 
 	// Mode switch
 	const [batchMode, setBatchMode] = useState<boolean>(false);
@@ -90,6 +107,13 @@ const RepoAnalysisForm = (): FunctionComponent => {
 	const [repoItems, setRepoItems] = useState<Array<RepoListItem>>([]);
 	const [currentIndex, setCurrentIndex] = useState<number>(-1);
 	const [progress, setProgress] = useState<number>(0);
+
+	// 添加一个定时器引用，用于跟踪和清除定时器
+	const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+	// 组件级的中断标志
+	const analysisInProgress = useRef<boolean>(false);
+	const forceStopRef = useRef<boolean>(false);
 
 	// Get the preset GitHub token from environment variables
 	useEffect(() => {
@@ -139,110 +163,216 @@ const RepoAnalysisForm = (): FunctionComponent => {
 		event: React.FormEvent
 	): Promise<void> => {
 		event.preventDefault();
-
+		
+		// 已经在进行分析时，不再启动新的分析
+		if (analysisInProgress.current || globalAnalysisInProgress) {
+			console.log("分析已在进行中，忽略新请求");
+			return;
+		}
+		
+		// 验证输入
 		if (!repoUrls.trim()) {
 			setError("Please enter GitHub repository URLs");
 			return;
 		}
-
+		
 		if (!token.trim()) {
 			setError("Please enter a GitHub token");
 			return;
 		}
-
-		// Parse repository URLs directly
+		
+		// 解析仓库URL
 		const urlList = repoUrls
 			.trim()
 			.split("\n")
 			.filter((url) => url.trim() !== "");
-
+		
 		if (urlList.length === 0) {
 			setError("Please enter at least one valid GitHub repository URL");
 			return;
 		}
-
+		
+		// 重置状态
 		setLoading(true);
 		setError(null);
 		setResults([]);
 		setCurrentIndex(-1);
 		setProgress(0);
-
+		setIsInterrupted(false);
+		interruptRef.current = false;
+		forceStopRef.current = false;
+		globalForceStop = false;
+		analysisInProgress.current = true;
+		globalAnalysisInProgress = true;
+		
+		// 创建新的AbortController
+		const controller = new AbortController();
+		const signal = controller.signal;
+		abortControllerRef.current = controller;
+		
+		// 启动检查中断的轮询
+		if (timeoutRef.current) {
+			clearInterval(timeoutRef.current);
+		}
+		
+		// 更频繁地检查中断状态(每50ms)，确保更快响应
+		timeoutRef.current = setInterval(() => {
+			// 如果检测到中断信号，自动中止所有请求
+			if (forceStopRef.current || globalForceStop) {
+				if (abortControllerRef.current) {
+					abortControllerRef.current.abort();
+				}
+				if (timeoutRef.current) {
+					clearInterval(timeoutRef.current);
+					timeoutRef.current = null;
+				}
+				console.log("轮询检测到中断信号");
+			}
+		}, 50);
+		
 		try {
-			// Process each URL
+			// 验证URL并创建待分析项目列表
 			const items: Array<RepoListItem> = [];
 			const invalidUrls: Array<string> = [];
-
-			// Validate URLs first
+			
+			// 验证URL
 			for (const url of urlList) {
 				const trimmedUrl = url.trim();
 				const repoInfo = parseRepoUrl(trimmedUrl);
-
+				
 				if (!repoInfo) {
 					invalidUrls.push(`Invalid repository URL format: ${trimmedUrl}`);
 					continue;
 				}
-
-				// Check for duplicates
-				if (
-					items.some(
-						(repo) => repo.url.toLowerCase() === trimmedUrl.toLowerCase()
-					)
-				) {
+				
+				// 检查重复
+				if (items.some(
+					(repo) => repo.url.toLowerCase() === trimmedUrl.toLowerCase()
+				)) {
 					invalidUrls.push(`Duplicate repository URL: ${trimmedUrl}`);
 					continue;
 				}
-
+				
 				items.push({
-					id:
-						Date.now().toString() + Math.random().toString(36).substring(2, 9),
+					id: Date.now().toString() + Math.random().toString(36).substring(2, 9),
 					url: trimmedUrl,
 					status: "pending",
 				});
 			}
-
+			
 			if (items.length === 0) {
 				setError("No valid repository URLs found. Please check your input.");
 				setLoading(false);
+				analysisInProgress.current = false;
+				globalAnalysisInProgress = false;
 				return;
 			}
-
+			
 			if (invalidUrls.length > 0) {
 				setError(
 					`Some URLs were invalid and will be skipped:\n${invalidUrls.join("\n")}`
 				);
 			}
-
+			
 			setRepoItems(items);
-
-			// Process each repository sequentially
+			
+			// 处理每个仓库
 			const analysisResults: Array<RepoResult> = [];
-
+			
 			for (let index = 0; index < items.length; index++) {
-				// Update current processing repository index
+				// 立即检查中断状态
+				if (checkForInterruption()) {
+					console.log("检测到中断，停止分析");
+					
+					// 标记剩余项目为已跳过
+					setRepoItems((previousItems) => {
+						return previousItems.map((item, itemIndex) =>
+							itemIndex > index ? { ...item, status: "error", error: "Skipped due to interruption" } : item
+						);
+					});
+					
+					setError("Analysis was interrupted by user");
+					
+					// 显示已完成的结果
+					if (analysisResults.length > 0) {
+						setResults([...analysisResults]);
+						setSuccess(true);
+					}
+					
+					// 更新进度
+					const progressPercent = Math.round((index / items.length) * 100);
+					setProgress(progressPercent);
+					
+					break;
+				}
+				
+				// 更新索引和进度
 				setCurrentIndex(index);
-
-				// Update progress percentage
-				const progressPercent = Math.round((index / items.length) * 100);
-				setProgress(progressPercent);
-
-				// Update status to processing
+				setProgress(Math.round((index / items.length) * 100));
+				
+				// 更新状态为处理中
 				setRepoItems((previousItems) => {
 					return previousItems.map((item, index_) =>
 						index_ === index ? { ...item, status: "processing" } : item
 					);
 				});
-
+				
 				try {
-					// Use GraphQL API to get repository data
+					// 再次检查中断状态
+					if (checkForInterruption()) {
+						break;
+					}
+					
+					// 获取当前项目
 					const currentItem = items[index];
 					if (!currentItem) continue;
-
+					
 					const currentUrl = currentItem.url;
-					const repoData = await fetchRepositoryData(currentUrl, token, {
-						hideMergeCommits,
-					});
-
-					// Calculate repository statistics
+					
+					// 封装一个带超时的fetch，确保即使网络请求卡住也能响应中断
+					const fetchWithTimeout = async (): Promise<any> => {
+						const timeoutPromise = new Promise((_, reject) => {
+							const timeoutId = setTimeout(() => {
+								if (checkForInterruption()) {
+									clearTimeout(timeoutId);
+									reject(new Error("Operation was aborted by user"));
+								}
+							}, 100);
+						});
+						
+						try {
+							// 竞争Promise：谁先完成就用谁的结果
+							return await Promise.race([
+								fetchRepositoryData(currentUrl, token, {
+									hideMergeCommits,
+									signal: signal
+								}),
+								timeoutPromise
+							]);
+						} catch (error) {
+							if (checkForInterruption() || 
+								(error instanceof Error && (
+									error.name === 'AbortError' || 
+									error.message.includes('aborted') ||
+									error.message.includes('interrupted')
+								))) {
+								console.log("Fetch operation was aborted");
+								throw new Error("Operation was aborted by user");
+							}
+							throw error;
+						}
+					};
+					
+					// 执行带超时的fetch
+					const repoData = await fetchWithTimeout();
+					
+					// 处理结果前再次检查中断状态
+					if (checkForInterruption()) {
+						console.log("API请求成功但检测到中断");
+						break;
+					}
+					
+					// 计算统计信息
 					const totalCommits = Object.values(repoData.commits).reduce(
 						(sum, commits) => sum + commits.length,
 						0
@@ -260,14 +390,14 @@ const RepoAnalysisForm = (): FunctionComponent => {
 						...Object.keys(repoData.issues),
 						...Object.keys(repoData.prs),
 					]).size;
-
-					// Get repository name
+					
+					// 获取仓库名称
 					const repoInfo = parseRepoUrl(currentUrl);
 					const repoName = repoInfo
 						? repoInfo.repo
 						: currentUrl.split("/").pop() || currentUrl;
-
-					// Create result object
+					
+					// 创建结果对象
 					const result: RepoResult = {
 						repoUrl: currentUrl,
 						repoName,
@@ -277,64 +407,174 @@ const RepoAnalysisForm = (): FunctionComponent => {
 						contributors,
 						data: repoData,
 					};
-
+					
+					// 更新结果
 					analysisResults.push(result);
-
-					// Update status to completed and add result
+					
+					// 更新状态为已完成
 					setRepoItems((previousItems) => {
 						return previousItems.map((item, index_) =>
 							index_ === index ? { ...item, status: "completed", result } : item
 						);
 					});
-
-					// Update results as they complete
+					
+					// 更新结果
 					setResults([...analysisResults]);
-				} catch (error_) {
+					
+					// 最后一次检查中断状态
+					if (checkForInterruption()) {
+						console.log("统计完成但检测到中断");
+						break;
+					}
+					
+					// 添加短暂延迟以使进度可见
+					await new Promise<void>((resolve) => {
+						const delayId = setTimeout(() => {
+							clearTimeout(delayId);
+							resolve();
+						}, 300);
+						
+						// 即使在延迟中也检查中断状态
+						const checkId = setInterval(() => {
+							if (checkForInterruption()) {
+								clearTimeout(delayId);
+								clearInterval(checkId);
+								resolve();
+							}
+						}, 50);
+					});
+					
+				} catch (error) {
+					// 检查是否由于中断而失败
+					if (checkForInterruption() || 
+						(error instanceof Error && (
+							error.name === 'AbortError' || 
+							error.message.includes('aborted') ||
+							error.message.includes('interrupted')
+						))) {
+						console.log("由于中断而跳过处理");
+						break;
+					}
+					
+					// 处理其他错误
 					const currentItem = items[index];
 					if (currentItem) {
-						console.error(`Error analyzing ${currentItem.url}:`, error_);
+						console.error(`Error analyzing ${currentItem.url}:`, error);
 					}
-
-					// Update status to error
+					
+					// 更新状态为错误
 					setRepoItems((previousItems) => {
 						return previousItems.map((item, index_) =>
 							index_ === index
 								? {
 										...item,
 										status: "error",
-										error: `Failed to analyze: ${(error_ as Error).message}`,
+										error: `Failed to analyze: ${(error as Error).message}`,
 									}
 								: item
 						);
 					});
 				}
-
-				// Short delay to make progress visible
-				await new Promise((resolve) => {
-					setTimeout(resolve, 300);
-				});
 			}
-
-			// Set final progress
-			setProgress(100);
-
-			if (analysisResults.length === 0) {
-				setError(
-					"Failed to analyze any repositories. Please check your input or token."
-				);
+			
+			// 设置最终进度
+			if (!checkForInterruption()) {
+				setProgress(100);
+				
+				if (analysisResults.length === 0) {
+					setError(
+						"Failed to analyze any repositories. Please check your input or token."
+					);
+				} else {
+					setSuccess(true);
+				}
 			} else {
-				setSuccess(true);
+				// 显示部分结果
+				if (analysisResults.length > 0) {
+					setSuccess(true);
+				}
 			}
-		} catch (error_) {
-			setError(`Batch analysis failed: ${(error_ as Error).message}`);
-			console.error(error_);
+		} catch (error) {
+			console.error("批处理分析过程中发生错误:", error);
+			
+			if (checkForInterruption()) {
+				// 保留并显示已完成的结果
+				const completedRepos = repoItems.filter(item => 
+					item.status === "completed"
+				).length;
+				
+				setError(`Analysis interrupted. Completed ${completedRepos} of ${repoItems.length} repositories.`);
+				
+				// 显示部分结果
+				if (results.length > 0) {
+					setSuccess(true);
+				}
+			} else {
+				setError(`Batch analysis failed: ${(error as Error).message}`);
+			}
 		} finally {
+			// 清理工作
+			if (timeoutRef.current) {
+				clearInterval(timeoutRef.current);
+				timeoutRef.current = null;
+			}
+			
+			// 解除loading状态
 			setLoading(false);
+			analysisInProgress.current = false;
+			globalAnalysisInProgress = false;
+			
+			// 更新中断后的进度
+			if (checkForInterruption() && currentIndex >= 0) {
+				// 计算实际进度
+				const completedCount = repoItems.filter(item => 
+					item.status === "completed" || item.status === "error"
+				).length;
+				const progressPercent = Math.round((completedCount / repoItems.length) * 100);
+				setProgress(progressPercent);
+			}
 		}
 	};
 
 	const handleCloseSnackbar = (): void => {
 		setSuccess(false);
+	};
+
+	const handleInterruptAnalysis = (): void => {
+		console.log("立即强制中断分析...");
+		// 设置组件级和全局中断标志
+		setIsInterrupted(true);
+		interruptRef.current = true;
+		forceStopRef.current = true;
+		globalForceStop = true;
+		
+		// 立即中止所有网络请求
+		if (abortControllerRef.current) {
+			abortControllerRef.current.abort();
+			console.log("已中止所有挂起的请求");
+		}
+		
+		// 清除所有定时器
+		if (timeoutRef.current) {
+			clearInterval(timeoutRef.current);
+			timeoutRef.current = null;
+		}
+		
+		// 确保显示中断前的结果
+		if (results.length > 0) {
+			setSuccess(true);
+		}
+		
+		// 立即将loading状态设为false
+		setLoading(false);
+		analysisInProgress.current = false;
+		globalAnalysisInProgress = false;
+		
+		// 设置超时以确保UI更新
+		setTimeout(() => {
+			console.log("重置中断状态...");
+			setIsInterrupted(false);
+		}, 2000);
 	};
 
 	const extractRepoName = (): string => {
@@ -386,7 +626,42 @@ const RepoAnalysisForm = (): FunctionComponent => {
 		setProgress(0);
 		setCurrentIndex(-1);
 		setError(null);
+		setIsInterrupted(false);
+		interruptRef.current = false;
 	}, [batchMode]);
+
+	// 在表单提交前重置interrupted状态
+	const resetInterruptState = (): void => {
+		setIsInterrupted(false);
+		interruptRef.current = false;
+	};
+
+	// 在组件卸载时清除所有定时器
+	useEffect(() => {
+		return () => {
+			if (timeoutRef.current) {
+				clearTimeout(timeoutRef.current);
+			}
+			
+			if (abortControllerRef.current) {
+				abortControllerRef.current.abort();
+			}
+		};
+	}, []);
+
+	// 确保在组件卸载时重置全局变量
+	useEffect(() => {
+		return () => {
+			globalAnalysisInProgress = false;
+			globalForceStop = false;
+		};
+	}, []);
+
+	// 辅助函数：检查中断状态
+	const checkForInterruption = (): boolean => {
+		return interruptRef.current || forceStopRef.current || globalForceStop || 
+			(abortControllerRef.current && abortControllerRef.current.signal.aborted);
+	};
 
 	return (
 		<Box className="form-container">
@@ -604,7 +879,10 @@ const RepoAnalysisForm = (): FunctionComponent => {
 							</form>
 						) : (
 							// Batch Repositories Form
-							<form onSubmit={handleBatchRepoSubmit}>
+							<form onSubmit={(event_) => {
+								resetInterruptState();
+								void handleBatchRepoSubmit(event_);
+							}}>
 								<Typography className="form-title">Batch Analysis</Typography>
 
 								<Box className="mb-5 relative">
@@ -760,21 +1038,34 @@ const RepoAnalysisForm = (): FunctionComponent => {
 								<Box className="flex justify-end mt-8">
 									<Button
 										className="submit-button"
-										color="primary"
-										disabled={loading}
-										type="submit"
+										color={loading ? "error" : "primary"}
+										disabled={loading && isInterrupted}
+										type={loading ? "button" : "submit"}
 										variant="contained"
 										startIcon={
 											loading ? (
-												<div className="process-indicator">
+												isInterrupted ? (
 													<CircularProgress size={20} sx={{ color: "white" }} />
-												</div>
+												) : (
+													<StopIcon sx={{ fontSize: "1.2rem" }} />
+												)
 											) : (
 												<PlaylistAddCheckIcon sx={{ fontSize: "1.2rem" }} />
 											)
 										}
+										sx={{
+											'&.MuiButton-containedError': {
+												background: 'linear-gradient(45deg, #ef4444, #b91c1c)',
+												'&:hover': {
+													background: 'linear-gradient(45deg, #dc2626, #991b1b)',
+												},
+											},
+										}}
+										onClick={loading ? handleInterruptAnalysis : undefined}
 									>
-										{loading ? "Analyzing..." : "Analyze Repositories"}
+										{loading 
+											? (isInterrupted ? "Stopping..." : "Stop Analysis") 
+											: "Analyze Repositories"}
 									</Button>
 								</Box>
 							</form>
@@ -796,10 +1087,10 @@ const RepoAnalysisForm = (): FunctionComponent => {
 				</Zoom>
 			)}
 
-			{/* Batch Progress Section */}
-			{batchMode && loading && repoItems.length > 0 && (
+			{/* Batch Progress Section - 在loading状态或中断后都显示进度 */}
+			{batchMode && (loading || isInterrupted) && repoItems.length > 0 && (
 				<Zoom
-					in={loading && repoItems.length > 0}
+					in={(loading || isInterrupted) && repoItems.length > 0}
 					style={{ transitionDelay: "100ms" }}
 					timeout={500}
 				>
@@ -809,9 +1100,17 @@ const RepoAnalysisForm = (): FunctionComponent => {
 								<Box className="flex justify-between items-center mb-3">
 									<Typography className="font-semibold text-gray-700">
 										Analysis Progress
+										{isInterrupted && !loading && (
+											<Chip 
+												color="warning" 
+												label="Interrupted" 
+												size="small" 
+												sx={{ ml: 2, fontWeight: 500 }} 
+											/>
+										)}
 									</Typography>
 									<Typography className="text-sm text-gray-600">
-										{`${currentIndex + 1} of ${repoItems.length} repositories (${progress}%)`}
+										{`${Math.min(currentIndex + 1, repoItems.length)} of ${repoItems.length} repositories (${progress}%)`}
 									</Typography>
 								</Box>
 
@@ -883,12 +1182,20 @@ const RepoAnalysisForm = (): FunctionComponent => {
 				</Zoom>
 			)}
 
-			{/* Batch Results Section */}
+			{/* Batch Results Section - 确保即使在中断后也能显示结果 */}
 			{batchMode && results.length > 0 && (
 				<Zoom in={results.length > 0} timeout={500}>
 					<Box className="mt-8">
 						<Typography className="form-title mb-4">
 							Repository Analysis Results
+							{isInterrupted && (
+								<Chip 
+									color="warning" 
+									label="Interrupted" 
+									size="small" 
+									sx={{ ml: 2, fontWeight: 500 }} 
+								/>
+							)}
 						</Typography>
 						<BatchResults results={results} />
 					</Box>
@@ -917,7 +1224,9 @@ const RepoAnalysisForm = (): FunctionComponent => {
 				>
 					{!batchMode
 						? `Repository ${extractRepoName()} analyzed successfully!`
-						: "All repositories analyzed successfully!"}
+						: isInterrupted 
+							? `Analysis interrupted. Completed ${results.length} of ${repoItems.length} repositories.`
+							: `All ${repoItems.length} repositories analyzed successfully!`}
 				</Alert>
 			</Snackbar>
 		</Box>
