@@ -115,9 +115,15 @@ Fudong Qin
 
 A modern, visually appealing application for analyzing GitHub repositories with enhanced UI components.
 
-## UI Enhancement Features
+## Features
 
-This application has been enhanced with the following UI features:
+- **Combined Analysis Interface**: Single unified interface that supports both individual repository analysis and batch processing mode
+- **Smooth Mode Switching**: Easy toggle between single and batch analysis modes
+- **Real-time Progress Tracking**: Visual progress indicators for batch analysis operations
+- **Enhanced Visualizations**: Beautiful charts and graphs for repository insights
+- **Modern UI Components**: Polished, animated interface elements for a better user experience
+
+## UI Enhancement Features
 
 ### Form Components
 
@@ -133,7 +139,7 @@ This application has been enhanced with the following UI features:
 - **Card Animation**: Cards animate on hover with shadow changes and subtle elevation
 - **Loading Indicators**: Enhanced process indicators with animated gradients
 - **Fade/Grow Transitions**: Components fade or grow in when loaded or activated
-- **Tab Animations**: Tabs feature hover effects and icon animations
+- **Mode Switch Animation**: Smooth transition between single and batch modes
 - **Alert Styles**: Styled alerts with appropriate colors for success and error states
 
 ### Color Scheme
@@ -152,8 +158,17 @@ This application has been enhanced with the following UI features:
 
 ## Technologies Used
 
-- React with functional components
+- React with functional components and hooks
 - Material UI components
 - CSS3 with animations and transitions
-- Responsive design
+- Responsive design principles
+
+## How to Use
+
+1. Toggle between Single Repository and Batch Mode using the switch
+2. For single mode, enter a GitHub repository URL in the format `owner/repo` or the full URL
+3. For batch mode, enter multiple repository URLs, one per line
+4. Enter your GitHub token (or use the preset token if available)
+5. Click the analyze button to start the analysis
+6. View the results displayed below the form
 

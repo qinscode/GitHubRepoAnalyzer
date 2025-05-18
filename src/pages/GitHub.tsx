@@ -1,17 +1,9 @@
 import { Container, Box, Typography } from "@mui/material";
 import GitHubIcon from "@mui/icons-material/GitHub";
-import SingleRepoForm from "../components/github/SingleRepoForm";
-import BatchRepoForm from "../components/github/BatchRepoForm";
+import RepoAnalysisForm from "../components/github/RepoAnalysisForm";
 import RepoTabs from "../components/github/RepoTabs";
-import { useState } from "react";
 
 export const GitHub = (): React.ReactElement => {
-	const [activeTab, setActiveTab] = useState(0);
-
-	const handleTabChange = (newValue: number): void => {
-		setActiveTab(newValue);
-	};
-
 	return (
 		<Container className="!p-4 md:!p-8" maxWidth="lg">
 			<Box className="mb-10 text-center">
@@ -49,10 +41,10 @@ export const GitHub = (): React.ReactElement => {
 					border: "1px solid rgba(0,0,0,0.03)",
 				}}
 			>
-				<RepoTabs activeTab={activeTab} handleTabChange={handleTabChange} />
+				<RepoTabs />
 
 				<Box className="p-4 md:p-6">
-					{activeTab === 0 ? <SingleRepoForm /> : <BatchRepoForm />}
+					<RepoAnalysisForm />
 				</Box>
 			</Box>
 		</Container>
