@@ -2,58 +2,30 @@ import { useState, useEffect } from "react";
 import {
 	Box,
 	TextField,
-	Button,
-	Alert,
-	CircularProgress,
 	Typography,
 	InputAdornment,
 	Card,
 	CardContent,
 	Grow,
-	Zoom,
-	LinearProgress,
-	Stack,
-	Chip,
-	FormControlLabel,
-	Switch,
 } from "@mui/material";
 import GitHubIcon from "@mui/icons-material/GitHub";
-import SearchIcon from "@mui/icons-material/Search";
 import KeyIcon from "@mui/icons-material/Key";
 import ViewListIcon from "@mui/icons-material/ViewList";
-import HourglassTopIcon from "@mui/icons-material/HourglassTop";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import ErrorIcon from "@mui/icons-material/Error";
-import PlaylistAddCheckIcon from "@mui/icons-material/PlaylistAddCheck";
+
 import {
 	fetchRepositoryData,
 	parseRepoUrl,
 } from "../../../services/githubGraphQLService.ts";
 import "../../../styles/FormStyles.css";
-
-interface BatchRepoFormProps {
-	onDataFetched: (results: Array<any>) => void;
-}
-
-interface RepoResult {
-	repoUrl: string;
-	repoName: string;
-	commits: number;
-	issues: number;
-	prs: number;
-	contributors: number;
-	data: any;
-}
-
-type RepoStatus = "pending" | "processing" | "completed" | "error";
-
-interface RepoListItem {
-	id: string;
-	url: string;
-	status: RepoStatus;
-	result?: RepoResult;
-	error?: string;
-}
+import type {
+	RepoListItem,
+	RepoResult,
+	BatchRepoFormProps,
+} from "../types/batchRepoTypes";
+import RepoStatusList from "./RepoStatusList";
+import ProcessingProgress from "./ProcessingProgress";
+import AnalysisOptions from "./AnalysisOptions";
+import FormActions from "./FormActions";
 
 const BatchRepoForm: React.FC<BatchRepoFormProps> = ({ onDataFetched }) => {
 	// Form state
@@ -66,6 +38,7 @@ const BatchRepoForm: React.FC<BatchRepoFormProps> = ({ onDataFetched }) => {
 
 	// Batch processing state
 	const [repoItems, setRepoItems] = useState<Array<RepoListItem>>([]);
+	// @ts-ignore
 	const [results, setResults] = useState<Array<RepoResult>>([]);
 	const [currentIndex, setCurrentIndex] = useState<number>(-1);
 	const [progress, setProgress] = useState<number>(0);
@@ -269,36 +242,6 @@ const BatchRepoForm: React.FC<BatchRepoFormProps> = ({ onDataFetched }) => {
 		setProgress(0);
 	};
 
-	const getStatusColor = (status: RepoStatus): string => {
-		switch (status) {
-			case "pending":
-				return "rgba(107, 114, 128, 0.7)";
-			case "processing":
-				return "#3B82F6";
-			case "completed":
-				return "#10B981";
-			case "error":
-				return "#EF4444";
-			default:
-				return "rgba(107, 114, 128, 0.7)";
-		}
-	};
-
-	const getStatusIcon = (status: RepoStatus): JSX.Element => {
-		switch (status) {
-			case "pending":
-				return <HourglassTopIcon fontSize="small" />;
-			case "processing":
-				return <CircularProgress size={16} />;
-			case "completed":
-				return <CheckCircleIcon fontSize="small" />;
-			case "error":
-				return <ErrorIcon fontSize="small" />;
-			default:
-				return <HourglassTopIcon fontSize="small" />;
-		}
-	};
-
 	return (
 		<Grow in timeout={500}>
 			<Card className="form-card" elevation={0}>
@@ -386,232 +329,30 @@ microsoft/typescript"
 							</Box>
 						)}
 
-						<Box
-							sx={{
-								display: "flex",
-								justifyContent: "flex-start",
-								alignItems: "center",
-								mt: 2,
-								mb: 2,
-								p: 1.5,
-								bgcolor: "rgba(59, 130, 246, 0.05)",
-								borderRadius: "8px",
-								border: "1px solid rgba(59, 130, 246, 0.1)",
-							}}
-						>
-							<Typography
-								variant="body2"
-								sx={{
-									fontWeight: 500,
-									fontSize: "0.85rem",
-									color: "text.secondary",
-									display: "flex",
-									alignItems: "center",
-								}}
-							>
-								<PlaylistAddCheckIcon
-									sx={{
-										mr: 1,
-										color: "primary.main",
-										fontSize: "1.1rem",
-									}}
-								/>
-								Analysis Options
-							</Typography>
-							<Box sx={{ ml: "auto" }}>
-								<FormControlLabel
-									sx={{ mr: 0 }}
-									control={
-										<Switch
-											checked={hideMergeCommits}
-											color="primary"
-											size="small"
-											onChange={(event_) => {
-												setHideMergeCommits(event_.target.checked);
-											}}
-										/>
-									}
-									label={
-										<Typography sx={{ fontSize: "0.85rem" }} variant="body2">
-											Filter Merge Commits
-										</Typography>
-									}
-								/>
-							</Box>
-						</Box>
+						<AnalysisOptions
+							hideMergeCommits={hideMergeCommits}
+							setHideMergeCommits={setHideMergeCommits}
+						/>
 
-						{loading && currentIndex >= 0 && (
-							<Box sx={{ mb: 3 }}>
-								<Box
-									sx={{
-										display: "flex",
-										justifyContent: "space-between",
-										mb: 1,
-									}}
-								>
-									<Typography color="text.secondary" variant="body2">
-										Processing repository {currentIndex + 1} of{" "}
-										{repoItems.length}
-									</Typography>
-									<Typography color="text.secondary" variant="body2">
-										{Math.round(progress)}%
-									</Typography>
-								</Box>
-								<LinearProgress
-									value={progress}
-									variant="determinate"
-									sx={{
-										height: 8,
-										borderRadius: 4,
-										backgroundColor: "rgba(59, 130, 246, 0.1)",
-										"& .MuiLinearProgress-bar": {
-											background: "linear-gradient(90deg, #3B82F6, #4F46E5)",
-											borderRadius: 4,
-										},
-									}}
-								/>
-							</Box>
-						)}
+						<ProcessingProgress
+							currentIndex={currentIndex}
+							loading={loading}
+							progress={progress}
+							repoItemsLength={repoItems.length}
+						/>
 
-						{repoItems.length > 0 && (
-							<Box
-								sx={{
-									mb: 3,
-									p: 2,
-									borderRadius: "12px",
-									border: "1px solid rgba(0, 0, 0, 0.08)",
-									backgroundColor: "rgba(255, 255, 255, 0.5)",
-									maxHeight: "200px",
-									overflowY: "auto",
-								}}
-							>
-								<Typography
-									sx={{ mb: 1.5, fontWeight: 600, color: "text.primary" }}
-									variant="subtitle2"
-								>
-									Repository Status
-								</Typography>
-								<Stack spacing={1}>
-									{repoItems.map((item) => (
-										<Box
-											key={item.id}
-											sx={{
-												display: "flex",
-												alignItems: "center",
-												justifyContent: "space-between",
-												p: 1,
-												borderRadius: "8px",
-												backgroundColor: "rgba(255, 255, 255, 0.8)",
-												border: "1px solid rgba(0, 0, 0, 0.04)",
-												transition: "all 0.3s ease",
-												"&:hover": {
-													backgroundColor: "rgba(255, 255, 255, 0.95)",
-													boxShadow: "0 2px 4px rgba(0, 0, 0, 0.05)",
-												},
-											}}
-										>
-											<Typography
-												variant="body2"
-												sx={{
-													fontWeight: item.status === "processing" ? 600 : 400,
-													color:
-														item.status === "error"
-															? "error.main"
-															: "text.primary",
-													overflow: "hidden",
-													textOverflow: "ellipsis",
-													whiteSpace: "nowrap",
-													maxWidth: "70%",
-												}}
-											>
-												{extractRepoName(item.url)}
-											</Typography>
-											<Chip
-												icon={getStatusIcon(item.status)}
-												size="small"
-												label={
-													item.status.charAt(0).toUpperCase() +
-													item.status.slice(1)
-												}
-												sx={{
-													backgroundColor: `${getStatusColor(item.status)}20`,
-													color: getStatusColor(item.status),
-													borderRadius: "8px",
-													"& .MuiChip-icon": {
-														color: "inherit",
-													},
-												}}
-											/>
-										</Box>
-									))}
-								</Stack>
-							</Box>
-						)}
+						<RepoStatusList
+							extractRepoName={extractRepoName}
+							repoItems={repoItems}
+						/>
 
-						<Box sx={{ display: "flex", gap: 2, mt: 4 }}>
-							<Button
-								fullWidth
-								className="submit-button"
-								disabled={loading}
-								type="submit"
-								variant="contained"
-								startIcon={
-									loading ? (
-										<CircularProgress color="inherit" size={20} />
-									) : (
-										<SearchIcon />
-									)
-								}
-							>
-								{loading ? "Analyzing Repositories..." : "Analyze Repositories"}
-							</Button>
-
-							{(error || success || repoItems.length > 0) && (
-								<Button
-									variant="outlined"
-									sx={{
-										borderRadius: "12px",
-										minWidth: "120px",
-										transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-										borderColor: "rgba(0, 0, 0, 0.12)",
-										color: "rgba(0, 0, 0, 0.6)",
-										"&:hover": {
-											borderColor: "rgba(0, 0, 0, 0.24)",
-											background: "rgba(0, 0, 0, 0.04)",
-										},
-									}}
-									onClick={clearForm}
-								>
-									Clear
-								</Button>
-							)}
-						</Box>
-
-						{error && (
-							<Zoom in={!!error} timeout={300}>
-								<Alert
-									className="custom-alert error"
-									icon={<ErrorIcon />}
-									severity="error"
-									sx={{ mt: 3 }}
-								>
-									{error}
-								</Alert>
-							</Zoom>
-						)}
-
-						{success && !error && (
-							<Zoom in={success} timeout={300}>
-								<Alert
-									className="custom-alert success"
-									icon={<CheckCircleIcon />}
-									severity="success"
-									sx={{ mt: 3 }}
-								>
-									Successfully analyzed {results.length} repositories!
-								</Alert>
-							</Zoom>
-						)}
+						<FormActions
+							error={error}
+							loading={loading}
+							repoItemsLength={repoItems.length}
+							success={success}
+							onClear={clearForm}
+						/>
 
 						<Box
 							sx={{

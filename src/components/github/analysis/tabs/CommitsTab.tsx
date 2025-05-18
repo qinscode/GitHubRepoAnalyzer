@@ -42,7 +42,7 @@ function UserCommits({
 		setExpanded(!expanded);
 	};
 
-	// 生成渐变颜色
+	// Define colors for the component
 	const colors = {
 		main: "#10B981", // green
 		light: "rgba(16, 185, 129, 0.1)",

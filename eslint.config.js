@@ -1,7 +1,6 @@
 import { fixupPluginRules } from "@eslint/compat";
 import eslintJS from "@eslint/js";
 import tsParser from "@typescript-eslint/parser";
-//import eslintPluginStorybook from "eslint-plugin-storybook" // does not support eslint v9
 import eslintConfigPrettier from "eslint-config-prettier";
 import eslintPluginImport from "eslint-plugin-import";
 import jsxA11yPlugin from "eslint-plugin-jsx-a11y";
@@ -72,6 +71,8 @@ const typescriptConfig = {
 		"@typescript-eslint/prefer-enum-initializers": "error",
 		"@typescript-eslint/prefer-readonly": "error",
 		"@typescript-eslint/no-unsafe-argument": "off",
+		"@typescript-eslint/ban-ts-comment": "off",
+
 		"no-return-await": "off",
 		"no-await-in-loop": "off",
 		"no-duplicate-import": "off",
