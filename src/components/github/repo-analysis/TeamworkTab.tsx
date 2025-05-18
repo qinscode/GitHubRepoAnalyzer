@@ -26,7 +26,7 @@ interface TeamworkTabProps {
 	data: RepoData;
 }
 
-// 定义主题色
+// Define theme colors
 const colors = {
 	main: "#EC4899", // pink
 	secondary: "#8B5CF6", // purple
@@ -345,7 +345,7 @@ function TeamworkInteractionsTable({
 						gap: 3,
 					}}
 				>
-					{/* 表头卡片 */}
+					{/* Header card */}
 					<Box
 						sx={{
 							display: "flex",
@@ -401,7 +401,7 @@ function TeamworkInteractionsTable({
 						</Box>
 					</Box>
 
-					{/* 用户数据卡片 */}
+					{/* User data cards */}
 					{teamworkStats.map((stats, index) => (
 						<Grow
 							key={stats.user}
@@ -460,7 +460,7 @@ function TeamworkInteractionsTable({
 										zIndex: 1,
 									}}
 								>
-									{/* 贡献者信息 */}
+									{/* Contributor info */}
 									<Box
 										sx={{
 											flex: 3,
@@ -512,7 +512,7 @@ function TeamworkInteractionsTable({
 										</Box>
 									</Box>
 
-									{/* 议题评论 */}
+									{/* Issue comments */}
 									<Box
 										sx={{
 											flex: 2,
@@ -577,7 +577,7 @@ function TeamworkInteractionsTable({
 										</Box>
 									</Box>
 
-									{/* PR 评审 */}
+									{/* PR reviews */}
 									<Box
 										sx={{
 											flex: 2,
@@ -642,7 +642,7 @@ function TeamworkInteractionsTable({
 										</Box>
 									</Box>
 
-									{/* 总交互 */}
+									{/* Total interactions */}
 									<Box
 										sx={{
 											flex: 2,
@@ -705,7 +705,7 @@ function TeamworkTab({ data }: TeamworkTabProps): JSX.Element {
 	const { teamwork } = data || {};
 	const theme = useTheme();
 
-	// 确保数据存在，使用空对象作为默认值
+	// Ensure data exists, use empty objects as defaults
 	const issueCommentsData = Object.entries(teamwork?.issueComments || {})
 		.sort((a, b) => b[1] - a[1])
 		.slice(0, 5);
@@ -714,13 +714,13 @@ function TeamworkTab({ data }: TeamworkTabProps): JSX.Element {
 		.sort((a, b) => b[1] - a[1])
 		.slice(0, 5);
 
-	// 检查是否有数据可显示
+	// Check if there is data to display
 	const hasData =
 		(teamwork?.issueComments &&
 			Object.keys(teamwork.issueComments).length > 0) ||
 		(teamwork?.prReviews && Object.keys(teamwork.prReviews).length > 0);
 
-	// 没有数据时显示提示信息
+	// Display a message when no data is available
 	if (!hasData) {
 		return (
 			<Box sx={{ p: 3, textAlign: "center" }}>
