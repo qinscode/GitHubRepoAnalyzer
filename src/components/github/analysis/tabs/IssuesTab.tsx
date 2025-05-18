@@ -10,11 +10,19 @@ import {
 	Fade,
 	Grow,
 	alpha,
-	Card,
+	TableContainer,
+	Table,
+	TableHead,
+	TableRow,
+	TableCell,
+	TableBody,
+	Paper,
+	Button,
 } from "@mui/material";
 import {
 	ExpandMore as ExpandMoreIcon,
 	BugReport as IssueIcon,
+	MoreHoriz as MoreIcon,
 } from "@mui/icons-material";
 import type { RepoData } from "../../types/types.ts";
 import type { Issue } from "../../../../services/github/types.ts";
@@ -29,6 +37,51 @@ const colors = {
 	lighter: "rgba(139, 92, 246, 0.05)",
 	gradient: "linear-gradient(90deg, #8B5CF6 0%, #A78BFA 100%)",
 };
+
+// Maximum characters to show before collapsing text
+const MAX_VISIBLE_CHARS = 150;
+
+// Component to handle collapsible text content
+function CollapsibleContent({ text }: { text: string }): JSX.Element {
+	const [expanded, setExpanded] = useState(false);
+	const shouldCollapse = text.length > MAX_VISIBLE_CHARS;
+
+	const toggleExpanded = (): void => {
+		setExpanded(!expanded);
+	};
+
+	// If text is shorter than threshold, just display it
+	if (!shouldCollapse) {
+		return (
+			<Typography sx={{ whiteSpace: "pre-wrap", fontSize: "0.85rem" }}>
+				{text}
+			</Typography>
+		);
+	}
+
+	return (
+		<>
+			<Typography sx={{ whiteSpace: "pre-wrap", fontSize: "0.85rem" }}>
+				{expanded ? text : `${text.substring(0, MAX_VISIBLE_CHARS)}...`}
+			</Typography>
+			<Button
+				size="small"
+				startIcon={<MoreIcon />}
+				sx={{
+					mt: 1,
+					color: colors.main,
+					fontSize: "0.75rem",
+					"&:hover": {
+						backgroundColor: alpha(colors.main, 0.08),
+					},
+				}}
+				onClick={toggleExpanded}
+			>
+				{expanded ? "Show less" : "Show more"}
+			</Button>
+		</>
+	);
+}
 
 function UserIssues({
 	user,
@@ -137,97 +190,157 @@ function UserIssues({
 						/>
 					</Box>
 				</AccordionSummary>
-				<AccordionDetails sx={{ p: expanded ? 3 : 0 }}>
+				<AccordionDetails sx={{ p: 0 }}>
 					<Fade in={expanded} timeout={500}>
-						<Box>
-							{issues.map((issue, issueIndex) => (
-								<Card
-									key={issueIndex}
-									elevation={1}
+						<TableContainer
+							component={Paper}
+							elevation={0}
+							sx={{
+								borderRadius: 0,
+								"& .MuiTable-root": {
+									borderCollapse: "separate",
+									borderSpacing: "0",
+								},
+							}}
+						>
+							<Table size="small">
+								<TableHead
 									sx={{
-										p: 0,
-										mb: 2.5,
-										borderRadius: "8px",
-										overflow: "hidden",
-										animation: `fadeIn 0.5s ease-out forwards ${issueIndex * 0.05}s`,
-										opacity: 0,
-										"&:last-child": {
-											mb: 0,
-										},
-										"@keyframes fadeIn": {
-											"0%": { opacity: 0, transform: "translateY(10px)" },
-											"100%": { opacity: 1, transform: "translateY(0)" },
-										},
-										transition: "all 0.2s ease",
-										border: "1px solid rgba(139, 92, 246, 0.1)",
-										"&:hover": {
-											boxShadow: "0 4px 8px -2px rgba(139, 92, 246, 0.15)",
-											transform: "translateY(-2px)",
-										},
+										background: `linear-gradient(to right, ${colors.lighter}, rgba(248, 250, 252, 0.8))`,
 									}}
 								>
-									<Box
-										sx={{
-											display: "flex",
-											alignItems: "center",
-											justifyContent: "space-between",
-											p: 2,
-											borderBottom: issue.body
-												? "1px solid rgba(0,0,0,0.04)"
-												: "none",
-											background: `linear-gradient(to right, ${colors.lighter}, rgba(249, 250, 251, 0.6))`,
-										}}
-									>
-										<Typography
+									<TableRow>
+										<TableCell
+											width="8%"
 											sx={{
-												fontWeight: "600",
-												fontSize: "0.95rem",
+												borderBottom: `2px solid ${colors.light}`,
+												py: 1.5,
+												fontSize: "0.875rem",
+												fontWeight: 600,
 												color: "rgba(55, 65, 81, 0.9)",
-												"& span": {
-													color: colors.main,
-													fontWeight: "700",
-													mr: 1,
+											}}
+										>
+											#
+										</TableCell>
+										<TableCell
+											width="30%"
+											sx={{
+												borderBottom: `2px solid ${colors.light}`,
+												py: 1.5,
+												fontSize: "0.875rem",
+												fontWeight: 600,
+												color: "rgba(55, 65, 81, 0.9)",
+											}}
+										>
+											Issue Title
+										</TableCell>
+										<TableCell
+											sx={{
+												borderBottom: `2px solid ${colors.light}`,
+												py: 1.5,
+												fontSize: "0.875rem",
+												fontWeight: 600,
+												color: "rgba(55, 65, 81, 0.9)",
+											}}
+										>
+											Description
+										</TableCell>
+										<TableCell
+											width="15%"
+											sx={{
+												borderBottom: `2px solid ${colors.light}`,
+												py: 1.5,
+												fontSize: "0.875rem",
+												fontWeight: 600,
+												color: "rgba(55, 65, 81, 0.9)",
+											}}
+										>
+											Date
+										</TableCell>
+									</TableRow>
+								</TableHead>
+								<TableBody>
+									{issues.map((issue, issueIndex) => (
+										<TableRow
+											key={issueIndex}
+											sx={{
+												transition: "background-color 0.2s ease",
+												"&:hover": {
+													backgroundColor: "rgba(139, 92, 246, 0.04)",
+												},
+												animation: `fadeIn 0.5s ease-out forwards ${issueIndex * 0.03}s`,
+												opacity: 0,
+												"@keyframes fadeIn": {
+													"0%": { opacity: 0, transform: "translateY(5px)" },
+													"100%": { opacity: 1, transform: "translateY(0)" },
+												},
+												"&:nth-of-type(odd)": {
+													backgroundColor: alpha(colors.main, 0.02),
+												},
+												"&:last-child td": {
+													borderBottom: 0,
 												},
 											}}
 										>
-											<span>{issueIndex + 1}.</span> {issue.title}
-										</Typography>
-										<Typography 
-											variant="caption" 
-											sx={{ 
-												color: 'text.secondary',
-												fontWeight: 500
-											}}
-										>
-											{issue.date || "18/05/2025 14:30"}
-										</Typography>
-									</Box>
-
-									{issue.body && (
-										<Box sx={{ p: 2 }}>
-											<Typography
-												component="div"
-												variant="body2"
+											<TableCell
 												sx={{
-													whiteSpace: "pre-wrap",
-													fontFamily: "monospace",
-													bgcolor: alpha("#F9FAFB", 0.8),
-													p: 2,
-													borderRadius: 1,
-													border: "1px solid rgba(139, 92, 246, 0.1)",
-													overflowX: "auto",
-													fontSize: "0.85rem",
-													lineHeight: 1.5,
-													color: "rgba(55, 65, 81, 0.9)",
+													fontWeight: 500,
+													color: colors.main,
+													borderBottom: "1px solid rgba(0,0,0,0.04)",
+													py: 1.25,
 												}}
 											>
-												{issue.body}
-											</Typography>
-										</Box>
-									)}
-								</Card>
-							))}
-						</Box>
+												{issueIndex + 1}
+											</TableCell>
+											<TableCell
+												sx={{
+													fontFamily: "monospace",
+													whiteSpace: "pre-wrap",
+													wordBreak: "break-word",
+													fontSize: "0.85rem",
+													borderBottom: "1px solid rgba(0,0,0,0.04)",
+													py: 1.25,
+												}}
+											>
+												{issue.title}
+											</TableCell>
+											<TableCell
+												sx={{
+													fontFamily: "monospace",
+													borderBottom: "1px solid rgba(0,0,0,0.04)",
+													py: 1.25,
+												}}
+											>
+												{issue.body ? (
+													<CollapsibleContent text={issue.body} />
+												) : (
+													<Typography
+														sx={{
+															color: "text.secondary",
+															fontStyle: "italic",
+															fontSize: "0.85rem",
+														}}
+													>
+														No description provided
+													</Typography>
+												)}
+											</TableCell>
+											<TableCell
+												sx={{
+													fontFamily: "monospace",
+													fontSize: "0.85rem",
+													borderBottom: "1px solid rgba(0,0,0,0.04)",
+													py: 1.25,
+													color: "text.secondary",
+												}}
+											>
+												{issue.date || "18/05/2025 14:30"}
+											</TableCell>
+										</TableRow>
+									))}
+								</TableBody>
+							</Table>
+						</TableContainer>
 					</Fade>
 				</AccordionDetails>
 			</Accordion>

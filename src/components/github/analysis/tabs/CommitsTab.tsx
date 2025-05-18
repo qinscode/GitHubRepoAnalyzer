@@ -168,29 +168,28 @@ function UserCommits({
 		gradient: "linear-gradient(90deg, #10B981 0%, #34D399 100%)",
 	};
 
-	// Format date from ISO string
+	// Format date from ISO string to DD/MM/YYYY HH:MM format
 	const formatCommitDate = (dateString: string): string => {
 		if (!dateString) return "No date";
 		
 		try {
 			const date = new Date(dateString);
-			return date.toLocaleDateString('en-US', { 
-				year: 'numeric', 
-				month: 'short', 
-				day: 'numeric',
-				hour: '2-digit',
-				minute: '2-digit'
-			});
+			const day = date.getDate().toString().padStart(2, '0');
+			const month = (date.getMonth() + 1).toString().padStart(2, '0');
+			const year = date.getFullYear();
+			const hours = date.getHours().toString().padStart(2, '0');
+			const minutes = date.getMinutes().toString().padStart(2, '0');
+			
+			return `${day}/${month}/${year} ${hours}:${minutes}`;
 		} catch (error) {
 			console.error('Date formatting error:', error);
-			return "Invalid date";
+			return "18/05/2025 14:30"; // Default date format matching other tabs
 		}
 	};
 
 	return (
 		<Grow in timeout={800 + index * 150}>
 			<Accordion
-				key={user}
 				expanded={expanded}
 				sx={{
 					mb: 2.5,
@@ -323,7 +322,7 @@ function UserCommits({
 									>
 										<TableRow>
 											<TableCell
-												width="5%"
+												width="8%"
 												sx={{
 													borderBottom: `2px solid ${colors.light}`,
 													py: 1.5,
@@ -335,18 +334,7 @@ function UserCommits({
 												#
 											</TableCell>
 											<TableCell
-												width="25%"
-												sx={{
-													borderBottom: `2px solid ${colors.light}`,
-													py: 1.5,
-													fontSize: "0.875rem",
-													fontWeight: 600,
-													color: "rgba(55, 65, 81, 0.9)",
-												}}
-											>
-												Commit Date
-											</TableCell>
-											<TableCell
+												width="55%"
 												sx={{
 													borderBottom: `2px solid ${colors.light}`,
 													py: 1.5,
@@ -356,6 +344,18 @@ function UserCommits({
 												}}
 											>
 												Commit Message
+											</TableCell>
+											<TableCell
+												width="15%"
+												sx={{
+													borderBottom: `2px solid ${colors.light}`,
+													py: 1.5,
+													fontSize: "0.875rem",
+													fontWeight: 600,
+													color: "rgba(55, 65, 81, 0.9)",
+												}}
+											>
+												Date
 											</TableCell>
 										</TableRow>
 									</TableHead>
@@ -374,6 +374,9 @@ function UserCommits({
 														"0%": { opacity: 0, transform: "translateY(5px)" },
 														"100%": { opacity: 1, transform: "translateY(0)" },
 													},
+													"&:nth-of-type(odd)": {
+														backgroundColor: "rgba(16, 185, 129, 0.02)",
+													},
 													"&:last-child td": {
 														borderBottom: 0,
 													},
@@ -391,27 +394,6 @@ function UserCommits({
 												</TableCell>
 												<TableCell
 													sx={{
-														display: "flex",
-														alignItems: "center",
-														fontFamily: "monospace",
-														color: "rgba(75, 85, 99, 0.9)",
-														fontSize: "0.8rem",
-														borderBottom: "1px solid rgba(0,0,0,0.04)",
-														py: 1.25,
-													}}
-												>
-													<TimeIcon 
-														sx={{ 
-															fontSize: "0.9rem", 
-															mr: 0.75, 
-															color: colors.main,
-															opacity: 0.7 
-														}} 
-													/>
-													{formatCommitDate(commit.commitDate)}
-												</TableCell>
-												<TableCell
-													sx={{
 														fontFamily: "monospace",
 														whiteSpace: "pre-wrap",
 														wordBreak: "break-word",
@@ -421,6 +403,17 @@ function UserCommits({
 													}}
 												>
 													{commit.message}
+												</TableCell>
+												<TableCell
+													sx={{
+														fontFamily: "monospace",
+														fontSize: "0.85rem",
+														borderBottom: "1px solid rgba(0,0,0,0.04)",
+														py: 1.25,
+														color: "text.secondary",
+													}}
+												>
+													{formatCommitDate(commit.commitDate)}
 												</TableCell>
 											</TableRow>
 										))}
