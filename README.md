@@ -111,3 +111,64 @@ Replace `/path/to/GH Analyzer.app` with the actual path to the application. This
 
 Fudong Qin
 
+# GitHub Repository Analysis App
+
+A modern, visually appealing application for analyzing GitHub repositories with enhanced UI components.
+
+## Features
+
+- **Combined Analysis Interface**: Single unified interface that supports both individual repository analysis and batch processing mode
+- **Smooth Mode Switching**: Easy toggle between single and batch analysis modes
+- **Real-time Progress Tracking**: Visual progress indicators for batch analysis operations
+- **Enhanced Visualizations**: Beautiful charts and graphs for repository insights
+- **Modern UI Components**: Polished, animated interface elements for a better user experience
+
+## UI Enhancement Features
+
+### Form Components
+
+- **Animated Cards**: Cards feature subtle hover effects and transitions
+- **Gradient Backgrounds**: Background elements use soft gradient effects with animations
+- **Enhanced Input Fields**: Custom styled input fields with animated icon containers
+- **Stylized Buttons**: Buttons with hover effects and transitions
+- **Form Layout**: Improved typography hierarchy and spacing
+- **Responsive Design**: Optimized for various screen sizes
+
+### Visual Effects
+
+- **Card Animation**: Cards animate on hover with shadow changes and subtle elevation
+- **Loading Indicators**: Enhanced process indicators with animated gradients
+- **Fade/Grow Transitions**: Components fade or grow in when loaded or activated
+- **Mode Switch Animation**: Smooth transition between single and batch modes
+- **Alert Styles**: Styled alerts with appropriate colors for success and error states
+
+### Color Scheme
+
+- Primary blue to purple gradient scheme (#3B82F6 → #4F46E5)
+- Success state colors (#10B981, #059669)
+- Error state colors (#EF4444, #DC2626)
+- Subtle background colors with appropriate contrast for readability
+
+## CSS Architecture
+
+- **FormStyles.css**: Shared styles for form components
+- Consistent naming conventions for CSS classes
+- Modular styling with component-specific classes
+- CSS animations and transitions for smoother user experience
+
+## Technologies Used
+
+- React with functional components and hooks
+- Material UI components
+- CSS3 with animations and transitions
+- Responsive design principles
+
+## How to Use
+
+1. Toggle between Single Repository and Batch Mode using the switch
+2. For single mode, enter a GitHub repository URL in the format `owner/repo` or the full URL
+3. For batch mode, enter multiple repository URLs, one per line
+4. Enter your GitHub token (or use the preset token if available)
+5. Click the analyze button to start the analysis
+6. View the results displayed below the form
+

@@ -6,37 +6,33 @@ import {
 	Alert,
 	CircularProgress,
 	Typography,
-	Snackbar,
+	InputAdornment,
 	Card,
 	CardContent,
-	InputAdornment,
-	Fade,
+	Grow,
+	Zoom,
 	LinearProgress,
 	Stack,
 	Chip,
+	FormControlLabel,
+	Switch,
 } from "@mui/material";
-import PlaylistAddCheckIcon from "@mui/icons-material/PlaylistAddCheck";
-import Public from "@mui/icons-material/Public";
+import GitHubIcon from "@mui/icons-material/GitHub";
+import SearchIcon from "@mui/icons-material/Search";
 import KeyIcon from "@mui/icons-material/Key";
+import ViewListIcon from "@mui/icons-material/ViewList";
 import HourglassTopIcon from "@mui/icons-material/HourglassTop";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ErrorIcon from "@mui/icons-material/Error";
-import type { FunctionComponent } from "../../common/types";
-import BatchResults from "./BatchResults";
+import PlaylistAddCheckIcon from "@mui/icons-material/PlaylistAddCheck";
 import {
 	fetchRepositoryData,
 	parseRepoUrl,
 } from "../../services/githubGraphQLService";
+import "./FormStyles.css";
 
-// Define repository data types
-interface RepoData {
-	commits: Record<string, Array<{ message: string; id: string }>>;
-	issues: Record<string, Array<{ title: string; body: string }>>;
-	prs: Record<string, Array<{ title: string }>>;
-	teamwork: {
-		issueComments: Record<string, number>;
-		prReviews: Record<string, number>;
-	};
+interface BatchRepoFormProps {
+	onDataFetched: (results: Array<any>) => void;
 }
 
 interface RepoResult {
@@ -46,7 +42,7 @@ interface RepoResult {
 	issues: number;
 	prs: number;
 	contributors: number;
-	data: RepoData;
+	data: any;
 }
 
 type RepoStatus = "pending" | "processing" | "completed" | "error";
@@ -59,18 +55,22 @@ interface RepoListItem {
 	error?: string;
 }
 
-const BatchRepoForm = (): FunctionComponent => {
+const BatchRepoForm: React.FC<BatchRepoFormProps> = ({ onDataFetched }) => {
+	// Form state
 	const [repoUrls, setRepoUrls] = useState<string>("");
+	const [token, setToken] = useState<string>("");
 	const [loading, setLoading] = useState<boolean>(false);
 	const [error, setError] = useState<string | null>(null);
-	const [token, setToken] = useState<string>("");
 	const [success, setSuccess] = useState<boolean>(false);
-	const [results, setResults] = useState<Array<RepoResult>>([]);
+	const [hideMergeCommits, setHideMergeCommits] = useState<boolean>(false);
+
+	// Batch processing state
 	const [repoItems, setRepoItems] = useState<Array<RepoListItem>>([]);
+	const [results, setResults] = useState<Array<RepoResult>>([]);
 	const [currentIndex, setCurrentIndex] = useState<number>(-1);
 	const [progress, setProgress] = useState<number>(0);
 
-	// Get preset GitHub token from environment variables
+	// Get the preset GitHub token from environment variables
 	useEffect(() => {
 		const presetToken = import.meta.env["VITE_GITHUB_API_TOKEN"];
 		if (presetToken) {
@@ -78,11 +78,26 @@ const BatchRepoForm = (): FunctionComponent => {
 		}
 	}, []);
 
-	// Check if there's a preset token in environment variables
+	// Check if there's a preset token
 	const hasPresetToken = !!import.meta.env["VITE_GITHUB_API_TOKEN"];
 
-	const handleSubmit = async (_error: React.FormEvent): Promise<void> => {
-		_error.preventDefault();
+	const extractRepoName = (url: string): string => {
+		const match = url.match(/github\.com\/([^/]+)\/([^/]+)/);
+		if (match) {
+			return `${match[1]}/${match[2]}`;
+		}
+
+		// Handle owner/repo format
+		const parts = url.split("/");
+		if (parts.length === 2) {
+			return url;
+		}
+
+		return url;
+	};
+
+	const handleSubmit = async (event: React.FormEvent): Promise<void> => {
+		event.preventDefault();
 
 		if (!repoUrls.trim()) {
 			setError("Please enter GitHub repository URLs");
@@ -94,7 +109,7 @@ const BatchRepoForm = (): FunctionComponent => {
 			return;
 		}
 
-		// Parse repository URLs directly
+		// Parse repository URLs
 		const urlList = repoUrls
 			.trim()
 			.split("\n")
@@ -107,6 +122,7 @@ const BatchRepoForm = (): FunctionComponent => {
 
 		setLoading(true);
 		setError(null);
+		setSuccess(false);
 		setResults([]);
 		setCurrentIndex(-1);
 		setProgress(0);
@@ -144,129 +160,96 @@ const BatchRepoForm = (): FunctionComponent => {
 				});
 			}
 
-			if (items.length === 0) {
-				setError("No valid repository URLs found. Please check your input.");
-				setLoading(false);
-				return;
-			}
-
 			if (invalidUrls.length > 0) {
-				setError(
-					`Some URLs were invalid and will be skipped:\n${invalidUrls.join("\n")}`
-				);
+				const errorMessage = invalidUrls.length <= 3 
+					? `Issues with some repositories: ${invalidUrls.join("; ")}`
+					: `Issues with ${invalidUrls.length} repositories. First few: ${invalidUrls.slice(0, 3).join("; ")}...`;
+				setError(errorMessage);
+				
+				if (items.length === 0) {
+					setLoading(false);
+					return;
+				}
 			}
 
 			setRepoItems(items);
+			const batchResults: Array<RepoResult> = [];
 
-			// Process each repository sequentially
-			const analysisResults: Array<RepoResult> = [];
-
+			// Process repositories sequentially
 			for (let index = 0; index < items.length; index++) {
-				// Update current processing repository index
 				setCurrentIndex(index);
-
-				// Update progress percentage
-				const progressPercent = Math.round((index / items.length) * 100);
-				setProgress(progressPercent);
+				setProgress((index / items.length) * 100);
 
 				// Update status to processing
 				setRepoItems((previousItems) => {
-					return previousItems.map((item, index_) =>
-						index_ === index ? { ...item, status: "processing" } : item
-					);
+					const updatedItems = [...previousItems];
+					const item = updatedItems[index];
+					if (item) {
+						updatedItems[index] = { ...item, status: "processing" };
+					}
+					return updatedItems;
 				});
 
 				try {
-					// Use GraphQL API to get repository data
 					const currentItem = items[index];
 					if (!currentItem) continue;
 
-					const currentUrl = currentItem.url;
-					const repoData = await fetchRepositoryData(currentUrl, token);
-
-					// Calculate repository statistics
-					const totalCommits = Object.values(repoData.commits).reduce(
-						(sum, commits) => sum + commits.length,
-						0
-					);
-					const totalIssues = Object.values(repoData.issues).reduce(
-						(sum, issues) => sum + issues.length,
-						0
-					);
-					const totalPRs = Object.values(repoData.prs).reduce(
-						(sum, prs) => sum + prs.length,
-						0
-					);
-					const contributors = new Set([
-						...Object.keys(repoData.commits),
-						...Object.keys(repoData.issues),
-						...Object.keys(repoData.prs),
-					]).size;
-
-					// Get repository name
-					const repoInfo = parseRepoUrl(currentUrl);
-					const repoName = repoInfo
-						? repoInfo.repo
-						: currentUrl.split("/").pop() || currentUrl;
-
-					// Create result object
-					const result: RepoResult = {
-						repoUrl: currentUrl,
-						repoName,
-						commits: totalCommits,
-						issues: totalIssues,
-						prs: totalPRs,
-						contributors,
-						data: repoData,
-					};
-
-					analysisResults.push(result);
-
-					// Update status to completed and add result
-					setRepoItems((previousItems) => {
-						return previousItems.map((item, index_) =>
-							index_ === index ? { ...item, status: "completed", result } : item
-						);
+					// Pass filtering option to API
+					const data = await fetchRepositoryData(currentItem.url, token, {
+						hideMergeCommits,
 					});
 
-					// Update results as they complete
-					setResults([...analysisResults]);
+					const result: RepoResult = {
+						repoUrl: currentItem.url,
+						repoName: extractRepoName(currentItem.url),
+						commits: Object.values(data.commits).flat().length,
+						issues: Object.values(data.issues).flat().length,
+						prs: Object.values(data.prs).flat().length,
+						contributors: Object.keys(data.commits).length,
+						data,
+					};
+
+					batchResults.push(result);
+
+					// Update status to completed
+					setRepoItems((previousItems) => {
+						const updatedItems = [...previousItems];
+						const item = updatedItems[index];
+						if (item) {
+							updatedItems[index] = {
+								...item,
+								status: "completed",
+								result,
+							};
+						}
+						return updatedItems;
+					});
 				} catch (error_) {
-					const currentItem = items[index];
-					if (currentItem) {
-						console.error(`Error analyzing ${currentItem.url}:`, error_);
-					}
+					console.error(
+						`Error processing ${items[index]?.url || "unknown repository"}:`,
+						error_
+					);
 
 					// Update status to error
 					setRepoItems((previousItems) => {
-						return previousItems.map((item, index_) =>
-							index_ === index
-								? {
-										...item,
-										status: "error",
-										error: `Failed to analyze: ${(error_ as Error).message}`,
-									}
-								: item
-						);
+						const updatedItems = [...previousItems];
+						const item = updatedItems[index];
+						if (item) {
+							updatedItems[index] = {
+								...item,
+								status: "error",
+								error: (error_ as Error).message,
+							};
+						}
+						return updatedItems;
 					});
 				}
-
-				// Short delay to make progress visible
-				await new Promise((resolve) => {
-					setTimeout(resolve, 300);
-				});
 			}
 
-			// Set final progress
 			setProgress(100);
-
-			if (analysisResults.length === 0) {
-				setError(
-					"Failed to analyze any repositories. Please check your input or token."
-				);
-			} else {
-				setSuccess(true);
-			}
+			setResults(batchResults);
+			onDataFetched(batchResults);
+			setSuccess(true);
 		} catch (error_) {
 			setError(`Batch analysis failed: ${(error_ as Error).message}`);
 			console.error(error_);
@@ -275,26 +258,32 @@ const BatchRepoForm = (): FunctionComponent => {
 		}
 	};
 
-	const handleCloseSnackbar = (): void => {
+	const clearForm = (): void => {
+		setRepoUrls("");
+		setError(null);
 		setSuccess(false);
+		setResults([]);
+		setRepoItems([]);
+		setCurrentIndex(-1);
+		setProgress(0);
 	};
 
-	const getStatusColor = (status: RepoStatus): any => {
+	const getStatusColor = (status: RepoStatus): string => {
 		switch (status) {
 			case "pending":
-				return "default";
+				return "rgba(107, 114, 128, 0.7)";
 			case "processing":
-				return "primary";
+				return "#3B82F6";
 			case "completed":
-				return "success";
+				return "#10B981";
 			case "error":
-				return "error";
+				return "#EF4444";
 			default:
-				return "default";
+				return "rgba(107, 114, 128, 0.7)";
 		}
 	};
 
-	const getStatusIcon = (status: RepoStatus): JSX.Element | null => {
+	const getStatusIcon = (status: RepoStatus): JSX.Element => {
 		switch (status) {
 			case "pending":
 				return <HourglassTopIcon fontSize="small" />;
@@ -305,268 +294,343 @@ const BatchRepoForm = (): FunctionComponent => {
 			case "error":
 				return <ErrorIcon fontSize="small" />;
 			default:
-				return null;
+				return <HourglassTopIcon fontSize="small" />;
 		}
 	};
 
 	return (
-		<Box>
-			<Card className="rounded-lg overflow-hidden border-0">
-				<CardContent className="p-6">
-					<form onSubmit={handleSubmit}>
-						<Typography
-							className="font-semibold mb-6 text-gray-800 text-lg"
-							variant="h6"
-						>
-							Batch Analysis Configuration
-						</Typography>
+		<Grow in timeout={500}>
+			<Card className="form-card" elevation={0}>
+				<CardContent sx={{ p: 3 }}>
+					<Typography gutterBottom className="form-title" variant="h5">
+						Analyze Multiple Repositories
+					</Typography>
 
-						<Box className="mb-5 relative">
-							<Typography className="text-sm font-medium mb-2 text-gray-600">
-								GitHub Repository URLs
-							</Typography>
+					<Box
+						className="form-container"
+						component="form"
+						onSubmit={handleSubmit}
+					>
+						<Box sx={{ position: "relative", mb: 3 }}>
 							<TextField
 								fullWidth
 								multiline
-								className="mb-2"
-								placeholder="Enter GitHub repository URLs (one per line)"
+								className="enhanced-input"
+								disabled={loading}
+								error={!!error && (error.includes("repository") || error.includes("URL"))}
+								label="GitHub Repositories"
 								rows={4}
 								value={repoUrls}
 								variant="outlined"
-								InputLabelProps={{
-									shrink: true,
-								}}
 								InputProps={{
-									className: "rounded-md bg-white",
-									sx: {
-										"& fieldset": {
-											borderColor: "rgba(0,0,0,0.08)",
-										},
-										"&:hover fieldset": {
-											borderColor: "rgba(59, 130, 246, 0.3) !important",
-										},
-										"&.Mui-focused fieldset": {
-											borderColor: "rgba(59, 130, 246, 0.6) !important",
-											borderWidth: "1px !important",
-										},
-									},
 									startAdornment: (
 										<InputAdornment position="start">
-											<Public color="action" sx={{ opacity: 0.6 }} />
+											<Box className="input-icon-container">
+												<ViewListIcon sx={{ color: "#3B82F6" }} />
+											</Box>
 										</InputAdornment>
 									),
 								}}
-								onChange={(_error): void => {
-									setRepoUrls(_error.target.value);
+								helperText={
+									error && (error.includes("repository") || error.includes("URL"))
+										? error
+										: "Enter one repository URL per line"
+								}
+								placeholder="Enter repository URLs (one per line)
+Example:
+https://github.com/facebook/react
+microsoft/typescript"
+								onChange={(event_) => {
+									setRepoUrls(event_.target.value);
+									if (error) setError(null);
 								}}
 							/>
-							<Typography className="text-xs text-gray-500 mt-1">
-								Enter one repository URL per line (e.g.,
-								https://github.com/facebook/react)
-							</Typography>
 						</Box>
 
-						<Box className="mb-5">
-							<Typography className="text-sm font-medium mb-2 text-gray-600">
-								GitHub Personal Access Token
-							</Typography>
-							<TextField
-								fullWidth
-								disabled={false}
-								placeholder="Enter your GitHub token"
-								type="password"
-								value={token}
-								variant="outlined"
-								InputProps={{
-									className: "rounded-md bg-white",
-									sx: {
-										"& fieldset": {
-											borderColor: "rgba(0,0,0,0.08)",
-										},
-										"&:hover fieldset": {
-											borderColor: "rgba(59, 130, 246, 0.3) !important",
-										},
-										"&.Mui-focused fieldset": {
-											borderColor: "rgba(59, 130, 246, 0.6) !important",
-											borderWidth: "1px !important",
-										},
-									},
-									startAdornment: (
-										<InputAdornment position="start">
-											<KeyIcon color="action" sx={{ opacity: 0.6 }} />
-										</InputAdornment>
-									),
+						{!hasPresetToken && (
+							<Box sx={{ position: "relative", mb: 3 }}>
+								<TextField
+									fullWidth
+									className="enhanced-input"
+									disabled={loading}
+									error={!!error && error.includes("token")}
+									label="GitHub Token"
+									placeholder="Enter your GitHub personal access token"
+									type="password"
+									value={token}
+									variant="outlined"
+									InputProps={{
+										startAdornment: (
+											<InputAdornment position="start">
+												<Box className="input-icon-container">
+													<KeyIcon sx={{ color: "#4F46E5" }} />
+												</Box>
+											</InputAdornment>
+										),
+									}}
+									helperText={
+										error && error.includes("token")
+											? error
+											: "GitHub personal access token with repo scope"
+									}
+									onChange={(event_) => {
+										setToken(event_.target.value);
+										if (error) setError(null);
+									}}
+								/>
+							</Box>
+						)}
+
+						<Box
+							sx={{
+								display: "flex",
+								justifyContent: "flex-start",
+								alignItems: "center",
+								mt: 2,
+								mb: 2,
+								p: 1.5,
+								bgcolor: "rgba(59, 130, 246, 0.05)",
+								borderRadius: "8px",
+								border: "1px solid rgba(59, 130, 246, 0.1)",
+							}}
+						>
+							<Typography
+								variant="body2"
+								sx={{
+									fontWeight: 500,
+									fontSize: "0.85rem",
+									color: "text.secondary",
+									display: "flex",
+									alignItems: "center",
 								}}
-								onChange={(_error): void => {
-									setToken(_error.target.value);
-								}}
-							/>
-							<Typography className="text-xs text-gray-500 mt-1">
-								{hasPresetToken
-									? "Preset token from environment variables is loaded, but you can modify it"
-									: "Required for API access (needs repo scope permissions)"}
+							>
+								<PlaylistAddCheckIcon
+									sx={{
+										mr: 1,
+										color: "primary.main",
+										fontSize: "1.1rem",
+									}}
+								/>
+								Analysis Options
 							</Typography>
+							<Box sx={{ ml: "auto" }}>
+								<FormControlLabel
+									sx={{ mr: 0 }}
+									control={
+										<Switch
+											checked={hideMergeCommits}
+											color="primary"
+											size="small"
+											onChange={(event_) => {
+												setHideMergeCommits(event_.target.checked);
+											}}
+										/>
+									}
+									label={
+										<Typography sx={{ fontSize: "0.85rem" }} variant="body2">
+											Filter Merge Commits
+										</Typography>
+									}
+								/>
+							</Box>
 						</Box>
 
-						<Box className="flex justify-end mt-8">
+						{loading && currentIndex >= 0 && (
+							<Box sx={{ mb: 3 }}>
+								<Box
+									sx={{
+										display: "flex",
+										justifyContent: "space-between",
+										mb: 1,
+									}}
+								>
+									<Typography color="text.secondary" variant="body2">
+										Processing repository {currentIndex + 1} of{" "}
+										{repoItems.length}
+									</Typography>
+									<Typography color="text.secondary" variant="body2">
+										{Math.round(progress)}%
+									</Typography>
+								</Box>
+								<LinearProgress
+									value={progress}
+									variant="determinate"
+									sx={{
+										height: 8,
+										borderRadius: 4,
+										backgroundColor: "rgba(59, 130, 246, 0.1)",
+										"& .MuiLinearProgress-bar": {
+											background: "linear-gradient(90deg, #3B82F6, #4F46E5)",
+											borderRadius: 4,
+										},
+									}}
+								/>
+							</Box>
+						)}
+
+						{repoItems.length > 0 && (
+							<Box
+								sx={{
+									mb: 3,
+									p: 2,
+									borderRadius: "12px",
+									border: "1px solid rgba(0, 0, 0, 0.08)",
+									backgroundColor: "rgba(255, 255, 255, 0.5)",
+									maxHeight: "200px",
+									overflowY: "auto",
+								}}
+							>
+								<Typography
+									sx={{ mb: 1.5, fontWeight: 600, color: "text.primary" }}
+									variant="subtitle2"
+								>
+									Repository Status
+								</Typography>
+								<Stack spacing={1}>
+									{repoItems.map((item) => (
+										<Box
+											key={item.id}
+											sx={{
+												display: "flex",
+												alignItems: "center",
+												justifyContent: "space-between",
+												p: 1,
+												borderRadius: "8px",
+												backgroundColor: "rgba(255, 255, 255, 0.8)",
+												border: "1px solid rgba(0, 0, 0, 0.04)",
+												transition: "all 0.3s ease",
+												"&:hover": {
+													backgroundColor: "rgba(255, 255, 255, 0.95)",
+													boxShadow: "0 2px 4px rgba(0, 0, 0, 0.05)",
+												},
+											}}
+										>
+											<Typography
+												variant="body2"
+												sx={{
+													fontWeight: item.status === "processing" ? 600 : 400,
+													color:
+														item.status === "error"
+															? "error.main"
+															: "text.primary",
+													overflow: "hidden",
+													textOverflow: "ellipsis",
+													whiteSpace: "nowrap",
+													maxWidth: "70%",
+												}}
+											>
+												{extractRepoName(item.url)}
+											</Typography>
+											<Chip
+												icon={getStatusIcon(item.status)}
+												size="small"
+												label={
+													item.status.charAt(0).toUpperCase() +
+													item.status.slice(1)
+												}
+												sx={{
+													backgroundColor: `${getStatusColor(item.status)}20`,
+													color: getStatusColor(item.status),
+													borderRadius: "8px",
+													"& .MuiChip-icon": {
+														color: "inherit",
+													},
+												}}
+											/>
+										</Box>
+									))}
+								</Stack>
+							</Box>
+						)}
+
+						<Box sx={{ display: "flex", gap: 2, mt: 4 }}>
 							<Button
-								className="px-6 py-2 rounded-md font-medium text-[15px] transition-all shadow-sm hover:shadow"
-								color="primary"
+								fullWidth
+								className="submit-button"
 								disabled={loading}
 								type="submit"
 								variant="contained"
 								startIcon={
-									<PlaylistAddCheckIcon
-										fontSize="small"
-										sx={{ marginRight: "4px" }}
-									/>
+									loading ? (
+										<CircularProgress color="inherit" size={20} />
+									) : (
+										<SearchIcon />
+									)
 								}
-								sx={{
-									background: "linear-gradient(45deg, #2563eb, #4f46e5)",
-									textTransform: "none",
-									"&:hover": {
-										background: "linear-gradient(45deg, #1d4ed8, #4338ca)",
-									},
-								}}
 							>
-								{loading ? (
-									<>
-										<CircularProgress
-											size={20}
-											sx={{ marginRight: "8px", color: "white" }}
-											thickness={5}
-										/>
-										Analyzing...
-									</>
-								) : (
-									"Analyze Repositories"
-								)}
+								{loading ? "Analyzing Repositories..." : "Analyze Repositories"}
 							</Button>
+
+							{(error || success || repoItems.length > 0) && (
+								<Button
+									variant="outlined"
+									sx={{
+										borderRadius: "12px",
+										minWidth: "120px",
+										transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+										borderColor: "rgba(0, 0, 0, 0.12)",
+										color: "rgba(0, 0, 0, 0.6)",
+										"&:hover": {
+											borderColor: "rgba(0, 0, 0, 0.24)",
+											background: "rgba(0, 0, 0, 0.04)",
+										},
+									}}
+									onClick={clearForm}
+								>
+									Clear
+								</Button>
+							)}
 						</Box>
 
 						{error && (
-							<Fade in={!!error}>
+							<Zoom in={!!error} timeout={300}>
 								<Alert
-									className="mt-5 rounded-md font-medium text-sm shadow-sm"
+									className="custom-alert error"
+									icon={<ErrorIcon />}
 									severity="error"
-									onClose={(): void => {
-										setError(null);
-									}}
+									sx={{ mt: 3 }}
 								>
 									{error}
 								</Alert>
-							</Fade>
+							</Zoom>
 						)}
-					</form>
+
+						{success && !error && (
+							<Zoom in={success} timeout={300}>
+								<Alert
+									className="custom-alert success"
+									icon={<CheckCircleIcon />}
+									severity="success"
+									sx={{ mt: 3 }}
+								>
+									Successfully analyzed {results.length} repositories!
+								</Alert>
+							</Zoom>
+						)}
+
+						<Box
+							sx={{
+								display: "flex",
+								alignItems: "center",
+								gap: 1,
+								mt: 2,
+								color: "text.secondary",
+								fontSize: "0.875rem",
+								opacity: 0.7,
+								transition: "opacity 0.3s ease",
+								"&:hover": { opacity: 1 },
+							}}
+						>
+							<GitHubIcon sx={{ fontSize: "1rem" }} />
+							<Typography variant="caption">
+								Batch processing allows you to analyze multiple repositories at
+								once.
+							</Typography>
+						</Box>
+					</Box>
 				</CardContent>
 			</Card>
-
-			{/* Progress Section */}
-			{loading && repoItems.length > 0 && (
-				<Box className="mt-8">
-					<Card className="rounded-lg overflow-hidden border border-gray-100">
-						<CardContent className="p-5">
-							<Box className="flex justify-between items-center mb-3">
-								<Typography className="font-semibold text-gray-700">
-									Analysis Progress
-								</Typography>
-								<Typography className="text-sm text-gray-600">
-									{`${currentIndex + 1} of ${repoItems.length} repositories (${progress}%)`}
-								</Typography>
-							</Box>
-
-							<LinearProgress
-								value={progress}
-								variant="determinate"
-								sx={{
-									height: 8,
-									borderRadius: 4,
-									mb: 3,
-									backgroundColor: "rgba(59, 130, 246, 0.1)",
-									"& .MuiLinearProgress-bar": {
-										background: "linear-gradient(45deg, #2563eb, #4f46e5)",
-										borderRadius: 4,
-									},
-								}}
-							/>
-
-							<Stack maxHeight="200px" spacing={1} sx={{ overflowY: "auto" }}>
-								{repoItems.map((repo, index) => (
-									<Box
-										key={repo.id}
-										className={`p-2 rounded-md flex items-center justify-between ${
-											index === currentIndex && repo.status === "processing"
-												? "bg-blue-50"
-												: repo.status === "completed"
-													? "bg-green-50"
-													: repo.status === "error"
-														? "bg-red-50"
-														: ""
-										}`}
-									>
-										<Box className="flex items-center">
-											<Box
-												sx={{
-													width: 24,
-													mr: 1.5,
-													display: "flex",
-													justifyContent: "center",
-												}}
-											>
-												{getStatusIcon(repo.status)}
-											</Box>
-											<Typography
-												noWrap
-												className="text-sm text-gray-700 font-medium"
-												sx={{ maxWidth: 250 }}
-											>
-												{repo.url.replace("https://github.com/", "")}
-											</Typography>
-										</Box>
-										<Chip
-											className="min-w-[90px]"
-											color={getStatusColor(repo.status)}
-											size="small"
-											sx={{ fontWeight: 500 }}
-											variant="outlined"
-											label={
-												repo.status.charAt(0).toUpperCase() +
-												repo.status.slice(1)
-											}
-										/>
-									</Box>
-								))}
-							</Stack>
-						</CardContent>
-					</Card>
-				</Box>
-			)}
-
-			{/* Results Section */}
-			{results.length > 0 && (
-				<Box className="mt-8">
-					<Typography className="font-semibold mb-4 text-xl text-gray-800">
-						Repository Analysis Results
-					</Typography>
-					<BatchResults results={results} />
-				</Box>
-			)}
-
-			{/* Success message */}
-			<Snackbar
-				autoHideDuration={5000}
-				open={success}
-				onClose={handleCloseSnackbar}
-			>
-				<Alert
-					className="font-medium shadow-lg rounded-md"
-					severity="success"
-					onClose={handleCloseSnackbar}
-				>
-					Successfully analyzed repositories
-				</Alert>
-			</Snackbar>
-		</Box>
+		</Grow>
 	);
 };
 

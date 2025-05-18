@@ -10,29 +10,56 @@ interface RepoData {
   };
 }
 
-// 处理仓库 URL，提取 owner 和 repo 名称
+// Process repository URL and extract owner and repo name
 export const parseRepoUrl = (url: string): { owner: string; repo: string } | null => {
   try {
-    // 处理完整 URL 格式
-    if (url.includes('github.com')) {
-      const parsed = new URL(url);
-      const pathSegments = parsed.pathname.split('/').filter(Boolean);
-      if (pathSegments.length >= 2) {
-        const owner = pathSegments[0];
-        const repo = pathSegments[1];
+    if (!url) return null;
+    
+    // Process input URL, remove possible prefixes and suffixes
+    let cleanUrl = url.trim();
+    
+    // Remove @ prefix
+    if (cleanUrl.startsWith('@')) {
+      cleanUrl = cleanUrl.substring(1);
+    }
+    
+    // Remove .git suffix (wherever it appears)
+    cleanUrl = cleanUrl.replace(/\.git$/i, '');
+    
+    // Handle full URL format
+    if (cleanUrl.includes('github.com')) {
+      try {
+        const parsed = new URL(cleanUrl);
+        const pathSegments = parsed.pathname.split('/').filter(Boolean);
+        
+        if (pathSegments.length >= 2) {
+          const owner = pathSegments[0];
+          const repo = pathSegments[1];
+          
+          if (owner && repo) {
+            return { owner, repo };
+          }
+        }
+      } catch (error) {
+        // URL parsing failed, try alternative methods
+        console.error('URL parsing failed, trying alternative methods:', error);
+      }
+    } 
+    
+    // Handle shorthand format owner/repo
+    if (cleanUrl.includes('/')) {
+      const parts = cleanUrl.split('/');
+      // Ensure we have at least owner/repo parts
+      if (parts.length >= 2 && parts[0] && parts[1]) {
+        const owner = parts[0].trim();
+        const repo = parts[1].trim();
         
         if (owner && repo) {
           return { owner, repo };
         }
       }
-    } 
-    // 处理简短格式 owner/repo
-    else if (url.includes('/')) {
-      const [owner, repo] = url.split('/');
-      if (owner && repo) {
-        return { owner, repo };
-      }
     }
+    
     return null;
   } catch (error) {
     console.error('Failed to parse repo URL:', error);
@@ -40,8 +67,13 @@ export const parseRepoUrl = (url: string): { owner: string; repo: string } | nul
   }
 };
 
-// 使用GraphQL API获取提交数据
-const fetchCommits = async (owner: string, repo: string, token: string): Promise<Record<string, Array<{message: string, id: string}>>> => {
+// Fetch commit data using GraphQL API
+const fetchCommits = async (
+  owner: string, 
+  repo: string, 
+  token: string, 
+  options: { hideMergeCommits?: boolean } = {}
+): Promise<Record<string, Array<{message: string, id: string}>>> => {
   const query = `
     query GetCommits($owner: String!, $repo: String!, $cursor: String) {
       repository(owner: $owner, name: $repo) {
@@ -72,12 +104,12 @@ const fetchCommits = async (owner: string, repo: string, token: string): Promise
   `;
 
   try {
-    // 按用户分组提交记录
+    // Group commits by user
     const commitsByUser: Record<string, Array<{message: string, id: string}>> = {};
     let hasNextPage = true;
     let cursor: string | null = null;
     
-    // 使用分页获取更多数据
+    // Use pagination to get more data
     while (hasNextPage) {
       const response = await axios.post(
         'https://api.github.com/graphql',
@@ -95,7 +127,7 @@ const fetchCommits = async (owner: string, repo: string, token: string): Promise
       
       const responseData = response.data.data;
       
-      // 检查是否有效响应
+      // Check for valid response
       if (!responseData?.repository?.defaultBranchRef?.target?.history) {
         break;
       }
@@ -103,8 +135,13 @@ const fetchCommits = async (owner: string, repo: string, token: string): Promise
       const history = responseData.repository.defaultBranchRef.target.history;
       const commits = history.nodes;
       
-      // 处理获取的提交
+      // Process retrieved commits
       commits.forEach((commit: any) => {
+        // Filter merge commits if option is enabled
+        if (options.hideMergeCommits && commit.message.toLowerCase().startsWith('merge ')) {
+          return;
+        }
+        
         const authorLogin = commit.author?.user?.login;
         const authorName = commit.author?.name;
         const author = authorLogin || authorName || 'Unknown';
@@ -113,7 +150,7 @@ const fetchCommits = async (owner: string, repo: string, token: string): Promise
           commitsByUser[author] = [];
         }
         
-        // 限制每个用户最多50条提交
+        // Limit to maximum 50 commits per user
         if (commitsByUser[author].length < 50) {
           commitsByUser[author].push({
             id: commit.oid,
@@ -122,11 +159,11 @@ const fetchCommits = async (owner: string, repo: string, token: string): Promise
         }
       });
       
-      // 更新分页信息
+      // Update pagination info
       hasNextPage = history.pageInfo.hasNextPage;
       cursor = history.pageInfo.endCursor;
       
-      // 如果所有用户都已经有50条提交，则停止获取
+      // Stop fetching if all users already have 50 commits
       const allUsersFull = Object.values(commitsByUser).every(commits => commits.length >= 50);
       if (allUsersFull) {
         break;
@@ -136,11 +173,11 @@ const fetchCommits = async (owner: string, repo: string, token: string): Promise
     return commitsByUser;
   } catch (error) {
     console.error('Failed to fetch commits:', error);
-    throw new Error(`获取提交历史失败: ${(error as Error).message}`);
+    throw new Error(`Failed to fetch commit history: ${(error as Error).message}`);
   }
 };
 
-// 使用GraphQL API获取Issues数据
+// Fetch issues data using GraphQL API
 const fetchIssues = async (owner: string, repo: string, token: string): Promise<{
   issuesByUser: Record<string, Array<{title: string, body: string}>>;
   issueCommentsByUser: Record<string, number>;
@@ -173,15 +210,15 @@ const fetchIssues = async (owner: string, repo: string, token: string): Promise<
   `;
 
   try {
-    // 按用户分组issues
+    // Group issues by user
     const issuesByUser: Record<string, Array<{title: string, body: string}>> = {};
-    // 用于存储issue评论统计
+    // Store issue comment statistics
     const issueCommentsByUser: Record<string, number> = {};
     
     let hasNextPage = true;
     let cursor: string | null = null;
     
-    // 使用分页获取更多数据
+    // Use pagination to get more data
     while (hasNextPage) {
       const response = await axios.post(
         'https://api.github.com/graphql',
@@ -199,7 +236,7 @@ const fetchIssues = async (owner: string, repo: string, token: string): Promise<
       
       const responseData = response.data.data;
       
-      // 检查是否有效响应
+      // Check for valid response
       if (!responseData?.repository?.issues) {
         break;
       }
@@ -207,16 +244,16 @@ const fetchIssues = async (owner: string, repo: string, token: string): Promise<
       const issuesData = responseData.repository.issues;
       const issues = issuesData.nodes;
       
-      // 处理获取的issues
+      // Process retrieved issues
       issues.forEach((issue: any) => {
         const author = issue.author?.login || 'Unknown';
         
-        // 处理issue本身
+        // Process the issue itself
         if (!issuesByUser[author]) {
           issuesByUser[author] = [];
         }
         
-        // 限制每个用户最多50个issue
+        // Limit to maximum 50 issues per user
         if (issuesByUser[author].length < 50) {
           issuesByUser[author].push({
             title: issue.title,
@@ -224,12 +261,12 @@ const fetchIssues = async (owner: string, repo: string, token: string): Promise<
           });
         }
         
-        // 处理issue评论
+        // Process issue comments
         if (issue.comments?.nodes) {
           issue.comments.nodes.forEach((comment: any) => {
             const commentAuthor = comment.author?.login || 'Unknown';
             
-            // 不统计自己评论自己的issue
+            // Don't count self-commenting on own issues
             if (commentAuthor !== author) {
               if (!issueCommentsByUser[commentAuthor]) {
                 issueCommentsByUser[commentAuthor] = 0;
@@ -240,11 +277,11 @@ const fetchIssues = async (owner: string, repo: string, token: string): Promise<
         }
       });
       
-      // 更新分页信息
+      // Update pagination info
       hasNextPage = issuesData.pageInfo.hasNextPage;
       cursor = issuesData.pageInfo.endCursor;
       
-      // 如果所有用户都已经有50个issue，则停止获取
+      // Stop fetching if all users already have 50 issues
       const allUsersFull = Object.values(issuesByUser).every(issues => issues.length >= 50);
       if (allUsersFull) {
         break;
@@ -254,14 +291,11 @@ const fetchIssues = async (owner: string, repo: string, token: string): Promise<
     return { issuesByUser, issueCommentsByUser };
   } catch (error) {
     console.error('Failed to fetch issues:', error);
-    throw new Error(`获取问题列表失败: ${(error as Error).message}`);
+    throw new Error(`Failed to fetch issues list: ${(error as Error).message}`);
   }
 };
 
-
-
-
-// 使用GraphQL API获取PR数据
+// Fetch pull request data using GraphQL API
 const fetchPullRequests = async (owner: string, repo: string, token: string): Promise<{
   prsByUser: Record<string, Array<{title: string}>>;
   prReviewsByUser: Record<string, number>;
@@ -293,15 +327,15 @@ const fetchPullRequests = async (owner: string, repo: string, token: string): Pr
   `;
 
   try {
-    // 按用户分组PRs
+    // Group PRs by user
     const prsByUser: Record<string, Array<{title: string}>> = {};
-    // 用于存储PR评审统计
+    // Store PR review statistics
     const prReviewsByUser: Record<string, number> = {};
     
     let hasNextPage = true;
     let cursor: string | null = null;
     
-    // 使用分页获取更多数据
+    // Use pagination to get more data
     while (hasNextPage) {
       const response = await axios.post(
         'https://api.github.com/graphql',
@@ -319,7 +353,7 @@ const fetchPullRequests = async (owner: string, repo: string, token: string): Pr
       
       const responseData = response.data.data;
       
-      // 检查是否有效响应
+      // Check for valid response
       if (!responseData?.repository?.pullRequests) {
         break;
       }
@@ -327,28 +361,28 @@ const fetchPullRequests = async (owner: string, repo: string, token: string): Pr
       const prsData = responseData.repository.pullRequests;
       const prs = prsData.nodes;
       
-      // 处理获取的PRs
+      // Process retrieved PRs
       prs.forEach((pr: any) => {
         const author = pr.author?.login || 'Unknown';
         
-        // 处理PR本身
+        // Process the PR itself
         if (!prsByUser[author]) {
           prsByUser[author] = [];
         }
         
-        // 限制每个用户最多50个PR
+        // Limit to maximum 50 PRs per user
         if (prsByUser[author].length < 50) {
           prsByUser[author].push({
             title: pr.title
           });
         }
         
-        // 处理PR评审
+        // Process PR reviews
         if (pr.reviews?.nodes) {
           pr.reviews.nodes.forEach((review: any) => {
             const reviewAuthor = review.author?.login || 'Unknown';
             
-            // 不统计自己评审自己的PR
+            // Don't count self-reviewing own PRs
             if (reviewAuthor !== author) {
               if (!prReviewsByUser[reviewAuthor]) {
                 prReviewsByUser[reviewAuthor] = 0;
@@ -359,11 +393,11 @@ const fetchPullRequests = async (owner: string, repo: string, token: string): Pr
         }
       });
       
-      // 更新分页信息
+      // Update pagination info
       hasNextPage = prsData.pageInfo.hasNextPage;
       cursor = prsData.pageInfo.endCursor;
       
-      // 如果所有用户都已经有50个PR，则停止获取
+      // Stop fetching if all users already have 50 PRs
       const allUsersFull = Object.values(prsByUser).every(prs => prs.length >= 50);
       if (allUsersFull) {
         break;
@@ -373,32 +407,35 @@ const fetchPullRequests = async (owner: string, repo: string, token: string): Pr
     return { prsByUser, prReviewsByUser };
   } catch (error) {
     console.error('Failed to fetch pull requests:', error);
-    throw new Error(`获取 PR 列表失败: ${(error as Error).message}`);
+    throw new Error(`Failed to fetch PR list: ${(error as Error).message}`);
   }
 };
 
-// 使用GraphQL API获取仓库数据
-
-export const fetchRepositoryData = async (repoUrl: string, token: string): Promise<RepoData> => {
+// Fetch repository data using GraphQL API
+export const fetchRepositoryData = async (
+  repoUrl: string, 
+  token: string, 
+  options: { hideMergeCommits?: boolean } = {}
+): Promise<RepoData> => {
 	const repoInfo = parseRepoUrl(repoUrl);
 
 	if (!repoInfo) {
-		throw new Error('无效的仓库 URL 格式，请使用 https://github.com/owner/repo 或 owner/repo 格式');
+		throw new Error('Invalid repository URL format. Please use https://github.com/owner/repo or owner/repo format');
 	}
 
 	const { owner, repo } = repoInfo;
 
 	try {
-		// 1. 获取提交数据
-		const commits = await fetchCommits(owner, repo, token);
+		// 1. Fetch commit data with filtering options
+		const commits = await fetchCommits(owner, repo, token, options);
 
-		// 2. 获取Issues数据
+		// 2. Fetch issues data
 		const { issuesByUser, issueCommentsByUser } = await fetchIssues(owner, repo, token);
 
-		// 3. 获取PR数据
+		// 3. Fetch PR data
 		const { prsByUser, prReviewsByUser } = await fetchPullRequests(owner, repo, token);
 
-		// 4. 构建团队协作数据
+		// 4. Build teamwork data
 		const teamwork = {
 			issueComments: issueCommentsByUser,
 			prReviews: prReviewsByUser
@@ -412,6 +449,6 @@ export const fetchRepositoryData = async (repoUrl: string, token: string): Promi
 		};
 	} catch (error) {
 		console.error('Failed to fetch repository data:', error);
-		throw new Error(`获取仓库数据失败: ${(error as Error).message}`);
+		throw new Error(`Failed to fetch repository data: ${(error as Error).message}`);
 	}
 };

@@ -1,69 +1,105 @@
-import { Tabs, Tab, Box } from '@mui/material';
-import GitHubIcon from '@mui/icons-material/GitHub';
-import ViewListIcon from '@mui/icons-material/ViewList';
-import type { FunctionComponent } from '../../common/types';
+import { Box, Grow } from "@mui/material";
+import type { FunctionComponent } from "../../common/types";
+import "../github/FormStyles.css";
 
-interface RepoTabsProps {
-  activeTab: number;
-  handleTabChange: (newValue: number) => void;
-}
+const RepoTabs = (): FunctionComponent => {
+	return (
+		<Grow in timeout={700}>
+			<Box className="tab-container">
+				{/*<Box*/}
+				{/*	sx={{*/}
+				{/*		padding: "1.75rem",*/}
+				{/*		background:*/}
+				{/*			"linear-gradient(to right, rgba(255, 255, 255, 0.95), rgba(249, 250, 251, 0.9))",*/}
+				{/*		borderBottom: "1px solid rgba(0, 0, 0, 0.04)",*/}
+				{/*		position: "relative",*/}
+				{/*		overflow: "hidden",*/}
+				{/*	}}*/}
+				{/*>*/}
+				{/*	<Box*/}
+				{/*		className="shine-effect"*/}
+				{/*		sx={{*/}
+				{/*			display: "flex",*/}
+				{/*			alignItems: "center",*/}
+				{/*			gap: 2,*/}
+				{/*			position: "relative",*/}
+				{/*			zIndex: 2,*/}
+				{/*		}}*/}
+				{/*	>*/}
+				{/*		<Box*/}
+				{/*			sx={{*/}
+				{/*				display: "flex",*/}
+				{/*				alignItems: "center",*/}
+				{/*				justifyContent: "center",*/}
+				{/*				width: 40,*/}
+				{/*				height: 40,*/}
+				{/*				borderRadius: "50%",*/}
+				{/*				background: "linear-gradient(135deg, #3B82F6, #4F46E5)",*/}
+				{/*				boxShadow: "0 4px 6px -1px rgba(59, 130, 246, 0.2)",*/}
+				{/*			}}*/}
+				{/*		>*/}
+				{/*			<GitHubIcon sx={{ color: "white", fontSize: "1.4rem" }} />*/}
+				{/*		</Box>*/}
+				{/*		<Box>*/}
+				{/*			<Typography*/}
+				{/*				className="text-2xl font-bold text-gray-800 mb-1"*/}
+				{/*				variant="h1"*/}
+				{/*				sx={{*/}
+				{/*					fontSize: "1.5rem !important",*/}
+				{/*					fontWeight: "700 !important",*/}
+				{/*					background: "linear-gradient(90deg, #1E40AF, #3B82F6)",*/}
+				{/*					WebkitBackgroundClip: "text",*/}
+				{/*					WebkitTextFillColor: "transparent",*/}
+				{/*					letterSpacing: "-0.01em",*/}
+				{/*				}}*/}
+				{/*			>*/}
+				{/*				GitHub Repository Analysis1*/}
+				{/*			</Typography>*/}
+				{/*			<Typography*/}
+				{/*				className="text-gray-600"*/}
+				{/*				variant="body2"*/}
+				{/*				sx={{*/}
+				{/*					fontSize: "0.95rem",*/}
+				{/*					opacity: 0.85,*/}
+				{/*				}}*/}
+				{/*			>*/}
+				{/*				Analyze single repositories or multiple repositories in batch*/}
+				{/*				mode*/}
+				{/*			</Typography>*/}
+				{/*		</Box>*/}
+				{/*	</Box>*/}
 
-const RepoTabs = ({ activeTab, handleTabChange }: RepoTabsProps): FunctionComponent => {
-  return (
-    <Box>
-      <Tabs
-        aria-label="GitHub repository analysis options"
-        className="min-h-[52px]"
-        value={activeTab}
-        variant="fullWidth"
-        TabIndicatorProps={{
-          className: 'bg-blue-600 h-[3px]',
-          sx: {
-            borderRadius: '3px 3px 0 0',
-            height: '3px',
-          }
-        }}
-        sx={{
-          '& .MuiTabs-flexContainer': {
-            background: 'linear-gradient(to bottom, rgba(249, 250, 251, 1), rgba(255, 255, 255, 1))',
-            borderBottom: '1px solid rgba(0, 0, 0, 0.06)',
-          },
-          '& .MuiTab-root': {
-            transition: 'all 0.2s ease',
-            fontSize: '0.95rem',
-          }
-        }}
-        onChange={(_, newValue) => { handleTabChange(newValue); }}
-      >
-        <Tab 
-          className="font-medium py-3 px-4 text-gray-600 hover:text-blue-700 z-10" 
-          icon={<GitHubIcon className="mr-2" fontSize="small" />} 
-          iconPosition="start" 
-          label="Single Repository"
-          sx={{ 
-            '&.Mui-selected': {
-              color: '#2563eb',
-              fontWeight: '600',
-              backgroundColor: 'transparent'
-            }
-          }}
-        />
-        <Tab 
-          className="font-medium py-3 px-4 text-gray-600 hover:text-blue-700 z-10" 
-          icon={<ViewListIcon className="mr-2" fontSize="small" />} 
-          iconPosition="start" 
-          label="Batch Repositories"
-          sx={{ 
-            '&.Mui-selected': {
-              color: '#2563eb',
-              fontWeight: '600',
-              backgroundColor: 'transparent'
-            }
-          }}
-        />
-      </Tabs>
-    </Box>
-  );
+				{/*	/!* 背景装饰元素 *!/*/}
+				{/*	<Box*/}
+				{/*		sx={{*/}
+				{/*			position: "absolute",*/}
+				{/*			top: -20,*/}
+				{/*			right: -20,*/}
+				{/*			width: 120,*/}
+				{/*			height: 120,*/}
+				{/*			borderRadius: "50%",*/}
+				{/*			background:*/}
+				{/*				"radial-gradient(circle, rgba(59, 130, 246, 0.07) 0%, rgba(59, 130, 246, 0) 70%)",*/}
+				{/*			zIndex: 1,*/}
+				{/*		}}*/}
+				{/*	/>*/}
+				{/*	<Box*/}
+				{/*		sx={{*/}
+				{/*			position: "absolute",*/}
+				{/*			bottom: -30,*/}
+				{/*			left: -30,*/}
+				{/*			width: 160,*/}
+				{/*			height: 160,*/}
+				{/*			borderRadius: "50%",*/}
+				{/*			background:*/}
+				{/*				"radial-gradient(circle, rgba(79, 70, 229, 0.05) 0%, rgba(79, 70, 229, 0) 70%)",*/}
+				{/*			zIndex: 1,*/}
+				{/*		}}*/}
+				{/*	/>*/}
+				{/*</Box>*/}
+			</Box>
+		</Grow>
+	);
 };
 
-export default RepoTabs; 
+export default RepoTabs;

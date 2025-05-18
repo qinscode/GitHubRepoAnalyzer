@@ -5,13 +5,11 @@
   "keywords": [
     "vite",
     "react",
-    "boilerplate",
-    "starter",
-    "template"
+    "GitHub"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/RicardoValdovinos/vite-react-boilerplate"
+    "url": "https://github.com/qinscode/GitHubRepoAnalyzer.git"
   },
   "license": "MIT",
   "version": "1.0.0",

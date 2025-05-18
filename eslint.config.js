@@ -190,7 +190,20 @@ const unicornConfig = {
 	},
 };
 
+const ignoreConfig = {
+	name: "ignore",
+	ignores: [
+		"dist/**",
+		"build/**",
+		"coverage/**",
+		"node_modules/**",
+		".next/**",
+		"src-taur/**",
+	],
+};
+
 const eslintConfig = typescriptEslint.config(
+	ignoreConfig,
 	baseESLintConfig,
 	typescriptConfig,
 	eslintConfigPrettier,
