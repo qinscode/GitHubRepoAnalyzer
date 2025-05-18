@@ -5,7 +5,6 @@ import {
 	Card,
 	CardContent,
 	Button,
-	Chip,
 	Collapse,
 	Avatar,
 	Tooltip,
@@ -15,7 +14,7 @@ import {
 	IconButton,
 	Fade,
 	useTheme,
-	Container,
+	Chip,
 } from "@mui/material";
 import {
 	Commit as CommitIcon,
@@ -27,6 +26,7 @@ import {
 	GitHub as GitHubIcon,
 	ContentCopy as CopyIcon,
 	OpenInNew as OpenInNewIcon,
+	Check as CheckIcon,
 } from "@mui/icons-material";
 import RepoResults from "./RepoResults";
 
@@ -54,7 +54,7 @@ interface BatchResultsProps {
 	results: Array<RepoResult>;
 }
 
-// 自定义颜色配置
+// Custom color configuration
 const statColors = {
 	commits: {
 		main: "#2563eb",
@@ -78,73 +78,68 @@ const statColors = {
 	},
 };
 
-// 统计指标卡片组件
-const StatCard = ({ 
+// Statistics item component
+const StatItem = ({ 
 	icon, 
 	label, 
 	value, 
-	color, 
-	iconColor,
-	tooltipTitle 
+	color
 }: { 
 	icon: React.ReactNode; 
 	label: string; 
 	value: number; 
-	color: string; 
-	iconColor: string;
-	tooltipTitle: string;
+	color: string;
 }) => {
 	return (
-		<Tooltip title={tooltipTitle} arrow placement="top">
-			<Card
-				elevation={0}
-				sx={{
+		<Box
+			sx={{
+				display: "flex",
+				alignItems: "center",
+				gap: 0.5,
+				transition: "transform 0.2s ease",
+				"&:hover": {
+					transform: "translateY(-2px)",
+				}
+			}}
+		>
+			<Box
+				sx={{ 
+					color,
 					display: "flex",
 					alignItems: "center",
 					justifyContent: "center",
-					flexDirection: "column",
-					p: 1,
-					backgroundColor: alpha(color, 0.08),
-					border: `1px solid ${alpha(color, 0.1)}`,
-					borderRadius: "12px",
-					minWidth: "80px",
-					transition: "all 0.3s ease",
-					"&:hover": {
-						transform: "translateY(-2px)",
-						backgroundColor: alpha(color, 0.12),
-						boxShadow: `0 4px 12px ${alpha(color, 0.15)}`
-					}
 				}}
 			>
-				<Box 
-					sx={{ 
-						backgroundColor: alpha(color, 0.15),
-						borderRadius: "50%",
-						width: 36,
-						height: 36,
-						display: "flex",
-						alignItems: "center",
-						justifyContent: "center",
-						mb: 0.5,
-						color: iconColor,
-					}}
-				>
-					{icon}
-				</Box>
-				<Typography variant="h6" fontWeight={600} color={iconColor}>
-					{value}
-				</Typography>
-				<Typography variant="caption" color={alpha(iconColor, 0.7)} fontWeight={500}>
-					{label}
-				</Typography>
-			</Card>
-		</Tooltip>
+				{icon}
+			</Box>
+			<Typography 
+				variant="h6" 
+				sx={{ 
+					fontWeight: 600, 
+					fontSize: "1.1rem", 
+					color,
+				}}
+			>
+				{value}
+			</Typography>
+			<Typography 
+				variant="caption" 
+				sx={{ 
+					color: alpha(color, 0.7),
+					fontWeight: 500,
+					fontSize: "0.75rem",
+				}}
+			>
+				{label}
+			</Typography>
+		</Box>
 	);
 };
 
-// 主组件
+// Main component
 function BatchResults({ results }: BatchResultsProps): JSX.Element {
 	const [expandedRepo, setExpandedRepo] = useState<string | null>(null);
+	const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
 	const theme = useTheme();
 
 	const handleToggleDetails = (repoUrl: string): void => {
@@ -153,7 +148,8 @@ function BatchResults({ results }: BatchResultsProps): JSX.Element {
 
 	const copyRepoUrl = (url: string): void => {
 		navigator.clipboard.writeText(url);
-		// 可以添加复制成功的提示，但为了简洁暂不实现
+		setCopiedUrl(url);
+		setTimeout(() => setCopiedUrl(null), 2000);
 	};
 
 	const openInGitHub = (url: string): void => {
@@ -168,6 +164,29 @@ function BatchResults({ results }: BatchResultsProps): JSX.Element {
 					"0%": { opacity: 0 },
 					"100%": { opacity: 1 }
 				},
+				position: "relative",
+				"&::before": {
+					content: '""',
+					position: "absolute",
+					top: -100,
+					left: -150,
+					width: 300,
+					height: 300,
+					background: "radial-gradient(circle, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0) 70%)",
+					borderRadius: "50%",
+					zIndex: -1,
+				},
+				"&::after": {
+					content: '""',
+					position: "absolute",
+					bottom: -100,
+					right: -150,
+					width: 300,
+					height: 300,
+					background: "radial-gradient(circle, rgba(79, 70, 229, 0.05) 0%, rgba(79, 70, 229, 0) 70%)",
+					borderRadius: "50%",
+					zIndex: -1,
+				}
 			}}
 		>
 			<Box sx={{ mb: 4 }}>
@@ -204,25 +223,25 @@ function BatchResults({ results }: BatchResultsProps): JSX.Element {
 				</Typography>
 			</Box>
 
-			<Stack spacing={3}>
+			<Stack spacing={2.5}>
 				{results.map((result, index) => (
-					<Fade key={result.repoUrl} in={true} style={{ transitionDelay: `${index * 50}ms` }}>
+					<Fade key={result.repoUrl} in={true} style={{ transitionDelay: `${index * 80}ms` }}>
 						<Card
-							elevation={2}
+							elevation={1}
 							sx={{
-								borderRadius: "16px",
+								borderRadius: "12px",
 								overflow: "hidden",
-								background: "linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(249, 250, 251, 0.9))",
-								backdropFilter: "blur(8px)",
+								background: "linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(249, 250, 251, 0.95))",
+								backdropFilter: "blur(10px)",
 								transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
 								borderLeft: "1px solid rgba(59, 130, 246, 0.2)",
 								borderTop: "1px solid rgba(255, 255, 255, 0.7)",
 								boxShadow: expandedRepo === result.repoUrl
-									? "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
-									: "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02)",
+									? "0 15px 20px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
+									: "0 2px 5px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.02)",
 								"&:hover": {
-									transform: expandedRepo === result.repoUrl ? "none" : "translateY(-4px)",
-									boxShadow: "0 20px 25px -5px rgba(59, 130, 246, 0.1), 0 10px 10px -5px rgba(59, 130, 246, 0.05)"
+									transform: expandedRepo === result.repoUrl ? "none" : "translateY(-3px)",
+									boxShadow: "0 10px 15px -5px rgba(59, 130, 246, 0.08), 0 5px 10px -5px rgba(59, 130, 246, 0.05)"
 								},
 								position: "relative",
 								"&::before": {
@@ -231,172 +250,212 @@ function BatchResults({ results }: BatchResultsProps): JSX.Element {
 									top: 0,
 									left: 0,
 									right: 0,
-									height: "4px",
+									height: "3px",
 									background: "linear-gradient(90deg, #3B82F6, #4F46E5)",
 									opacity: expandedRepo === result.repoUrl ? 1 : 0,
 									transition: "opacity 0.3s ease",
 								},
 							}}
 						>
-							<CardContent sx={{ p: 0 }}>
-								{/* 仓库主信息 */}
-								<Box sx={{ p: 3 }}>
-									<Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, gap: 3, alignItems: { xs: "flex-start", md: "center" }, justifyContent: "space-between" }}>
-										{/* 仓库标识和名称 */}
-										<Box sx={{ display: "flex", alignItems: "center", width: { xs: "100%", md: "33%" } }}>
+							<CardContent sx={{ p: 2.5 }}>
+								<Stack direction={{ xs: "column", sm: "row" }} spacing={2} alignItems={{ xs: "flex-start", sm: "center" }}>
+									{/* 左侧: 仓库标识和名称 */}
+									<Box sx={{ width: { xs: "100%", sm: "30%" }, mb: { xs: 1, sm: 0 } }}>
+										<Box sx={{ display: "flex", alignItems: "center" }}>
 											<Avatar
 												sx={{
-													width: 48, 
-													height: 48, 
-													mr: 2,
+													width: 42, 
+													height: 42, 
+													mr: 1.5,
 													background: "linear-gradient(135deg, #3b82f6, #6366f1)",
-													fontSize: "1.1rem",
+													fontSize: "1rem",
 													fontWeight: "bold",
-													boxShadow: "0 4px 8px rgba(59, 130, 246, 0.25)",
+													boxShadow: "0 3px 5px rgba(59, 130, 246, 0.25)",
+													transition: "all 0.3s ease",
+													"&:hover": {
+														transform: "scale(1.05)",
+														boxShadow: "0 4px 8px rgba(59, 130, 246, 0.3)",
+													}
 												}}
 											>
 												{result.repoName.charAt(0).toUpperCase()}
 											</Avatar>
-											<Box>
+											<Box sx={{ overflow: "hidden" }}>
 												<Typography 
 													variant="h6" 
 													sx={{ 
 														fontWeight: 700, 
 														color: "text.primary",
 														lineHeight: 1.3,
+														fontSize: "1rem",
+														whiteSpace: "nowrap",
+														overflow: "hidden",
+														textOverflow: "ellipsis",
+														maxWidth: { xs: "200px", sm: "160px", md: "220px" },
 													}}
 												>
 													{result.repoName.split("/")[1] || result.repoName}
 												</Typography>
-												<Typography 
-													variant="body2" 
-													sx={{ 
-														color: "text.secondary",
+												<Box
+													sx={{
 														display: "flex",
 														alignItems: "center",
 														gap: 0.5,
 													}}
 												>
-													<GitHubIcon sx={{ fontSize: 14 }} />
-													{result.repoName}
-												</Typography>
-											</Box>
-										</Box>
-
-										{/* 统计数据 */}
-										<Box sx={{ width: { xs: "100%", md: "42%" } }}>
-											<Box sx={{ display: "flex", gap: 1 }}>
-												<Box sx={{ flex: 1 }}>
-													<StatCard 
-														icon={<CommitIcon />}
-														label="Commits" 
-														value={result.commits}
-														color={statColors.commits.light}
-														iconColor={statColors.commits.main}
-														tooltipTitle="Total number of commits"
-													/>
-												</Box>
-												<Box sx={{ flex: 1 }}>
-													<StatCard 
-														icon={<IssueIcon />}
-														label="Issues" 
-														value={result.issues}
-														color={statColors.issues.light}
-														iconColor={statColors.issues.main}
-														tooltipTitle="Total number of issues"
-													/>
-												</Box>
-												<Box sx={{ flex: 1 }}>
-													<StatCard 
-														icon={<PRIcon />}
-														label="PRs" 
-														value={result.prs}
-														color={statColors.prs.light}
-														iconColor={statColors.prs.main}
-														tooltipTitle="Total number of pull requests"
-													/>
-												</Box>
-												<Box sx={{ flex: 1 }}>
-													<StatCard 
-														icon={<TeamIcon />}
-														label="Members" 
-														value={result.contributors}
-														color={statColors.contributors.light}
-														iconColor={statColors.contributors.main}
-														tooltipTitle="Total number of contributors"
-													/>
+													<GitHubIcon sx={{ fontSize: 14, color: "text.secondary" }} />
+													<Typography 
+														variant="body2" 
+														sx={{ 
+															color: "text.secondary",
+															fontSize: "0.8rem",
+															whiteSpace: "nowrap",
+															overflow: "hidden",
+															textOverflow: "ellipsis",
+															maxWidth: { xs: "190px", sm: "150px", md: "210px" },
+														}}
+													>
+														{result.repoName}
+													</Typography>
 												</Box>
 											</Box>
 										</Box>
+									</Box>
 
-										{/* 操作按钮 */}
-										<Box sx={{ display: "flex", justifyContent: { xs: "flex-start", md: "flex-end" }, width: { xs: "100%", md: "25%" } }}>
-											<Stack direction="row" spacing={1} alignItems="center">
-												<Tooltip title="Copy Repository URL">
-													<IconButton
-														size="small"
-														onClick={() => copyRepoUrl(result.repoUrl)}
-														sx={{
-															backgroundColor: alpha(theme.palette.primary.main, 0.1),
-															color: theme.palette.primary.main,
-															"&:hover": {
-																backgroundColor: alpha(theme.palette.primary.main, 0.2),
-																transform: "scale(1.05)",
-															},
-														}}
-													>
-														<CopyIcon fontSize="small" />
-													</IconButton>
-												</Tooltip>
-												
-												<Tooltip title="Open in GitHub">
-													<IconButton
-														size="small"
-														onClick={() => openInGitHub(result.repoUrl)}
-														sx={{
-															backgroundColor: alpha(theme.palette.grey[700], 0.1),
-															color: theme.palette.grey[700],
-															"&:hover": {
-																backgroundColor: alpha(theme.palette.grey[700], 0.2),
-																transform: "scale(1.05)",
-															},
-														}}
-													>
-														<OpenInNewIcon fontSize="small" />
-													</IconButton>
-												</Tooltip>
-												
-												<Button
-													variant="contained"
-													color="primary"
-													endIcon={expandedRepo === result.repoUrl ? <CollapseIcon /> : <ExpandIcon />}
-													onClick={() => handleToggleDetails(result.repoUrl)}
+									{/* 中间: 统计数据 */}
+									<Box sx={{ width: { xs: "100%", sm: "40%" }, mb: { xs: 2, sm: 0 } }}>
+										<Stack 
+											direction="row" 
+											spacing={{ xs: 2, md: 3 }}
+											justifyContent={{ xs: "space-between", sm: "flex-start" }}
+											sx={{ 
+												pl: { xs: 1, sm: 0 }, 
+												pr: { xs: 1, sm: 0 },
+											}}
+										>
+											<StatItem 
+												icon={<CommitIcon sx={{ fontSize: "1.2rem" }} />}
+												label="Commits" 
+												value={result.commits}
+												color={statColors.commits.main}
+											/>
+											<StatItem 
+												icon={<IssueIcon sx={{ fontSize: "1.2rem" }} />}
+												label="Issues" 
+												value={result.issues}
+												color={statColors.issues.main}
+											/>
+											<StatItem 
+												icon={<PRIcon sx={{ fontSize: "1.2rem" }} />}
+												label="PRs" 
+												value={result.prs}
+												color={statColors.prs.main}
+											/>
+											<StatItem 
+												icon={<TeamIcon sx={{ fontSize: "1.2rem" }} />}
+												label="Members" 
+												value={result.contributors}
+												color={statColors.contributors.main}
+											/>
+										</Stack>
+									</Box>
+
+									{/* 右侧: 操作按钮 */}
+									<Box sx={{ width: { xs: "100%", sm: "30%" }, display: "flex", justifyContent: { xs: "flex-start", sm: "flex-end" }}}>
+										<Stack 
+											direction="row" 
+											spacing={1} 
+											sx={{ mt: { xs: 0, sm: 0 } }}
+										>
+											<Tooltip title={copiedUrl === result.repoUrl ? "Copied!" : "Copy URL"}>
+												<IconButton
+													size="small"
+													aria-label="Copy repository URL"
+													onClick={() => copyRepoUrl(result.repoUrl)}
 													sx={{
-														borderRadius: "10px",
-														textTransform: "none",
-														fontWeight: 600,
-														boxShadow: "none",
-														background: expandedRepo === result.repoUrl 
-															? "linear-gradient(45deg, #3B82F6, #4F46E5)" 
-															: "linear-gradient(45deg, #4F46E5, #3B82F6)",
-														transition: "all 0.3s ease",
+														backgroundColor: alpha(theme.palette.primary.main, 0.1),
+														color: copiedUrl === result.repoUrl ? theme.palette.success.main : theme.palette.primary.main,
+														width: 32,
+														height: 32,
 														"&:hover": {
+															backgroundColor: alpha(theme.palette.primary.main, 0.15),
 															transform: "translateY(-2px)",
-															boxShadow: "0 4px 10px rgba(59, 130, 246, 0.3)",
 														},
 													}}
 												>
-													{expandedRepo === result.repoUrl ? "Hide Details" : "View Details"}
-												</Button>
-											</Stack>
-										</Box>
+													{copiedUrl === result.repoUrl ? <CheckIcon fontSize="small" /> : <CopyIcon fontSize="small" />}
+												</IconButton>
+											</Tooltip>
+											
+											<Tooltip title="Open in GitHub">
+												<IconButton
+													size="small"
+													aria-label="Open repository in GitHub"
+													onClick={() => openInGitHub(result.repoUrl)}
+													sx={{
+														backgroundColor: alpha(theme.palette.grey[700], 0.08),
+														color: theme.palette.grey[700],
+														width: 32,
+														height: 32,
+														"&:hover": {
+															backgroundColor: alpha(theme.palette.grey[700], 0.15),
+															transform: "translateY(-2px)",
+														},
+													}}
+												>
+													<OpenInNewIcon fontSize="small" />
+												</IconButton>
+											</Tooltip>
+											
+											<Button
+												variant={expandedRepo === result.repoUrl ? "contained" : "outlined"}
+												color="primary"
+												size="small"
+												endIcon={expandedRepo === result.repoUrl ? <CollapseIcon /> : <ExpandIcon />}
+												onClick={() => handleToggleDetails(result.repoUrl)}
+												sx={{
+													borderRadius: "8px",
+													textTransform: "none",
+													fontWeight: 600,
+													fontSize: "0.85rem",
+													minWidth: "115px",
+													height: 32,
+													boxShadow: "none",
+													...(expandedRepo === result.repoUrl ? {
+														background: "linear-gradient(45deg, #3B82F6, #4F46E5)",
+													} : {
+														borderColor: alpha(theme.palette.primary.main, 0.5),
+													}),
+													"&:hover": {
+														transform: "translateY(-2px)",
+														boxShadow: expandedRepo === result.repoUrl
+															? "0 4px 8px rgba(59, 130, 246, 0.25)"
+															: "none",
+														...(expandedRepo !== result.repoUrl ? {
+															borderColor: alpha(theme.palette.primary.main, 0.8),
+															backgroundColor: alpha(theme.palette.primary.main, 0.04),
+														} : {}),
+													},
+												}}
+											>
+												{expandedRepo === result.repoUrl ? "Hide Details" : "View Details"}
+											</Button>
+										</Stack>
 									</Box>
-								</Box>
+								</Stack>
 
 								{/* 仓库详情 */}
 								<Collapse in={expandedRepo === result.repoUrl} timeout="auto" unmountOnExit>
-									<Divider sx={{ opacity: 0.6 }} />
-									<Box sx={{ p: 3, backgroundColor: alpha(theme.palette.primary.main, 0.02) }}>
+									<Divider sx={{ my: 2, opacity: 0.6 }} />
+									<Box 
+										sx={{ 
+											backgroundColor: alpha(theme.palette.primary.main, 0.02),
+											backgroundImage: "radial-gradient(circle at 25px 25px, rgba(59, 130, 246, 0.04) 2%, transparent 12%), radial-gradient(circle at 75px 75px, rgba(79, 70, 229, 0.03) 2%, transparent 12%)",
+											backgroundSize: "100px 100px",
+											borderRadius: "8px",
+											p: 2,
+										}}
+									>
 										<RepoResults data={result.data} />
 									</Box>
 								</Collapse>
