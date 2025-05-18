@@ -469,6 +469,9 @@ const RepoAnalysisForm = (): FunctionComponent => {
 												fontWeight: "500",
 											},
 										}}
+										onClose={() => {
+											setError("");
+										}}
 									>
 										{error}
 									</Alert>
