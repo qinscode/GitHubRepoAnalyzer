@@ -1,4 +1,3 @@
-import type React from "react";
 import { useState } from "react";
 import {
 	Box,
@@ -146,11 +145,17 @@ function BatchResults({ results }: BatchResultsProps): JSX.Element {
 	};
 
 	const copyRepoUrl = (url: string): void => {
-		navigator.clipboard.writeText(url);
-		setCopiedUrl(url);
-		setTimeout(() => {
-			setCopiedUrl(null);
-		}, 2000);
+		navigator.clipboard
+			.writeText(url)
+			.then(() => {
+				setCopiedUrl(url);
+				setTimeout(() => {
+					setCopiedUrl(null);
+				}, 2000);
+			})
+			.catch((error) => {
+				console.error("Copy failed", error);
+			});
 	};
 
 	const openInGitHub = (url: string): void => {
