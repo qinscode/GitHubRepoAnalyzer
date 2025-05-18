@@ -72,7 +72,7 @@ const RepoAnalysisForm = (): FunctionComponent => {
 	const [success, setSuccess] = useState<boolean>(false);
 
 	// Filtering options
-	const [hideMergeCommits, setHideMergeCommits] = useState<boolean>(false);
+	const [hideMergeCommits, setHideMergeCommits] = useState<boolean>(true);
 
 	// Repository state
 	const [repoUrls, setRepoUrls] = useState<string>("");

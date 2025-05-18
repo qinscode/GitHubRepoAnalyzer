@@ -34,7 +34,7 @@ const BatchRepoForm: React.FC<BatchRepoFormProps> = ({ onDataFetched }) => {
 	const [loading, setLoading] = useState<boolean>(false);
 	const [error, setError] = useState<string | null>(null);
 	const [success, setSuccess] = useState<boolean>(false);
-	const [hideMergeCommits, setHideMergeCommits] = useState<boolean>(false);
+	const [hideMergeCommits, setHideMergeCommits] = useState<boolean>(true);
 
 	// Batch processing state
 	const [repoItems, setRepoItems] = useState<Array<RepoListItem>>([]);
