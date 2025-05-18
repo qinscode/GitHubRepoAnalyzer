@@ -30,7 +30,7 @@ import BatchResults from "./results/BatchResults.tsx";
 import {
 	fetchRepositoryData,
 	parseRepoUrl,
-} from "../../services/githubGraphQLService";
+} from "../../services/github";
 import "../../styles/FormStyles.css";
 import GitHubIcon from "@mui/icons-material/GitHub";
 
