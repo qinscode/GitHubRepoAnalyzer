@@ -241,76 +241,153 @@ function UserPullRequests({
 
 function PullRequestsTab({ data }: PullRequestsTabProps): JSX.Element {
   const prsByUser = useMemo(() => {
-    return Object.entries(data.prs);
+    const users = {};
+    
+    // Group PRs by user
+    Object.entries(data.prs).forEach(([user, prs]) => {
+      users[user] = prs;
+    });
+    
+    // Sort users by number of PRs (descending)
+    return Object.entries(users)
+      .sort(([, a], [, b]) => b.length - a.length);
   }, [data.prs]);
 
   return (
-    <Box sx={{ 
-      position: 'relative',
-      pt: 1,
-      '&::before': {
-        content: '""',
-        position: 'absolute',
-        top: -100,
-        left: -150,
-        width: 300,
-        height: 300,
-        background: 'radial-gradient(circle, rgba(245, 158, 11, 0.06) 0%, rgba(245, 158, 11, 0) 70%)',
-        borderRadius: '50%',
-        zIndex: -1,
-        animation: 'pulse 15s infinite alternate ease-in-out',
-      },
-      '&::after': {
-        content: '""',
-        position: 'absolute',
-        bottom: -50,
-        right: -100,
-        width: 250,
-        height: 250,
-        background: 'radial-gradient(circle, rgba(245, 158, 11, 0.04) 0%, rgba(245, 158, 11, 0) 70%)',
-        borderRadius: '50%',
-        zIndex: -1,
-        animation: 'pulse 12s infinite alternate-reverse ease-in-out',
-      },
-      '@keyframes pulse': {
-        '0%': { opacity: 0.5, transform: 'scale(1)' },
-        '100%': { opacity: 0.7, transform: 'scale(1.1)' },
-      },
-    }}>
-      <Grow in timeout={500}>
-        <Typography 
+    <Fade in timeout={500}>
+      <Box 
+        sx={{
+          position: "relative",
+          animation: 'fadeIn 0.5s ease-out forwards',
+          opacity: 0,
+          "@keyframes fadeIn": {
+            "0%": { opacity: 0 },
+            "100%": { opacity: 1 }
+          }
+        }}
+      >
+        <Box 
+          className="shine-effect"
           sx={{ 
-            fontSize: '1.5rem',
-            fontWeight: 700,
-            color: '#92400E',
-            mb: 3,
-            position: 'relative',
-            display: 'inline-block',
-            '&::after': {
+            p: 2, 
+            mb: 4, 
+            borderRadius: "14px", 
+            background: "linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(217, 119, 6, 0.04))",
+            border: "1px solid rgba(245, 158, 11, 0.15)",
+            boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.01)",
+            position: "relative",
+            overflow: "hidden",
+            "&::before": {
               content: '""',
-              position: 'absolute',
-              bottom: -8,
-              left: 0,
-              width: '60%',
-              height: 3,
-              borderRadius: '3px',
-              background: colors.gradient,
+              position: "absolute",
+              top: -30,
+              right: -30,
+              width: 120,
+              height: 120,
+              borderRadius: "50%",
+              background: "radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0) 70%)",
+              zIndex: 0,
             }
           }}
         >
-          Pull Requests by User
-        </Typography>
-      </Grow>
-      
-      {prsByUser.map(([user, prs], index) => (
-        <UserPullRequests 
-          key={user} 
-          index={index} 
-          prs={prs} 
-          user={user}
-        />
-      ))}
-    </Box>
+          <Typography sx={{ fontWeight: 600, color: "#B45309", mb: 1, position: "relative", zIndex: 1 }} variant="h6">
+            Pull Requests Analysis
+          </Typography>
+          <Typography sx={{ color: "rgba(107, 114, 128, 0.9)", position: "relative", zIndex: 1 }} variant="body2">
+            This analysis shows pull requests created by repository contributors.
+          </Typography>
+        </Box>
+
+        <Box sx={{ mb: 2 }}>
+          <Typography 
+            sx={{ 
+              fontSize: "1.15rem",
+              fontWeight: 600,
+              color: "#B45309",
+              mb: 2.5,
+              position: "relative",
+              paddingLeft: "16px",
+              display: "inline-block",
+              transition: "transform 0.2s ease",
+              "&:hover": {
+                transform: "translateX(2px)",
+              },
+              "&::before": {
+                content: '""',
+                position: "absolute",
+                left: 0,
+                top: "50%",
+                transform: "translateY(-50%)",
+                width: "4px",
+                height: "18px",
+                borderRadius: "2px",
+                background: "linear-gradient(90deg, #F59E0B 0%, #FBBF24 100%)",
+              },
+              "&::after": {
+                content: '""',
+                position: "absolute",
+                bottom: -5,
+                left: 16,
+                width: "40%",
+                height: "2px",
+                background: "linear-gradient(90deg, #F59E0B 0%, #FBBF24 100%)",
+                transition: "width 0.3s ease",
+              },
+              "&:hover::after": {
+                width: "80%",
+              }
+            }}
+          >
+            Pull Requests by Author
+          </Typography>
+        </Box>
+
+        {prsByUser.length === 0 ? (
+          <Box sx={{ p: 3, textAlign: "center", color: "text.secondary" }}>
+            <Typography>No pull request data available for this repository.</Typography>
+          </Box>
+        ) : (
+          prsByUser.map(([user, prs], index) => (
+            <UserPullRequests key={user} index={index} prs={prs} user={user} />
+          ))
+        )}
+
+        <Box 
+          sx={{ 
+            mt: 4, 
+            p: 2, 
+            borderRadius: "12px",
+            border: "1px dashed rgba(245, 158, 11, 0.3)",
+            backgroundColor: "rgba(245, 158, 11, 0.03)",
+          }}
+        >
+          <Box 
+            sx={{ 
+              display: "flex", 
+              alignItems: "center", 
+              gap: 1.5 
+            }}
+          >
+            <PRIcon sx={{ color: "#F59E0B", fontSize: "1.1rem" }} />
+            <Typography sx={{ color: "#B45309", fontWeight: 500 }} variant="body2">
+              Total Pull Requests: {Object.values(data.prs).flat().length}
+            </Typography>
+          </Box>
+          <Typography 
+            variant="caption" 
+            sx={{ 
+              display: "block", 
+              ml: 3.5, 
+              mt: 0.5, 
+              color: "text.secondary",
+              opacity: 0.8, 
+            }}
+          >
+            Created by {Object.keys(data.prs).length} contributors
+          </Typography>
+        </Box>
+      </Box>
+    </Fade>
   );
 }
 

@@ -1,5 +1,4 @@
-import { useMemo } from "react";
-import React from "react";
+import React, { useMemo } from "react";
 import {
 	Box,
 	Card,
@@ -14,7 +13,6 @@ import {
 	Paper,
 	Avatar,
 	LinearProgress,
-	Grow,
 } from "@mui/material";
 import {
 	Commit as CommitIcon,
