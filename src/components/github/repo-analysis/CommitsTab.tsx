@@ -245,14 +245,13 @@ function UserCommits({
 function CommitsTab({ data }: CommitsTabProps): JSX.Element {
 	// Transform commits data for display
 	const commitsByUser = useMemo(() => {
-		const users = {};
+		type Commit = { message: string; id: string };
+		const users: Record<string, Array<Commit>> = {};
 
-		// Group commits by user
 		Object.entries(data.commits).forEach(([user, commits]) => {
 			users[user] = commits;
 		});
 
-		// Sort users by number of commits (descending)
 		return Object.entries(users).sort(
 			([, commitsA], [, commitsB]) => commitsB.length - commitsA.length
 		);
