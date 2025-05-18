@@ -259,7 +259,7 @@ function BatchResults({ results }: BatchResultsProps): JSX.Element {
 						>
 							<CardContent sx={{ p: 2.5 }}>
 								<Stack direction={{ xs: "column", sm: "row" }} spacing={2} alignItems={{ xs: "flex-start", sm: "center" }}>
-									{/* 左侧: 仓库标识和名称 */}
+									{/* Left: Repository identifier and name */}
 									<Box sx={{ width: { xs: "100%", sm: "30%" }, mb: { xs: 1, sm: 0 } }}>
 										<Box sx={{ display: "flex", alignItems: "center" }}>
 											<Avatar
@@ -322,7 +322,7 @@ function BatchResults({ results }: BatchResultsProps): JSX.Element {
 										</Box>
 									</Box>
 
-									{/* 中间: 统计数据 */}
+									{/* Middle: Statistics data */}
 									<Box sx={{ width: { xs: "100%", sm: "40%" }, mb: { xs: 2, sm: 0 } }}>
 										<Stack 
 											direction="row" 
@@ -360,7 +360,7 @@ function BatchResults({ results }: BatchResultsProps): JSX.Element {
 										</Stack>
 									</Box>
 
-									{/* 右侧: 操作按钮 */}
+									{/* Right: Action buttons */}
 									<Box sx={{ width: { xs: "100%", sm: "30%" }, display: "flex", justifyContent: { xs: "flex-start", sm: "flex-end" }}}>
 										<Stack 
 											direction="row" 
@@ -444,7 +444,7 @@ function BatchResults({ results }: BatchResultsProps): JSX.Element {
 									</Box>
 								</Stack>
 
-								{/* 仓库详情 */}
+								{/* Repository details */}
 								<Collapse in={expandedRepo === result.repoUrl} timeout="auto" unmountOnExit>
 									<Divider sx={{ my: 2, opacity: 0.6 }} />
 									<Box 
