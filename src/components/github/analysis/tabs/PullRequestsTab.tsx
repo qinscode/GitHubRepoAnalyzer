@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { MergeType as PRIcon } from "@mui/icons-material";
 import type { RepoData } from "../../types/types.ts";
-import type { PullRequest } from "../../../../services/github/types.ts";
+import type { PullRequest } from "../../../../services/github";
 import UserTabItem from "../components/UserTabItem";
 import AnalysisTabLayout from "../components/AnalysisTabLayout";
 import TabDataTable from "../components/TabDataTable";
@@ -60,7 +60,9 @@ function PullRequestsTab({ data }: PullRequestsTabProps): JSX.Element {
 			creatorLabel="Created by"
 			description="This analysis shows pull requests created by repository contributors."
 			headerTitle="Pull Requests by Author"
-			statsIcon={<PRIcon sx={{ color: pullRequestsTheme.main, fontSize: "1.1rem" }} />}
+			statsIcon={
+				<PRIcon sx={{ color: pullRequestsTheme.main, fontSize: "1.1rem" }} />
+			}
 			theme={pullRequestsTheme}
 			title="Pull Requests Analysis"
 			totalCount={Object.values(data.prs).flat().length}

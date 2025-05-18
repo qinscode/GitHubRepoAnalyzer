@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { BugReport as IssueIcon } from "@mui/icons-material";
 import type { RepoData } from "../../types/types.ts";
-import type { Issue } from "../../../../services/github/types.ts";
+import type { Issue } from "../../../../services/github";
 import UserTabItem from "../components/UserTabItem";
 import AnalysisTabLayout from "../components/AnalysisTabLayout";
 import TabDataTable from "../components/TabDataTable";
@@ -63,7 +63,9 @@ function IssuesTab({ data }: IssuesTabProps): JSX.Element {
 			creatorLabel="Created by"
 			description="This analysis shows issues created by repository contributors."
 			headerTitle="Issues by Creator"
-			statsIcon={<IssueIcon sx={{ color: issuesTheme.main, fontSize: "1.1rem" }} />}
+			statsIcon={
+				<IssueIcon sx={{ color: issuesTheme.main, fontSize: "1.1rem" }} />
+			}
 			theme={issuesTheme}
 			title="Issues Analysis"
 			totalCount={Object.values(data.issues).flat().length}
