@@ -1,0 +1,379 @@
+/* 表单组件共享样式 */
+
+/* 卡片动效 */
+.form-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 16px !important;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(249, 250, 251, 0.9)) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.7) !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025) !important;
+  position: relative;
+  z-index: 1;
+}
+
+.form-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.08), 0 10px 10px -5px rgba(59, 130, 246, 0.04) !important;
+}
+
+.form-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at top right, rgba(59, 130, 246, 0.03), transparent 70%);
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.form-card:hover::before {
+  opacity: 1;
+}
+
+/* 表单容器背景效果 */
+.form-container {
+  position: relative;
+  overflow: hidden;
+  padding-top: 1rem;
+}
+
+.form-container::before {
+  content: "";
+  position: absolute;
+  top: -100px;
+  left: -150px;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, rgba(59, 130, 246, 0) 70%);
+  border-radius: 50%;
+  z-index: -1;
+  animation: pulse 15s infinite alternate ease-in-out;
+}
+
+.form-container::after {
+  content: "";
+  position: absolute;
+  bottom: -50px;
+  right: -100px;
+  width: 250px;
+  height: 250px;
+  background: radial-gradient(circle, rgba(79, 70, 229, 0.06) 0%, rgba(79, 70, 229, 0) 70%);
+  border-radius: 50%;
+  z-index: -1;
+  animation: pulse 12s infinite alternate-reverse ease-in-out;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.5; transform: scale(1); }
+  100% { opacity: 0.7; transform: scale(1.1); }
+}
+
+/* 表单标题样式 */
+.form-title {
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  color: #1E40AF !important;
+  margin-bottom: 1.5rem !important;
+  position: relative;
+  display: inline-block;
+}
+
+.form-title::after {
+  content: "";
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 60%;
+  height: 3px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #3B82F6 0%, #4F46E5 100%);
+  transition: width 0.3s ease;
+}
+
+.form-title:hover::after {
+  width: 100%;
+}
+
+.form-subtitle {
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  color: #374151 !important;
+  margin-bottom: 1rem !important;
+  position: relative;
+  padding-left: 16px;
+  transition: transform 0.2s ease;
+}
+
+.form-subtitle:hover {
+  transform: translateX(2px);
+}
+
+.form-subtitle::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 18px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #3B82F6 0%, #4F46E5 100%);
+}
+
+/* 输入框样式 */
+.enhanced-input .MuiOutlinedInput-root {
+  border-radius: 12px !important;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+.enhanced-input .MuiOutlinedInput-root:hover {
+  transform: translateY(-1px);
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+.enhanced-input .MuiOutlinedInput-root.Mui-focused {
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+  background-color: rgba(255, 255, 255, 1);
+}
+
+.enhanced-input label.Mui-focused {
+  color: #3B82F6 !important;
+}
+
+.enhanced-input .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  transition: all 0.3s ease;
+}
+
+.enhanced-input:hover .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+.enhanced-input .Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(59, 130, 246, 0.6) !important;
+  border-width: 1px !important;
+}
+
+/* 输入框图标 */
+.input-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(79, 70, 229, 0.08));
+  margin-right: 8px;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.input-icon-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(79, 70, 229, 0.12));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.enhanced-input:hover .input-icon-container,
+.enhanced-input .Mui-focused + .input-icon-container {
+  transform: scale(1.1);
+}
+
+.enhanced-input:hover .input-icon-container::before,
+.enhanced-input .Mui-focused + .input-icon-container::before {
+  opacity: 1;
+}
+
+/* 按钮样式 */
+.submit-button {
+  border-radius: 12px !important;
+  padding: 10px 24px !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  letter-spacing: 0.3px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  background: linear-gradient(45deg, #3B82F6, #4F46E5) !important;
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2), 0 2px 4px -1px rgba(59, 130, 246, 0.1) !important;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.submit-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.2), rgba(255,255,255,0.1));
+  z-index: -1;
+  transition: left 0.8s ease;
+}
+
+.submit-button:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(45deg, #2563EB, #4338CA) !important;
+  box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.25), 0 4px 6px -2px rgba(59, 130, 246, 0.15) !important;
+}
+
+.submit-button:hover::before {
+  left: 100%;
+}
+
+.submit-button .MuiButton-startIcon {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.submit-button:hover .MuiButton-startIcon {
+  transform: scale(1.1);
+}
+
+/* Process indicators */
+.process-indicator {
+  position: relative;
+  overflow: hidden;
+}
+
+.process-indicator .MuiCircularProgress-root {
+  z-index: 1;
+}
+
+.process-indicator::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(from 0deg, rgba(59, 130, 246, 0.05), rgba(79, 70, 229, 0.1), rgba(59, 130, 246, 0.05));
+  animation: rotate 4s linear infinite;
+  z-index: 0;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Tab样式 */
+.tab-container {
+  background: linear-gradient(to right, rgba(255, 255, 255, 0.9), rgba(249, 250, 251, 0.8));
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  margin-bottom: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  position: relative;
+  z-index: 1;
+}
+
+.tab-container::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 0;
+  background: linear-gradient(to top, rgba(59, 130, 246, 0.03), transparent);
+  transition: height 0.3s ease;
+  z-index: -1;
+}
+
+.tab-container:hover::after {
+  height: 100%;
+}
+
+.tab-button {
+  font-weight: 600 !important;
+  position: relative;
+  color: rgba(55, 65, 81, 0.7) !important;
+  min-height: 56px !important;
+  padding: 18px 20px !important;
+  transition: all 0.3s ease !important;
+  overflow: hidden;
+}
+
+.tab-button.active {
+  color: #3B82F6 !important;
+}
+
+.tab-button.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, #3B82F6, #4F46E5);
+  border-radius: 3px 3px 0 0;
+}
+
+.tab-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 0;
+  height: 100%;
+  background-color: rgba(59, 130, 246, 0.04);
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+  z-index: -1;
+}
+
+.tab-button:hover::before {
+  width: 100%;
+}
+
+.tab-button .MuiSvgIcon-root {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  margin-right: 8px;
+  font-size: 1.2rem;
+}
+
+.tab-button:hover .MuiSvgIcon-root {
+  transform: translateY(-2px);
+}
+
+/* Alert enhancements */
+.custom-alert {
+  border-radius: 12px !important;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03) !important;
+}
+
+.custom-alert.success {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.95), rgba(5, 150, 105, 0.9)) !important;
+}
+
+.custom-alert.error {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.95), rgba(220, 38, 38, 0.9)) !important;
+}
+
+/* 响应式适配 */
+@media (max-width: 600px) {
+  .form-card {
+    border-radius: 12px !important;
+  }
+  
+  .submit-button {
+    width: 100%;
+  }
+} 

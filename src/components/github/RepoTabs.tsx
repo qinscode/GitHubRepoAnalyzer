@@ -1,68 +1,23 @@
-import { Tabs, Tab, Box } from '@mui/material';
-import GitHubIcon from '@mui/icons-material/GitHub';
-import ViewListIcon from '@mui/icons-material/ViewList';
+import { Box, Grow } from '@mui/material';
 import type { FunctionComponent } from '../../common/types';
+import '../github/FormStyles.css';
 
-interface RepoTabsProps {
-  activeTab: number;
-  handleTabChange: (newValue: number) => void;
-}
-
-const RepoTabs = ({ activeTab, handleTabChange }: RepoTabsProps): FunctionComponent => {
+const RepoTabs = (): FunctionComponent => {
   return (
-    <Box>
-      <Tabs
-        aria-label="GitHub repository analysis options"
-        className="min-h-[52px]"
-        value={activeTab}
-        variant="fullWidth"
-        TabIndicatorProps={{
-          className: 'bg-blue-600 h-[3px]',
-          sx: {
-            borderRadius: '3px 3px 0 0',
-            height: '3px',
-          }
-        }}
-        sx={{
-          '& .MuiTabs-flexContainer': {
-            background: 'linear-gradient(to bottom, rgba(249, 250, 251, 1), rgba(255, 255, 255, 1))',
-            borderBottom: '1px solid rgba(0, 0, 0, 0.06)',
-          },
-          '& .MuiTab-root': {
-            transition: 'all 0.2s ease',
-            fontSize: '0.95rem',
-          }
-        }}
-        onChange={(_, newValue) => { handleTabChange(newValue); }}
-      >
-        <Tab 
-          className="font-medium py-3 px-4 text-gray-600 hover:text-blue-700 z-10" 
-          icon={<GitHubIcon className="mr-2" fontSize="small" />} 
-          iconPosition="start" 
-          label="Single Repository"
-          sx={{ 
-            '&.Mui-selected': {
-              color: '#2563eb',
-              fontWeight: '600',
-              backgroundColor: 'transparent'
-            }
+    <Grow in={true} timeout={700}>
+      <Box className="tab-container">
+        <Box
+          sx={{
+            padding: '1.5rem',
+            background: 'linear-gradient(to right, rgba(255, 255, 255, 0.9), rgba(249, 250, 251, 0.8))',
+            borderBottom: '1px solid rgba(0, 0, 0, 0.04)',
           }}
-        />
-        <Tab 
-          className="font-medium py-3 px-4 text-gray-600 hover:text-blue-700 z-10" 
-          icon={<ViewListIcon className="mr-2" fontSize="small" />} 
-          iconPosition="start" 
-          label="Batch Repositories"
-          sx={{ 
-            '&.Mui-selected': {
-              color: '#2563eb',
-              fontWeight: '600',
-              backgroundColor: 'transparent'
-            }
-          }}
-        />
-      </Tabs>
-    </Box>
+        >
+          <h1 className="text-xl font-bold text-gray-800 mb-2">GitHub Repository Analysis</h1>
+          <p className="text-sm text-gray-600">Analyze single repositories or multiple repositories in batch mode</p>
+        </Box>
+      </Box>
+    </Grow>
   );
 };
 

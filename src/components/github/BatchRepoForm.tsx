@@ -14,6 +14,7 @@ import {
 	LinearProgress,
 	Stack,
 	Chip,
+	Zoom,
 } from "@mui/material";
 import PlaylistAddCheckIcon from "@mui/icons-material/PlaylistAddCheck";
 import Public from "@mui/icons-material/Public";
@@ -410,16 +411,23 @@ const BatchRepoForm = (): FunctionComponent => {
 
 						<Box className="flex justify-end mt-8">
 							<Button
-								className="px-6 py-2 rounded-md font-medium text-[15px] transition-all shadow-sm hover:shadow"
+								className="submit-button"
 								color="primary"
 								disabled={loading}
 								type="submit"
 								variant="contained"
 								startIcon={
-									<PlaylistAddCheckIcon
-										fontSize="small"
-										sx={{ marginRight: "4px" }}
-									/>
+									loading ? (
+										<div className="process-indicator">
+											<CircularProgress
+												size={20}
+												sx={{ color: "white" }}
+												thickness={5}
+											/>
+										</div>
+									) : (
+										<PlaylistAddCheckIcon fontSize="small" />
+									)
 								}
 								sx={{
 									background: "linear-gradient(45deg, #2563eb, #4f46e5)",
@@ -429,18 +437,7 @@ const BatchRepoForm = (): FunctionComponent => {
 									},
 								}}
 							>
-								{loading ? (
-									<>
-										<CircularProgress
-											size={20}
-											sx={{ marginRight: "8px", color: "white" }}
-											thickness={5}
-										/>
-										Analyzing...
-									</>
-								) : (
-									"Analyze Repositories"
-								)}
+								{loading ? "Analyzing..." : "Analyze Repositories"}
 							</Button>
 						</Box>
 
@@ -463,107 +460,119 @@ const BatchRepoForm = (): FunctionComponent => {
 
 			{/* Progress Section */}
 			{loading && repoItems.length > 0 && (
-				<Box className="mt-8">
-					<Card className="rounded-lg overflow-hidden border border-gray-100">
-						<CardContent className="p-5">
-							<Box className="flex justify-between items-center mb-3">
-								<Typography className="font-semibold text-gray-700">
-									Analysis Progress
-								</Typography>
-								<Typography className="text-sm text-gray-600">
-									{`${currentIndex + 1} of ${repoItems.length} repositories (${progress}%)`}
-								</Typography>
-							</Box>
+				<Zoom in={loading && repoItems.length > 0} timeout={500} style={{ transitionDelay: '100ms' }}>
+					<Box className="mt-8">
+						<Card className="form-card">
+							<CardContent className="p-5">
+								<Box className="flex justify-between items-center mb-3">
+									<Typography className="font-semibold text-gray-700">
+										Analysis Progress
+									</Typography>
+									<Typography className="text-sm text-gray-600">
+										{`${currentIndex + 1} of ${repoItems.length} repositories (${progress}%)`}
+									</Typography>
+								</Box>
 
-							<LinearProgress
-								value={progress}
-								variant="determinate"
-								sx={{
-									height: 8,
-									borderRadius: 4,
-									mb: 3,
-									backgroundColor: "rgba(59, 130, 246, 0.1)",
-									"& .MuiLinearProgress-bar": {
-										background: "linear-gradient(45deg, #2563eb, #4f46e5)",
+								<LinearProgress
+									value={progress}
+									variant="determinate"
+									sx={{
+										height: 8,
 										borderRadius: 4,
-									},
-								}}
-							/>
+										mb: 3,
+										backgroundColor: "rgba(59, 130, 246, 0.1)",
+										"& .MuiLinearProgress-bar": {
+											background: "linear-gradient(45deg, #2563eb, #4f46e5)",
+											borderRadius: 4,
+										},
+									}}
+								/>
 
-							<Stack maxHeight="200px" spacing={1} sx={{ overflowY: "auto" }}>
-								{repoItems.map((repo, index) => (
-									<Box
-										key={repo.id}
-										className={`p-2 rounded-md flex items-center justify-between ${
-											index === currentIndex && repo.status === "processing"
-												? "bg-blue-50"
-												: repo.status === "completed"
-													? "bg-green-50"
-													: repo.status === "error"
-														? "bg-red-50"
-														: ""
-										}`}
-									>
-										<Box className="flex items-center">
-											<Box
-												sx={{
-													width: 24,
-													mr: 1.5,
-													display: "flex",
-													justifyContent: "center",
-												}}
-											>
-												{getStatusIcon(repo.status)}
+								<Stack maxHeight="200px" spacing={1} sx={{ overflowY: "auto" }}>
+									{repoItems.map((repo, index) => (
+										<Box
+											key={repo.id}
+											className={`p-2 rounded-md flex items-center justify-between ${
+												index === currentIndex && repo.status === "processing"
+													? "bg-blue-50"
+													: repo.status === "completed"
+														? "bg-green-50"
+														: repo.status === "error"
+															? "bg-red-50"
+															: ""
+											}`}
+										>
+											<Box className="flex items-center">
+												<Box
+													sx={{
+														width: 24,
+														mr: 1.5,
+														display: "flex",
+														justifyContent: "center",
+													}}
+												>
+													{getStatusIcon(repo.status)}
+												</Box>
+												<Typography
+													noWrap
+													className="text-sm text-gray-700 font-medium"
+													sx={{ maxWidth: 250 }}
+												>
+													{repo.url.replace("https://github.com/", "")}
+												</Typography>
 											</Box>
-											<Typography
-												noWrap
-												className="text-sm text-gray-700 font-medium"
-												sx={{ maxWidth: 250 }}
-											>
-												{repo.url.replace("https://github.com/", "")}
-											</Typography>
+											<Chip
+												className="min-w-[90px]"
+												color={getStatusColor(repo.status)}
+												size="small"
+												sx={{ fontWeight: 500 }}
+												variant="outlined"
+												label={
+													repo.status.charAt(0).toUpperCase() +
+													repo.status.slice(1)
+												}
+											/>
 										</Box>
-										<Chip
-											className="min-w-[90px]"
-											color={getStatusColor(repo.status)}
-											size="small"
-											sx={{ fontWeight: 500 }}
-											variant="outlined"
-											label={
-												repo.status.charAt(0).toUpperCase() +
-												repo.status.slice(1)
-											}
-										/>
-									</Box>
-								))}
-							</Stack>
-						</CardContent>
-					</Card>
-				</Box>
+									))}
+								</Stack>
+							</CardContent>
+						</Card>
+					</Box>
+				</Zoom>
 			)}
 
 			{/* Results Section */}
 			{results.length > 0 && (
-				<Box className="mt-8">
-					<Typography className="font-semibold mb-4 text-xl text-gray-800">
-						Repository Analysis Results
-					</Typography>
-					<BatchResults results={results} />
-				</Box>
+				<Zoom in={results.length > 0} timeout={500}>
+					<Box className="mt-8">
+						<Typography className="form-title mb-4">
+							Repository Analysis Results
+						</Typography>
+						<BatchResults results={results} />
+					</Box>
+				</Zoom>
 			)}
 
-			{/* Success message */}
 			<Snackbar
 				autoHideDuration={5000}
 				open={success}
 				onClose={handleCloseSnackbar}
+				TransitionComponent={Zoom}
 			>
 				<Alert
-					className="font-medium shadow-lg rounded-md"
-					severity="success"
 					onClose={handleCloseSnackbar}
+					severity="success"
+					className="custom-alert success"
+					sx={{
+						width: "100%",
+						boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+						color: "white",
+						".MuiAlert-icon": {
+							color: "white",
+						},
+					}}
 				>
-					Successfully analyzed repositories
+					All repositories analyzed successfully!
 				</Alert>
 			</Snackbar>
 		</Box>
