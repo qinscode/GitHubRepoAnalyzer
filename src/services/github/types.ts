@@ -64,7 +64,4 @@ export interface PullRequest {
 export interface TeamworkData {
   issueComments: Record<string, number>;
   prReviews: Record<string, number>;
-}
-
-// Export our RepoData type for use in components
-export type { RepoData as ComponentRepoData }; 
+} 

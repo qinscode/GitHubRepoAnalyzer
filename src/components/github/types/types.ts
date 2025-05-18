@@ -1,7 +1,8 @@
 import type React from "react";
-import type { ComponentRepoData } from "../../../services/github/types";
+import type { RepoData } from "../../../services/github/types";
 
-export type RepoData = ComponentRepoData;
+// Re-export RepoData type for backwards compatibility
+export type { RepoData };
 
 export interface RepoResultsProps {
   data: RepoData;

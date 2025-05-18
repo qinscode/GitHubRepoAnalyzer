@@ -26,23 +26,11 @@ import HourglassTopIcon from "@mui/icons-material/HourglassTop";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ErrorIcon from "@mui/icons-material/Error";
 import type { FunctionComponent } from "../../common/types";
+import type { RepoData } from "../../services/github";
 import BatchResults from "./results/BatchResults.tsx";
-import {
-	fetchRepositoryData,
-	parseRepoUrl,
-} from "../../services/github";
+import { fetchRepositoryData, parseRepoUrl } from "../../services/github";
 import "../../styles/FormStyles.css";
 import GitHubIcon from "@mui/icons-material/GitHub";
-
-interface RepoData {
-	commits: Record<string, Array<{ message: string; id: string }>>;
-	issues: Record<string, Array<{ title: string; body: string }>>;
-	prs: Record<string, Array<{ title: string; body: string }>>;
-	teamwork: {
-		issueComments: Record<string, number>;
-		prReviews: Record<string, number>;
-	};
-}
 
 interface RepoResult {
 	repoUrl: string;
