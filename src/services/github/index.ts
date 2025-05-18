@@ -1,6 +1,6 @@
-import type { RepoData, FetchOptions } from './types';
+import type { RepoData, FetchOptions, ContributorStats } from './types';
 import { parseRepoUrl } from './utils';
-import { fetchCommits } from './commits';
+import { fetchCommits, fetchContributorStats } from './commits';
 import { fetchIssues } from './issues';
 import { fetchPullRequests } from './pullRequests';
 
@@ -33,8 +33,17 @@ export const fetchRepositoryData = async (
 
     // 3. Fetch PR data
     const { prsByUser, prReviewsByUser } = await fetchPullRequests(owner, repo, token);
+    
+    // 4. Fetch contributor statistics with weekly commit data
+    let contributorStats: Array<ContributorStats> = [];
+    try {
+      contributorStats = await fetchContributorStats(owner, repo, token);
+    } catch (error) {
+      console.warn('Failed to fetch contributor statistics:', error);
+      // Continue without contributor stats
+    }
 
-    // 4. Build teamwork data
+    // 5. Build teamwork data
     const teamwork = {
       issueComments: issueCommentsByUser,
       prReviews: prReviewsByUser
@@ -44,7 +53,8 @@ export const fetchRepositoryData = async (
       commits,
       issues: issuesByUser,
       prs: prsByUser,
-      teamwork
+      teamwork,
+      contributorStats
     };
   } catch (error) {
     console.error('Failed to fetch repository data:', error);

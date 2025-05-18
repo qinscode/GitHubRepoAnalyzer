@@ -1,5 +1,6 @@
-import type { Commit, FetchOptions } from './types';
+import type { Commit, FetchOptions, ContributorStats } from './types';
 import { graphqlRequest } from './api';
+import axios from 'axios';
 
 /**
  * Fetch commit data using GraphQL API
@@ -103,5 +104,62 @@ export const fetchCommits = async (
   } catch (error) {
     console.error('Failed to fetch commits:', error);
     throw new Error(`Failed to fetch commit history: ${(error as Error).message}`);
+  }
+};
+
+/**
+ * Fetch commit statistics for contributors using REST API
+ * @param owner Repository owner
+ * @param repo Repository name
+ * @param token GitHub access token
+ * @returns Array of contributor statistics with weekly commit data
+ */
+export const fetchContributorStats = async (
+  owner: string,
+  repo: string,
+  token: string
+): Promise<Array<ContributorStats>> => {
+  try {
+    const url = `https://api.github.com/repos/${owner}/${repo}/stats/contributors`;
+    
+    const response = await axios.get<Array<ContributorStats>>(url, {
+      headers: {
+        Authorization: `token ${token}`,
+        Accept: 'application/vnd.github.v3+json'
+      }
+    });
+    
+    // GitHub may respond with 202 if stats are being calculated
+    if (response.status === 202) {
+      // Wait a moment and try again (up to 3 attempts)
+      let attempts = 0;
+      const maxAttempts = 3;
+      
+      while (attempts < maxAttempts) {
+        attempts++;
+        // Wait 2 seconds before retrying
+        await new Promise<void>(resolve => {
+          setTimeout(resolve, 2000);
+        });
+        
+        const retryResponse = await axios.get<Array<ContributorStats>>(url, {
+          headers: {
+            Authorization: `token ${token}`,
+            Accept: 'application/vnd.github.v3+json'
+          }
+        });
+        
+        if (retryResponse.status === 200) {
+          return retryResponse.data;
+        }
+      }
+      
+      throw new Error('GitHub is still calculating the statistics. Please try again later.');
+    }
+    
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch contributor statistics:', error);
+    throw new Error(`Failed to fetch contributor statistics: ${(error as Error).message}`);
   }
 }; 

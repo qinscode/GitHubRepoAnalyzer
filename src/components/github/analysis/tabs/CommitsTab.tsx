@@ -21,21 +21,138 @@ import {
 	ExpandMore as ExpandMoreIcon,
 	Commit as CommitIcon,
 	AccessTime as TimeIcon,
+	BarChart as BarChartIcon,
 } from "@mui/icons-material";
+import {
+	BarChart,
+	Bar,
+	XAxis,
+	YAxis,
+	CartesianGrid,
+	Tooltip,
+	ResponsiveContainer,
+	Legend,
+} from "recharts";
 import type { RepoData } from "../../types/types.ts";
 
 interface CommitsTabProps {
 	data: RepoData;
 }
 
+// Helper function to format date from Unix timestamp (seconds)
+const formatWeekDate = (timestamp: number): string => {
+	const date = new Date(timestamp * 1000); // Convert from seconds to milliseconds
+	return `Week of ${date.getDate()} ${date.toLocaleString('default', { month: 'short' })}, ${date.getFullYear()}`;
+};
+
+// Component to display commit frequency chart
+function CommitBarChart({
+	color,
+	user,
+	contributorStats,
+}: {
+	color: string;
+	user: string;
+	contributorStats: Array<any> | undefined;
+}): JSX.Element {
+	const weeklyData = useMemo(() => {
+		// If no stats are available, return empty array
+		if (!contributorStats || contributorStats.length === 0) {
+			return [];
+		}
+		
+		// Find stats for this contributor (by login name)
+		const stats = contributorStats.find(
+			stat => stat.author?.login?.toLowerCase() === user.toLowerCase()
+		);
+		
+		// If no stats found for this contributor, return empty array
+		if (!stats || !stats.weeks) {
+			return [];
+		}
+		
+		// Get the 10 most recent weeks with activity
+		const activeWeeks = [...stats.weeks]
+			.filter(week => week.c > 0) // Only weeks with commits
+			.slice(-10); // Most recent 10 weeks
+		
+		return activeWeeks.map(week => ({
+			name: formatWeekDate(week.w),
+			commits: week.c,
+			timestamp: week.w,
+		})).sort((a, b) => a.timestamp - b.timestamp);
+	}, [user, contributorStats]);
+	
+	// If no weekly data available, show a message
+	if (weeklyData.length === 0) {
+		return (
+			<Box sx={{ 
+				alignItems: 'center',
+				display: 'flex', 
+				flexDirection: 'column',
+				height: 100,
+				justifyContent: 'center',
+				mt: 2, 
+				mb: 3,
+				width: '100%' 
+			}}>
+				<Typography color="text.secondary" variant="body2">
+					No weekly commit data available for this contributor.
+				</Typography>
+			</Box>
+		);
+	}
+
+	return (
+		<Box sx={{ height: 250, mt: 2, mb: 3, width: '100%' }}>
+			<ResponsiveContainer height="100%" width="100%">
+				<BarChart
+					data={weeklyData}
+					margin={{ bottom: 5, left: 20, right: 30, top: 5 }}
+				>
+					<CartesianGrid opacity={0.15} strokeDasharray="3 3" />
+					<XAxis 
+						dataKey="name" 
+						tick={{ fill: 'rgba(55, 65, 81, 0.8)', fontSize: 12 }}
+					/>
+					<YAxis 
+						allowDecimals={false}
+						tick={{ fill: 'rgba(55, 65, 81, 0.8)', fontSize: 12 }}
+					/>
+					<Tooltip
+						formatter={(value: number) => [`${value} Commits`, 'Commits']}
+						labelFormatter={(label: string) => label}
+						contentStyle={{
+							backgroundColor: 'rgba(255, 255, 255, 0.95)',
+							border: 'none',
+							borderRadius: '8px',
+							boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+						}}
+					/>
+					<Legend wrapperStyle={{ paddingTop: '10px' }} />
+					<Bar
+						barSize={35}
+						dataKey="commits"
+						fill={color}
+						name="Commits"
+						radius={[4, 4, 0, 0]}
+					/>
+				</BarChart>
+			</ResponsiveContainer>
+		</Box>
+	);
+}
+
 function UserCommits({
 	commits,
 	index,
 	user,
+	contributorStats,
 }: {
 	commits: Array<{ message: string; id: string; commitDate: string }>;
 	index: number;
 	user: string;
+	contributorStats?: Array<any>;
 }): JSX.Element {
 	const [expanded, setExpanded] = React.useState(false);
 
@@ -165,129 +282,152 @@ function UserCommits({
 				</AccordionSummary>
 				<AccordionDetails sx={{ p: 0 }}>
 					<Fade in={expanded} timeout={500}>
-						<TableContainer
-							component={Paper}
-							elevation={0}
-							sx={{
-								borderRadius: 0,
-								"& .MuiTable-root": {
-									borderCollapse: "separate",
-									borderSpacing: "0",
-								},
-							}}
-						>
-							<Table size="small">
-								<TableHead
-									sx={{
-										background: `linear-gradient(to right, ${colors.lighter}, rgba(248, 250, 252, 0.8))`,
-									}}
-								>
-									<TableRow>
-										<TableCell
-											width="5%"
-											sx={{
-												borderBottom: `2px solid ${colors.light}`,
-												py: 1.5,
-												fontSize: "0.875rem",
-												fontWeight: 600,
-												color: "rgba(55, 65, 81, 0.9)",
-											}}
-										>
-											#
-										</TableCell>
-										<TableCell
-											width="25%"
-											sx={{
-												borderBottom: `2px solid ${colors.light}`,
-												py: 1.5,
-												fontSize: "0.875rem",
-												fontWeight: 600,
-												color: "rgba(55, 65, 81, 0.9)",
-											}}
-										>
-											Commit Date
-										</TableCell>
-										<TableCell
-											sx={{
-												borderBottom: `2px solid ${colors.light}`,
-												py: 1.5,
-												fontSize: "0.875rem",
-												fontWeight: 600,
-												color: "rgba(55, 65, 81, 0.9)",
-											}}
-										>
-											Commit Message
-										</TableCell>
-									</TableRow>
-								</TableHead>
-								<TableBody>
-									{commits.map((commit, commitIndex) => (
-										<TableRow
-											key={commit.id || commitIndex}
-											sx={{
-												transition: "background-color 0.2s ease",
-												"&:hover": {
-													backgroundColor: "rgba(16, 185, 129, 0.04)",
-												},
-												animation: `fadeIn 0.5s ease-out forwards ${commitIndex * 0.03}s`,
-												opacity: 0,
-												"@keyframes fadeIn": {
-													"0%": { opacity: 0, transform: "translateY(5px)" },
-													"100%": { opacity: 1, transform: "translateY(0)" },
-												},
-												"&:last-child td": {
-													borderBottom: 0,
-												},
-											}}
-										>
+						<Box>
+							{/* Commit Frequency Chart */}
+							<Box sx={{ 
+								px: 3, 
+								pt: 3, 
+								borderBottom: '1px solid rgba(0,0,0,0.04)',
+								background: 'rgba(249, 250, 251, 0.5)'
+							}}>
+								<Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+									<BarChartIcon sx={{ color: colors.main, mr: 1, fontSize: '1.1rem' }} />
+									<Typography sx={{ color: 'rgba(55, 65, 81, 0.9)', fontWeight: 600 }} variant="subtitle2">
+										Weekly Commit Frequency
+									</Typography>
+								</Box>
+								<CommitBarChart 
+									color={colors.main} 
+									contributorStats={contributorStats}
+									user={user} 
+								/>
+							</Box>
+							
+							{/* Commit List Table */}
+							<TableContainer
+								component={Paper}
+								elevation={0}
+								sx={{
+									borderRadius: 0,
+									"& .MuiTable-root": {
+										borderCollapse: "separate",
+										borderSpacing: "0",
+									},
+								}}
+							>
+								<Table size="small">
+									<TableHead
+										sx={{
+											background: `linear-gradient(to right, ${colors.lighter}, rgba(248, 250, 252, 0.8))`,
+										}}
+									>
+										<TableRow>
 											<TableCell
+												width="5%"
 												sx={{
-													fontWeight: 500,
-													color: colors.main,
-													borderBottom: "1px solid rgba(0,0,0,0.04)",
-													py: 1.25,
+													borderBottom: `2px solid ${colors.light}`,
+													py: 1.5,
+													fontSize: "0.875rem",
+													fontWeight: 600,
+													color: "rgba(55, 65, 81, 0.9)",
 												}}
 											>
-												{commitIndex + 1}
+												#
+											</TableCell>
+											<TableCell
+												width="25%"
+												sx={{
+													borderBottom: `2px solid ${colors.light}`,
+													py: 1.5,
+													fontSize: "0.875rem",
+													fontWeight: 600,
+													color: "rgba(55, 65, 81, 0.9)",
+												}}
+											>
+												Commit Date
 											</TableCell>
 											<TableCell
 												sx={{
-													display: "flex",
-													alignItems: "center",
-													fontFamily: "monospace",
-													color: "rgba(75, 85, 99, 0.9)",
-													fontSize: "0.8rem",
-													borderBottom: "1px solid rgba(0,0,0,0.04)",
-													py: 1.25,
+													borderBottom: `2px solid ${colors.light}`,
+													py: 1.5,
+													fontSize: "0.875rem",
+													fontWeight: 600,
+													color: "rgba(55, 65, 81, 0.9)",
 												}}
 											>
-												<TimeIcon 
-													sx={{ 
-														fontSize: "0.9rem", 
-														mr: 0.75, 
-														color: colors.main,
-														opacity: 0.7 
-													}} 
-												/>
-												{formatCommitDate(commit.commitDate)}
-											</TableCell>
-											<TableCell
-												sx={{
-													fontFamily: "monospace",
-													whiteSpace: "pre-wrap",
-													wordBreak: "break-word",
-													fontSize: "0.85rem",
-													borderBottom: "1px solid rgba(0,0,0,0.04)",
-													py: 1.25,
-												}}
-											>
-												{commit.message}
+												Commit Message
 											</TableCell>
 										</TableRow>
-									))}
-								</TableBody>
-							</Table>
-						</TableContainer>
+									</TableHead>
+									<TableBody>
+										{commits.map((commit, commitIndex) => (
+											<TableRow
+												key={commit.id || commitIndex}
+												sx={{
+													transition: "background-color 0.2s ease",
+													"&:hover": {
+														backgroundColor: "rgba(16, 185, 129, 0.04)",
+													},
+													animation: `fadeIn 0.5s ease-out forwards ${commitIndex * 0.03}s`,
+													opacity: 0,
+													"@keyframes fadeIn": {
+														"0%": { opacity: 0, transform: "translateY(5px)" },
+														"100%": { opacity: 1, transform: "translateY(0)" },
+													},
+													"&:last-child td": {
+														borderBottom: 0,
+													},
+												}}
+											>
+												<TableCell
+													sx={{
+														fontWeight: 500,
+														color: colors.main,
+														borderBottom: "1px solid rgba(0,0,0,0.04)",
+														py: 1.25,
+													}}
+												>
+													{commitIndex + 1}
+												</TableCell>
+												<TableCell
+													sx={{
+														display: "flex",
+														alignItems: "center",
+														fontFamily: "monospace",
+														color: "rgba(75, 85, 99, 0.9)",
+														fontSize: "0.8rem",
+														borderBottom: "1px solid rgba(0,0,0,0.04)",
+														py: 1.25,
+													}}
+												>
+													<TimeIcon 
+														sx={{ 
+															fontSize: "0.9rem", 
+															mr: 0.75, 
+															color: colors.main,
+															opacity: 0.7 
+														}} 
+													/>
+													{formatCommitDate(commit.commitDate)}
+												</TableCell>
+												<TableCell
+													sx={{
+														fontFamily: "monospace",
+														whiteSpace: "pre-wrap",
+														wordBreak: "break-word",
+														fontSize: "0.85rem",
+														borderBottom: "1px solid rgba(0,0,0,0.04)",
+														py: 1.25,
+													}}
+												>
+													{commit.message}
+												</TableCell>
+											</TableRow>
+										))}
+									</TableBody>
+								</Table>
+							</TableContainer>
+						</Box>
 					</Fade>
 				</AccordionDetails>
 			</Accordion>
@@ -371,7 +511,7 @@ function CommitsTab({ data }: CommitsTabProps): JSX.Element {
 						}}
 					>
 						This analysis shows commit activity by contributor, with detailed
-						commit messages.
+						commit messages and weekly statistics.
 					</Typography>
 				</Box>
 
@@ -430,6 +570,7 @@ function CommitsTab({ data }: CommitsTabProps): JSX.Element {
 						<UserCommits
 							key={user}
 							commits={commits}
+							contributorStats={data.contributorStats}
 							index={index}
 							user={user}
 						/>

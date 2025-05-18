@@ -15,7 +15,7 @@ import ViewListIcon from "@mui/icons-material/ViewList";
 import {
 	fetchRepositoryData,
 	parseRepoUrl,
-} from "../../../services/githubGraphQLService.ts";
+} from "../../../services/github";
 import "../../../styles/FormStyles.css";
 import type {
 	RepoListItem,

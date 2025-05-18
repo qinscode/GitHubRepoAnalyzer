@@ -1,5 +1,21 @@
 // GitHub API response types and interfaces
 
+// GitHub API contributor statistics 
+export interface ContributorStats {
+  author: {
+    login: string;
+    id: number;
+    type: string;
+  };
+  total: number;
+  weeks: Array<{
+    w: number; // Unix timestamp for start of week
+    a: number; // Additions
+    d: number; // Deletions
+    c: number; // Commits
+  }>;
+}
+
 // Main repository data structure
 export interface RepoData {
   commits: Record<string, Array<{ message: string; id: string; commitDate: string }>>;
@@ -9,6 +25,7 @@ export interface RepoData {
     issueComments: Record<string, number>;
     prReviews: Record<string, number>;
   };
+  contributorStats?: Array<ContributorStats>;
 }
 
 // Repository info parsed from URL
@@ -45,4 +62,7 @@ export interface PullRequest {
 export interface TeamworkData {
   issueComments: Record<string, number>;
   prReviews: Record<string, number>;
-} 
+}
+
+// Export our RepoData type for use in components
+export type { RepoData as ComponentRepoData }; 
