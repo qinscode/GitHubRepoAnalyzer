@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
 	Box,
 	Typography,
@@ -16,44 +16,91 @@ import {
 	Paper,
 	Fade,
 	Grow,
+	alpha,
+	Button,
 } from "@mui/material";
 import {
 	ExpandMore as ExpandMoreIcon,
-	Commit as CommitIcon,
+	MergeType as PRIcon,
+	MoreHoriz as MoreIcon,
 } from "@mui/icons-material";
-import type { RepoData } from "./types";
+import type { RepoData } from "../../repo-analysis/types.ts";
 
-interface CommitsTabProps {
+interface PullRequestsTabProps {
 	data: RepoData;
 }
 
-function UserCommits({
-	commits,
-	index,
+// 定义主题色
+const colors = {
+	main: "#F59E0B", // amber
+	light: "rgba(245, 158, 11, 0.1)",
+	lighter: "rgba(245, 158, 11, 0.05)",
+	gradient: "linear-gradient(90deg, #F59E0B 0%, #FBBF24 100%)",
+};
+
+// Maximum characters to show before collapsing text
+const MAX_VISIBLE_CHARS = 150;
+
+// Component to handle collapsible text content
+function CollapsibleContent({ text }: { text: string }): JSX.Element {
+	const [expanded, setExpanded] = useState(false);
+	const shouldCollapse = text.length > MAX_VISIBLE_CHARS;
+
+	const toggleExpanded = (): void => {
+		setExpanded(!expanded);
+	};
+
+	// If text is shorter than threshold, just display it
+	if (!shouldCollapse) {
+		return (
+			<Typography sx={{ whiteSpace: "pre-wrap", fontSize: "0.85rem" }}>
+				{text}
+			</Typography>
+		);
+	}
+
+	return (
+		<>
+			<Typography sx={{ whiteSpace: "pre-wrap", fontSize: "0.85rem" }}>
+				{expanded ? text : `${text.substring(0, MAX_VISIBLE_CHARS)}...`}
+			</Typography>
+			<Button
+				size="small"
+				startIcon={<MoreIcon />}
+				sx={{
+					mt: 1,
+					color: colors.main,
+					fontSize: "0.75rem",
+					"&:hover": {
+						backgroundColor: alpha(colors.main, 0.08),
+					},
+				}}
+				onClick={toggleExpanded}
+			>
+				{expanded ? "Show less" : "Show more"}
+			</Button>
+		</>
+	);
+}
+
+function UserPullRequests({
 	user,
+	prs,
+	index,
 }: {
-	commits: Array<{ message: string; id: string }>;
-	index: number;
 	user: string;
+	prs: Array<{ title: string; body: string }>;
+	index: number;
 }): JSX.Element {
-	const [expanded, setExpanded] = React.useState(false);
+	const [expanded, setExpanded] = useState(false);
 
 	const handleChange = (): void => {
 		setExpanded(!expanded);
 	};
 
-	// 生成渐变颜色
-	const colors = {
-		main: "#10B981", // green
-		light: "rgba(16, 185, 129, 0.1)",
-		lighter: "rgba(16, 185, 129, 0.05)",
-		gradient: "linear-gradient(90deg, #10B981 0%, #34D399 100%)",
-	};
-
 	return (
 		<Grow in timeout={800 + index * 150}>
 			<Accordion
-				key={user}
 				expanded={expanded}
 				sx={{
 					mb: 2.5,
@@ -72,7 +119,7 @@ function UserCommits({
 					},
 					"&:hover": {
 						boxShadow:
-							"0 10px 15px -3px rgba(16, 185, 129, 0.1), 0 4px 6px -2px rgba(16, 185, 129, 0.05)",
+							"0 10px 15px -3px rgba(245, 158, 11, 0.1), 0 4px 6px -2px rgba(245, 158, 11, 0.05)",
 					},
 				}}
 				onChange={handleChange}
@@ -111,7 +158,7 @@ function UserCommits({
 									mr: 2,
 									background: colors.gradient,
 									fontSize: "0.9rem",
-									boxShadow: `0 2px 5px ${colors.main}40`,
+									boxShadow: `0 2px 5px ${alpha(colors.main, 0.4)}`,
 								}}
 							>
 								{user.charAt(0).toUpperCase()}
@@ -127,15 +174,15 @@ function UserCommits({
 							</Typography>
 						</Box>
 						<Chip
-							icon={<CommitIcon style={{ fontSize: "0.9rem" }} />}
-							label={`${commits.length} commits`}
+							icon={<PRIcon style={{ fontSize: "0.9rem" }} />}
+							label={`${prs.length} PRs`}
 							size="small"
 							sx={{
 								ml: 2,
 								background: colors.gradient,
 								color: "white",
 								fontWeight: 500,
-								boxShadow: "0 2px 5px rgba(16, 185, 129, 0.2)",
+								boxShadow: "0 2px 5px rgba(245, 158, 11, 0.2)",
 								"& .MuiChip-icon": {
 									color: "white",
 								},
@@ -164,7 +211,7 @@ function UserCommits({
 								>
 									<TableRow>
 										<TableCell
-											width="10%"
+											width="8%"
 											sx={{
 												borderBottom: `2px solid ${colors.light}`,
 												py: 1.5,
@@ -176,6 +223,7 @@ function UserCommits({
 											#
 										</TableCell>
 										<TableCell
+											width="40%"
 											sx={{
 												borderBottom: `2px solid ${colors.light}`,
 												py: 1.5,
@@ -184,24 +232,38 @@ function UserCommits({
 												color: "rgba(55, 65, 81, 0.9)",
 											}}
 										>
-											Commit Message
+											Pull Request Title
+										</TableCell>
+										<TableCell
+											sx={{
+												borderBottom: `2px solid ${colors.light}`,
+												py: 1.5,
+												fontSize: "0.875rem",
+												fontWeight: 600,
+												color: "rgba(55, 65, 81, 0.9)",
+											}}
+										>
+											Description
 										</TableCell>
 									</TableRow>
 								</TableHead>
 								<TableBody>
-									{commits.map((commit, commitIndex) => (
+									{prs.map((pr, prIndex) => (
 										<TableRow
-											key={commit.id || commitIndex}
+											key={prIndex}
 											sx={{
 												transition: "background-color 0.2s ease",
 												"&:hover": {
-													backgroundColor: "rgba(16, 185, 129, 0.04)",
+													backgroundColor: "rgba(245, 158, 11, 0.04)",
 												},
-												animation: `fadeIn 0.5s ease-out forwards ${commitIndex * 0.03}s`,
+												animation: `fadeIn 0.5s ease-out forwards ${prIndex * 0.03}s`,
 												opacity: 0,
 												"@keyframes fadeIn": {
 													"0%": { opacity: 0, transform: "translateY(5px)" },
 													"100%": { opacity: 1, transform: "translateY(0)" },
+												},
+												"&:nth-of-type(odd)": {
+													backgroundColor: alpha(colors.main, 0.02),
 												},
 												"&:last-child td": {
 													borderBottom: 0,
@@ -216,7 +278,7 @@ function UserCommits({
 													py: 1.25,
 												}}
 											>
-												{commitIndex + 1}
+												{prIndex + 1}
 											</TableCell>
 											<TableCell
 												sx={{
@@ -228,7 +290,28 @@ function UserCommits({
 													py: 1.25,
 												}}
 											>
-												{commit.message}
+												{pr.title}
+											</TableCell>
+											<TableCell
+												sx={{
+													fontFamily: "monospace",
+													borderBottom: "1px solid rgba(0,0,0,0.04)",
+													py: 1.25,
+												}}
+											>
+												{pr.body ? (
+													<CollapsibleContent text={pr.body} />
+												) : (
+													<Typography
+														sx={{
+															color: "text.secondary",
+															fontStyle: "italic",
+															fontSize: "0.85rem",
+														}}
+													>
+														No description provided
+													</Typography>
+												)}
 											</TableCell>
 										</TableRow>
 									))}
@@ -242,20 +325,16 @@ function UserCommits({
 	);
 }
 
-function CommitsTab({ data }: CommitsTabProps): JSX.Element {
-	// Transform commits data for display
-	const commitsByUser = useMemo(() => {
-		type Commit = { message: string; id: string };
-		const users: Record<string, Array<Commit>> = {};
+function PullRequestsTab({ data }: PullRequestsTabProps): JSX.Element {
+	const prsByUser = useMemo(() => {
+		const users: Record<string, Array<{ title: string; body: string }>> = {};
 
-		Object.entries(data.commits).forEach(([user, commits]) => {
-			users[user] = commits;
+		Object.entries(data.prs).forEach(([user, prs]) => {
+			users[user] = prs;
 		});
 
-		return Object.entries(users).sort(
-			([, commitsA], [, commitsB]) => commitsB.length - commitsA.length
-		);
-	}, [data.commits]);
+		return Object.entries(users).sort(([, a], [, b]) => b.length - a.length);
+	}, [data.prs]);
 
 	return (
 		<Fade in timeout={500}>
@@ -277,8 +356,8 @@ function CommitsTab({ data }: CommitsTabProps): JSX.Element {
 						mb: 4,
 						borderRadius: "14px",
 						background:
-							"linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(5, 150, 105, 0.04))",
-						border: "1px solid rgba(16, 185, 129, 0.15)",
+							"linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(217, 119, 6, 0.04))",
+						border: "1px solid rgba(245, 158, 11, 0.15)",
 						boxShadow:
 							"0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.01)",
 						position: "relative",
@@ -292,7 +371,7 @@ function CommitsTab({ data }: CommitsTabProps): JSX.Element {
 							height: 120,
 							borderRadius: "50%",
 							background:
-								"radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0) 70%)",
+								"radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0) 70%)",
 							zIndex: 0,
 						},
 					}}
@@ -301,13 +380,13 @@ function CommitsTab({ data }: CommitsTabProps): JSX.Element {
 						variant="h6"
 						sx={{
 							fontWeight: 600,
-							color: "#065F46",
+							color: "#B45309",
 							mb: 1,
 							position: "relative",
 							zIndex: 1,
 						}}
 					>
-						Commit Activity Analysis
+						Pull Requests Analysis
 					</Typography>
 					<Typography
 						variant="body2"
@@ -317,8 +396,8 @@ function CommitsTab({ data }: CommitsTabProps): JSX.Element {
 							zIndex: 1,
 						}}
 					>
-						This analysis shows commit activity by contributor, with detailed
-						commit messages.
+						This analysis shows pull requests created by repository
+						contributors.
 					</Typography>
 				</Box>
 
@@ -327,7 +406,7 @@ function CommitsTab({ data }: CommitsTabProps): JSX.Element {
 						sx={{
 							fontSize: "1.15rem",
 							fontWeight: 600,
-							color: "#065F46",
+							color: "#B45309",
 							mb: 2.5,
 							position: "relative",
 							paddingLeft: "16px",
@@ -345,7 +424,7 @@ function CommitsTab({ data }: CommitsTabProps): JSX.Element {
 								width: "4px",
 								height: "18px",
 								borderRadius: "2px",
-								background: "linear-gradient(90deg, #10B981 0%, #34D399 100%)",
+								background: "linear-gradient(90deg, #F59E0B 0%, #FBBF24 100%)",
 							},
 							"&::after": {
 								content: '""',
@@ -354,7 +433,7 @@ function CommitsTab({ data }: CommitsTabProps): JSX.Element {
 								left: 16,
 								width: "40%",
 								height: "2px",
-								background: "linear-gradient(90deg, #10B981 0%, #34D399 100%)",
+								background: "linear-gradient(90deg, #F59E0B 0%, #FBBF24 100%)",
 								transition: "width 0.3s ease",
 							},
 							"&:hover::after": {
@@ -362,24 +441,19 @@ function CommitsTab({ data }: CommitsTabProps): JSX.Element {
 							},
 						}}
 					>
-						Commits by Contributor
+						Pull Requests by Author
 					</Typography>
 				</Box>
 
-				{commitsByUser.length === 0 ? (
+				{prsByUser.length === 0 ? (
 					<Box sx={{ p: 3, textAlign: "center", color: "text.secondary" }}>
 						<Typography>
-							No commit data available for this repository.
+							No pull request data available for this repository.
 						</Typography>
 					</Box>
 				) : (
-					commitsByUser.map(([user, commits], index) => (
-						<UserCommits
-							key={user}
-							commits={commits}
-							index={index}
-							user={user}
-						/>
+					prsByUser.map(([user, prs], index) => (
+						<UserPullRequests key={user} index={index} prs={prs} user={user} />
 					))
 				)}
 
@@ -388,8 +462,8 @@ function CommitsTab({ data }: CommitsTabProps): JSX.Element {
 						mt: 4,
 						p: 2,
 						borderRadius: "12px",
-						border: "1px dashed rgba(16, 185, 129, 0.3)",
-						backgroundColor: "rgba(16, 185, 129, 0.03)",
+						border: "1px dashed rgba(245, 158, 11, 0.3)",
+						backgroundColor: "rgba(245, 158, 11, 0.03)",
 					}}
 				>
 					<Box
@@ -399,12 +473,12 @@ function CommitsTab({ data }: CommitsTabProps): JSX.Element {
 							gap: 1.5,
 						}}
 					>
-						<CommitIcon sx={{ color: "#10B981", fontSize: "1.1rem" }} />
+						<PRIcon sx={{ color: "#F59E0B", fontSize: "1.1rem" }} />
 						<Typography
-							sx={{ color: "#065F46", fontWeight: 500 }}
+							sx={{ color: "#B45309", fontWeight: 500 }}
 							variant="body2"
 						>
-							Total Commits: {Object.values(data.commits).flat().length}
+							Total Pull Requests: {Object.values(data.prs).flat().length}
 						</Typography>
 					</Box>
 					<Typography
@@ -417,7 +491,7 @@ function CommitsTab({ data }: CommitsTabProps): JSX.Element {
 							opacity: 0.8,
 						}}
 					>
-						From {Object.keys(data.commits).length} contributors
+						Created by {Object.keys(data.prs).length} contributors
 					</Typography>
 				</Box>
 			</Box>
@@ -425,4 +499,4 @@ function CommitsTab({ data }: CommitsTabProps): JSX.Element {
 	);
 }
 
-export default CommitsTab;
+export default PullRequestsTab;

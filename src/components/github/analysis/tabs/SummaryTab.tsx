@@ -12,7 +12,7 @@ import {
 	Avatar,
 	LinearProgress,
 } from "@mui/material";
-import type { RepoData, ContributorStats } from "./types";
+import type { RepoData, ContributorStats } from "../../repo-analysis/types.ts";
 
 interface SummaryTabProps {
 	data: RepoData;

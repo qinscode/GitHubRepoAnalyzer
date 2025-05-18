@@ -26,7 +26,7 @@ import HourglassTopIcon from "@mui/icons-material/HourglassTop";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ErrorIcon from "@mui/icons-material/Error";
 import type { FunctionComponent } from "../../common/types";
-import BatchResults from "./BatchResults";
+import BatchResults from "./results/BatchResults.tsx";
 import {
 	fetchRepositoryData,
 	parseRepoUrl,

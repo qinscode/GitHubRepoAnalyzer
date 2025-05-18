@@ -16,13 +16,12 @@ import {
 	ExpandMore as ExpandMoreIcon,
 	BugReport as IssueIcon,
 } from "@mui/icons-material";
-import type { RepoData } from "./types";
+import type { RepoData } from "../../repo-analysis/types.ts";
 
 interface IssuesTabProps {
 	data: RepoData;
 }
 
-// 定义主题色
 const colors = {
 	main: "#8B5CF6", // purple
 	light: "rgba(139, 92, 246, 0.1)",

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import {
 	Box,
 	Typography,
@@ -16,91 +16,44 @@ import {
 	Paper,
 	Fade,
 	Grow,
-	alpha,
-	Button,
 } from "@mui/material";
 import {
 	ExpandMore as ExpandMoreIcon,
-	MergeType as PRIcon,
-	MoreHoriz as MoreIcon,
+	Commit as CommitIcon,
 } from "@mui/icons-material";
-import type { RepoData } from "./types";
+import type { RepoData } from "../../repo-analysis/types.ts";
 
-interface PullRequestsTabProps {
+interface CommitsTabProps {
 	data: RepoData;
 }
 
-// 定义主题色
-const colors = {
-	main: "#F59E0B", // amber
-	light: "rgba(245, 158, 11, 0.1)",
-	lighter: "rgba(245, 158, 11, 0.05)",
-	gradient: "linear-gradient(90deg, #F59E0B 0%, #FBBF24 100%)",
-};
-
-// Maximum characters to show before collapsing text
-const MAX_VISIBLE_CHARS = 150;
-
-// Component to handle collapsible text content
-function CollapsibleContent({ text }: { text: string }): JSX.Element {
-	const [expanded, setExpanded] = useState(false);
-	const shouldCollapse = text.length > MAX_VISIBLE_CHARS;
-
-	const toggleExpanded = (): void => {
-		setExpanded(!expanded);
-	};
-
-	// If text is shorter than threshold, just display it
-	if (!shouldCollapse) {
-		return (
-			<Typography sx={{ whiteSpace: "pre-wrap", fontSize: "0.85rem" }}>
-				{text}
-			</Typography>
-		);
-	}
-
-	return (
-		<>
-			<Typography sx={{ whiteSpace: "pre-wrap", fontSize: "0.85rem" }}>
-				{expanded ? text : `${text.substring(0, MAX_VISIBLE_CHARS)}...`}
-			</Typography>
-			<Button
-				size="small"
-				startIcon={<MoreIcon />}
-				sx={{
-					mt: 1,
-					color: colors.main,
-					fontSize: "0.75rem",
-					"&:hover": {
-						backgroundColor: alpha(colors.main, 0.08),
-					},
-				}}
-				onClick={toggleExpanded}
-			>
-				{expanded ? "Show less" : "Show more"}
-			</Button>
-		</>
-	);
-}
-
-function UserPullRequests({
-	user,
-	prs,
+function UserCommits({
+	commits,
 	index,
+	user,
 }: {
-	user: string;
-	prs: Array<{ title: string; body: string }>;
+	commits: Array<{ message: string; id: string }>;
 	index: number;
+	user: string;
 }): JSX.Element {
-	const [expanded, setExpanded] = useState(false);
+	const [expanded, setExpanded] = React.useState(false);
 
 	const handleChange = (): void => {
 		setExpanded(!expanded);
 	};
 
+	// 生成渐变颜色
+	const colors = {
+		main: "#10B981", // green
+		light: "rgba(16, 185, 129, 0.1)",
+		lighter: "rgba(16, 185, 129, 0.05)",
+		gradient: "linear-gradient(90deg, #10B981 0%, #34D399 100%)",
+	};
+
 	return (
 		<Grow in timeout={800 + index * 150}>
 			<Accordion
+				key={user}
 				expanded={expanded}
 				sx={{
 					mb: 2.5,
@@ -119,7 +72,7 @@ function UserPullRequests({
 					},
 					"&:hover": {
 						boxShadow:
-							"0 10px 15px -3px rgba(245, 158, 11, 0.1), 0 4px 6px -2px rgba(245, 158, 11, 0.05)",
+							"0 10px 15px -3px rgba(16, 185, 129, 0.1), 0 4px 6px -2px rgba(16, 185, 129, 0.05)",
 					},
 				}}
 				onChange={handleChange}
@@ -158,7 +111,7 @@ function UserPullRequests({
 									mr: 2,
 									background: colors.gradient,
 									fontSize: "0.9rem",
-									boxShadow: `0 2px 5px ${alpha(colors.main, 0.4)}`,
+									boxShadow: `0 2px 5px ${colors.main}40`,
 								}}
 							>
 								{user.charAt(0).toUpperCase()}
@@ -174,15 +127,15 @@ function UserPullRequests({
 							</Typography>
 						</Box>
 						<Chip
-							icon={<PRIcon style={{ fontSize: "0.9rem" }} />}
-							label={`${prs.length} PRs`}
+							icon={<CommitIcon style={{ fontSize: "0.9rem" }} />}
+							label={`${commits.length} commits`}
 							size="small"
 							sx={{
 								ml: 2,
 								background: colors.gradient,
 								color: "white",
 								fontWeight: 500,
-								boxShadow: "0 2px 5px rgba(245, 158, 11, 0.2)",
+								boxShadow: "0 2px 5px rgba(16, 185, 129, 0.2)",
 								"& .MuiChip-icon": {
 									color: "white",
 								},
@@ -211,7 +164,7 @@ function UserPullRequests({
 								>
 									<TableRow>
 										<TableCell
-											width="8%"
+											width="10%"
 											sx={{
 												borderBottom: `2px solid ${colors.light}`,
 												py: 1.5,
@@ -223,7 +176,6 @@ function UserPullRequests({
 											#
 										</TableCell>
 										<TableCell
-											width="40%"
 											sx={{
 												borderBottom: `2px solid ${colors.light}`,
 												py: 1.5,
@@ -232,38 +184,24 @@ function UserPullRequests({
 												color: "rgba(55, 65, 81, 0.9)",
 											}}
 										>
-											Pull Request Title
-										</TableCell>
-										<TableCell
-											sx={{
-												borderBottom: `2px solid ${colors.light}`,
-												py: 1.5,
-												fontSize: "0.875rem",
-												fontWeight: 600,
-												color: "rgba(55, 65, 81, 0.9)",
-											}}
-										>
-											Description
+											Commit Message
 										</TableCell>
 									</TableRow>
 								</TableHead>
 								<TableBody>
-									{prs.map((pr, prIndex) => (
+									{commits.map((commit, commitIndex) => (
 										<TableRow
-											key={prIndex}
+											key={commit.id || commitIndex}
 											sx={{
 												transition: "background-color 0.2s ease",
 												"&:hover": {
-													backgroundColor: "rgba(245, 158, 11, 0.04)",
+													backgroundColor: "rgba(16, 185, 129, 0.04)",
 												},
-												animation: `fadeIn 0.5s ease-out forwards ${prIndex * 0.03}s`,
+												animation: `fadeIn 0.5s ease-out forwards ${commitIndex * 0.03}s`,
 												opacity: 0,
 												"@keyframes fadeIn": {
 													"0%": { opacity: 0, transform: "translateY(5px)" },
 													"100%": { opacity: 1, transform: "translateY(0)" },
-												},
-												"&:nth-of-type(odd)": {
-													backgroundColor: alpha(colors.main, 0.02),
 												},
 												"&:last-child td": {
 													borderBottom: 0,
@@ -278,7 +216,7 @@ function UserPullRequests({
 													py: 1.25,
 												}}
 											>
-												{prIndex + 1}
+												{commitIndex + 1}
 											</TableCell>
 											<TableCell
 												sx={{
@@ -290,28 +228,7 @@ function UserPullRequests({
 													py: 1.25,
 												}}
 											>
-												{pr.title}
-											</TableCell>
-											<TableCell
-												sx={{
-													fontFamily: "monospace",
-													borderBottom: "1px solid rgba(0,0,0,0.04)",
-													py: 1.25,
-												}}
-											>
-												{pr.body ? (
-													<CollapsibleContent text={pr.body} />
-												) : (
-													<Typography
-														sx={{
-															color: "text.secondary",
-															fontStyle: "italic",
-															fontSize: "0.85rem",
-														}}
-													>
-														No description provided
-													</Typography>
-												)}
+												{commit.message}
 											</TableCell>
 										</TableRow>
 									))}
@@ -325,16 +242,20 @@ function UserPullRequests({
 	);
 }
 
-function PullRequestsTab({ data }: PullRequestsTabProps): JSX.Element {
-	const prsByUser = useMemo(() => {
-		const users: Record<string, Array<{ title: string; body: string }>> = {};
+function CommitsTab({ data }: CommitsTabProps): JSX.Element {
+	// Transform commits data for display
+	const commitsByUser = useMemo(() => {
+		type Commit = { message: string; id: string };
+		const users: Record<string, Array<Commit>> = {};
 
-		Object.entries(data.prs).forEach(([user, prs]) => {
-			users[user] = prs;
+		Object.entries(data.commits).forEach(([user, commits]) => {
+			users[user] = commits;
 		});
 
-		return Object.entries(users).sort(([, a], [, b]) => b.length - a.length);
-	}, [data.prs]);
+		return Object.entries(users).sort(
+			([, commitsA], [, commitsB]) => commitsB.length - commitsA.length
+		);
+	}, [data.commits]);
 
 	return (
 		<Fade in timeout={500}>
@@ -356,8 +277,8 @@ function PullRequestsTab({ data }: PullRequestsTabProps): JSX.Element {
 						mb: 4,
 						borderRadius: "14px",
 						background:
-							"linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(217, 119, 6, 0.04))",
-						border: "1px solid rgba(245, 158, 11, 0.15)",
+							"linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(5, 150, 105, 0.04))",
+						border: "1px solid rgba(16, 185, 129, 0.15)",
 						boxShadow:
 							"0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.01)",
 						position: "relative",
@@ -371,7 +292,7 @@ function PullRequestsTab({ data }: PullRequestsTabProps): JSX.Element {
 							height: 120,
 							borderRadius: "50%",
 							background:
-								"radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0) 70%)",
+								"radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0) 70%)",
 							zIndex: 0,
 						},
 					}}
@@ -380,13 +301,13 @@ function PullRequestsTab({ data }: PullRequestsTabProps): JSX.Element {
 						variant="h6"
 						sx={{
 							fontWeight: 600,
-							color: "#B45309",
+							color: "#065F46",
 							mb: 1,
 							position: "relative",
 							zIndex: 1,
 						}}
 					>
-						Pull Requests Analysis
+						Commit Activity Analysis
 					</Typography>
 					<Typography
 						variant="body2"
@@ -396,8 +317,8 @@ function PullRequestsTab({ data }: PullRequestsTabProps): JSX.Element {
 							zIndex: 1,
 						}}
 					>
-						This analysis shows pull requests created by repository
-						contributors.
+						This analysis shows commit activity by contributor, with detailed
+						commit messages.
 					</Typography>
 				</Box>
 
@@ -406,7 +327,7 @@ function PullRequestsTab({ data }: PullRequestsTabProps): JSX.Element {
 						sx={{
 							fontSize: "1.15rem",
 							fontWeight: 600,
-							color: "#B45309",
+							color: "#065F46",
 							mb: 2.5,
 							position: "relative",
 							paddingLeft: "16px",
@@ -424,7 +345,7 @@ function PullRequestsTab({ data }: PullRequestsTabProps): JSX.Element {
 								width: "4px",
 								height: "18px",
 								borderRadius: "2px",
-								background: "linear-gradient(90deg, #F59E0B 0%, #FBBF24 100%)",
+								background: "linear-gradient(90deg, #10B981 0%, #34D399 100%)",
 							},
 							"&::after": {
 								content: '""',
@@ -433,7 +354,7 @@ function PullRequestsTab({ data }: PullRequestsTabProps): JSX.Element {
 								left: 16,
 								width: "40%",
 								height: "2px",
-								background: "linear-gradient(90deg, #F59E0B 0%, #FBBF24 100%)",
+								background: "linear-gradient(90deg, #10B981 0%, #34D399 100%)",
 								transition: "width 0.3s ease",
 							},
 							"&:hover::after": {
@@ -441,19 +362,24 @@ function PullRequestsTab({ data }: PullRequestsTabProps): JSX.Element {
 							},
 						}}
 					>
-						Pull Requests by Author
+						Commits by Contributor
 					</Typography>
 				</Box>
 
-				{prsByUser.length === 0 ? (
+				{commitsByUser.length === 0 ? (
 					<Box sx={{ p: 3, textAlign: "center", color: "text.secondary" }}>
 						<Typography>
-							No pull request data available for this repository.
+							No commit data available for this repository.
 						</Typography>
 					</Box>
 				) : (
-					prsByUser.map(([user, prs], index) => (
-						<UserPullRequests key={user} index={index} prs={prs} user={user} />
+					commitsByUser.map(([user, commits], index) => (
+						<UserCommits
+							key={user}
+							commits={commits}
+							index={index}
+							user={user}
+						/>
 					))
 				)}
 
@@ -462,8 +388,8 @@ function PullRequestsTab({ data }: PullRequestsTabProps): JSX.Element {
 						mt: 4,
 						p: 2,
 						borderRadius: "12px",
-						border: "1px dashed rgba(245, 158, 11, 0.3)",
-						backgroundColor: "rgba(245, 158, 11, 0.03)",
+						border: "1px dashed rgba(16, 185, 129, 0.3)",
+						backgroundColor: "rgba(16, 185, 129, 0.03)",
 					}}
 				>
 					<Box
@@ -473,12 +399,12 @@ function PullRequestsTab({ data }: PullRequestsTabProps): JSX.Element {
 							gap: 1.5,
 						}}
 					>
-						<PRIcon sx={{ color: "#F59E0B", fontSize: "1.1rem" }} />
+						<CommitIcon sx={{ color: "#10B981", fontSize: "1.1rem" }} />
 						<Typography
-							sx={{ color: "#B45309", fontWeight: 500 }}
+							sx={{ color: "#065F46", fontWeight: 500 }}
 							variant="body2"
 						>
-							Total Pull Requests: {Object.values(data.prs).flat().length}
+							Total Commits: {Object.values(data.commits).flat().length}
 						</Typography>
 					</Box>
 					<Typography
@@ -491,7 +417,7 @@ function PullRequestsTab({ data }: PullRequestsTabProps): JSX.Element {
 							opacity: 0.8,
 						}}
 					>
-						Created by {Object.keys(data.prs).length} contributors
+						From {Object.keys(data.commits).length} contributors
 					</Typography>
 				</Box>
 			</Box>
@@ -499,4 +425,4 @@ function PullRequestsTab({ data }: PullRequestsTabProps): JSX.Element {
 	);
 }
 
-export default PullRequestsTab;
+export default CommitsTab;

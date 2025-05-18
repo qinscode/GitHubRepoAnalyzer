@@ -28,8 +28,8 @@ import PlaylistAddCheckIcon from "@mui/icons-material/PlaylistAddCheck";
 import {
 	fetchRepositoryData,
 	parseRepoUrl,
-} from "../../services/githubGraphQLService";
-import "../../styles/FormStyles.css";
+} from "../../../services/githubGraphQLService.ts";
+import "../../../styles/FormStyles.css";
 
 interface BatchRepoFormProps {
 	onDataFetched: (results: Array<any>) => void;
@@ -318,10 +318,6 @@ const BatchRepoForm: React.FC<BatchRepoFormProps> = ({ onDataFetched }) => {
 								multiline
 								className="enhanced-input"
 								disabled={loading}
-								error={
-									!!error &&
-									(error.includes("repository") || error.includes("URL"))
-								}
 								label="GitHub Repositories"
 								rows={4}
 								value={repoUrls}
@@ -335,6 +331,10 @@ const BatchRepoForm: React.FC<BatchRepoFormProps> = ({ onDataFetched }) => {
 										</InputAdornment>
 									),
 								}}
+								error={
+									!!error &&
+									(error.includes("repository") || error.includes("URL"))
+								}
 								helperText={
 									error &&
 									(error.includes("repository") || error.includes("URL"))
