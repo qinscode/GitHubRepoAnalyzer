@@ -15,13 +15,11 @@ import {
 	IconButton,
 	Fade,
 	useTheme,
-	Chip,
 } from "@mui/material";
 import {
 	Commit as CommitIcon,
 	BugReport as IssueIcon,
 	MergeType as PRIcon,
-	Group as TeamIcon,
 	KeyboardArrowDown as ExpandIcon,
 	KeyboardArrowUp as CollapseIcon,
 	GitHub as GitHubIcon,
@@ -90,7 +88,7 @@ const StatItem = ({
 	label: string;
 	value: number;
 	color: string;
-}) => {
+}): JSX.Element => {
 	return (
 		<Box
 			sx={{

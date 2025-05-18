@@ -77,6 +77,9 @@ const RepoAnalysisForm = (): FunctionComponent => {
 	// Mode switch
 	const [batchMode, setBatchMode] = useState<boolean>(false);
 	
+	// Filtering options
+	const [hideMergeCommits, setHideMergeCommits] = useState<boolean>(false);
+	
 	// Single repo state
 	const [repoUrl, setRepoUrl] = useState<string>("");
 	const [repoData, setRepoData] = useState<RepoData | null>(null);
@@ -116,8 +119,8 @@ const RepoAnalysisForm = (): FunctionComponent => {
 		setError(null);
 
 		try {
-			// Use GraphQL service to fetch repository data
-			const data = await fetchRepositoryData(repoUrl, token);
+			// Use GraphQL service to fetch repository data with filtering option
+			const data = await fetchRepositoryData(repoUrl, token, { hideMergeCommits });
 			setRepoData(data);
 			setSuccess(true);
 		} catch (error_) {
@@ -229,7 +232,7 @@ const RepoAnalysisForm = (): FunctionComponent => {
 					if (!currentItem) continue;
 
 					const currentUrl = currentItem.url;
-					const repoData = await fetchRepositoryData(currentUrl, token);
+					const repoData = await fetchRepositoryData(currentUrl, token, { hideMergeCommits });
 
 					// Calculate repository statistics
 					const totalCommits = Object.values(repoData.commits).reduce(
@@ -387,7 +390,7 @@ const RepoAnalysisForm = (): FunctionComponent => {
 								checked={batchMode}
 								color="primary"
 								disabled={loading}
-								onChange={(e) => { setBatchMode(e.target.checked); }}
+								onChange={(event_) => { setBatchMode(event_.target.checked); }}
 							/>
 						}
 						label={
@@ -434,8 +437,8 @@ const RepoAnalysisForm = (): FunctionComponent => {
 												</InputAdornment>
 											),
 										}}
-										onChange={(e): void => {
-											setRepoUrl(e.target.value);
+										onChange={(event_): void => {
+											setRepoUrl(event_.target.value);
 										}}
 									/>
 									<Typography className="text-xs text-gray-500 mt-2 ml-1">
@@ -466,8 +469,8 @@ const RepoAnalysisForm = (): FunctionComponent => {
 												</InputAdornment>
 											),
 										}}
-										onChange={(e): void => {
-											setToken(e.target.value);
+										onChange={(event_): void => {
+											setToken(event_.target.value);
 										}}
 									/>
 									<Typography className="text-xs text-gray-500 mt-2 ml-1">
@@ -475,6 +478,56 @@ const RepoAnalysisForm = (): FunctionComponent => {
 											? "Preset token from environment variables is loaded, but you can modify it"
 											: "Required for API access (needs repo scope permissions)"}
 									</Typography>
+								</Box>
+
+								<Box sx={{ 
+									display: "flex", 
+									justifyContent: "flex-start", 
+									alignItems: "center", 
+									mt: 2, 
+									mb: 0.5,
+									p: 1.5,
+									bgcolor: "rgba(59, 130, 246, 0.05)",
+									borderRadius: "8px",
+									border: "1px solid rgba(59, 130, 246, 0.1)"
+								}}>
+									<Typography 
+										variant="body2" 
+										sx={{ 
+											fontWeight: 500, 
+											fontSize: "0.85rem", 
+											color: "text.secondary", 
+											display: "flex", 
+											alignItems: "center" 
+										}}
+									>
+										<PlaylistAddCheckIcon 
+											sx={{ 
+												mr: 1, 
+												color: "primary.main", 
+												fontSize: "1.1rem" 
+											}} 
+										/>
+										Analysis Options
+									</Typography>
+									<Box sx={{ ml: "auto" }}>
+										<FormControlLabel
+											sx={{ mr: 0 }}
+											control={
+												<Switch
+													checked={hideMergeCommits}
+													color="primary"
+													size="small"
+													onChange={(event_) => { setHideMergeCommits(event_.target.checked); }}
+												/>
+											}
+											label={
+												<Typography sx={{ fontSize: "0.85rem" }} variant="body2">
+													Filter Merge Commits
+												</Typography>
+											}
+										/>
+									</Box>
 								</Box>
 
 								{error && (
@@ -549,8 +602,8 @@ const RepoAnalysisForm = (): FunctionComponent => {
 												</InputAdornment>
 											),
 										}}
-										onChange={(e): void => {
-											setRepoUrls(e.target.value);
+										onChange={(event_): void => {
+											setRepoUrls(event_.target.value);
 										}}
 									/>
 									<Typography className="text-xs text-gray-500 mt-2 ml-1">
@@ -580,8 +633,8 @@ const RepoAnalysisForm = (): FunctionComponent => {
 												</InputAdornment>
 											),
 										}}
-										onChange={(e): void => {
-											setToken(e.target.value);
+										onChange={(event_): void => {
+											setToken(event_.target.value);
 										}}
 									/>
 									<Typography className="text-xs text-gray-500 mt-2 ml-1">
@@ -589,6 +642,56 @@ const RepoAnalysisForm = (): FunctionComponent => {
 											? "Preset token from environment variables is loaded, but you can modify it"
 											: "Required for API access (needs repo scope permissions)"}
 									</Typography>
+								</Box>
+
+								<Box sx={{ 
+									display: "flex", 
+									justifyContent: "flex-start", 
+									alignItems: "center", 
+									mt: 2, 
+									mb: 0.5,
+									p: 1.5,
+									bgcolor: "rgba(59, 130, 246, 0.05)",
+									borderRadius: "8px",
+									border: "1px solid rgba(59, 130, 246, 0.1)"
+								}}>
+									<Typography 
+										variant="body2" 
+										sx={{ 
+											fontWeight: 500, 
+											fontSize: "0.85rem", 
+											color: "text.secondary", 
+											display: "flex", 
+											alignItems: "center" 
+										}}
+									>
+										<PlaylistAddCheckIcon 
+											sx={{ 
+												mr: 1, 
+												color: "primary.main", 
+												fontSize: "1.1rem" 
+											}} 
+										/>
+										Analysis Options
+									</Typography>
+									<Box sx={{ ml: "auto" }}>
+										<FormControlLabel
+											sx={{ mr: 0 }}
+											control={
+												<Switch
+													checked={hideMergeCommits}
+													color="primary"
+													size="small"
+													onChange={(event_) => { setHideMergeCommits(event_.target.checked); }}
+												/>
+											}
+											label={
+												<Typography sx={{ fontSize: "0.85rem" }} variant="body2">
+													Filter Merge Commits
+												</Typography>
+											}
+										/>
+									</Box>
 								</Box>
 
 								{error && (

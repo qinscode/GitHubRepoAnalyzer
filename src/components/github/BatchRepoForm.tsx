@@ -15,6 +15,8 @@ import {
   LinearProgress,
   Stack,
   Chip,
+  FormControlLabel,
+  Switch,
 } from '@mui/material';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import SearchIcon from '@mui/icons-material/Search';
@@ -23,6 +25,7 @@ import ViewListIcon from '@mui/icons-material/ViewList';
 import HourglassTopIcon from '@mui/icons-material/HourglassTop';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
+import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
 import { fetchRepositoryData, parseRepoUrl } from '../../services/githubGraphQLService';
 import './FormStyles.css';
 
@@ -57,6 +60,7 @@ const BatchRepoForm: React.FC<BatchRepoFormProps> = ({ onDataFetched }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
+  const [hideMergeCommits, setHideMergeCommits] = useState<boolean>(false);
   
   // Batch processing state
   const [repoItems, setRepoItems] = useState<Array<RepoListItem>>([]);
@@ -177,7 +181,8 @@ const BatchRepoForm: React.FC<BatchRepoFormProps> = ({ onDataFetched }) => {
           const currentItem = items[index];
           if (!currentItem) continue;
 
-          const data = await fetchRepositoryData(currentItem.url, token);
+          // Pass filtering option to API
+          const data = await fetchRepositoryData(currentItem.url, token, { hideMergeCommits });
           
           const result: RepoResult = {
             repoUrl: currentItem.url,
@@ -334,6 +339,56 @@ const BatchRepoForm: React.FC<BatchRepoFormProps> = ({ onDataFetched }) => {
                 />
               </Box>
             )}
+
+            <Box sx={{ 
+              display: "flex", 
+              justifyContent: "flex-start", 
+              alignItems: "center", 
+              mt: 2, 
+              mb: 2,
+              p: 1.5,
+              bgcolor: "rgba(59, 130, 246, 0.05)",
+              borderRadius: "8px",
+              border: "1px solid rgba(59, 130, 246, 0.1)"
+            }}>
+              <Typography 
+                variant="body2" 
+                sx={{ 
+                  fontWeight: 500, 
+                  fontSize: "0.85rem", 
+                  color: "text.secondary", 
+                  display: "flex", 
+                  alignItems: "center" 
+                }}
+              >
+                <PlaylistAddCheckIcon 
+                  sx={{ 
+                    mr: 1, 
+                    color: "primary.main", 
+                    fontSize: "1.1rem" 
+                  }} 
+                />
+                Analysis Options
+              </Typography>
+              <Box sx={{ ml: "auto" }}>
+                <FormControlLabel
+                  sx={{ mr: 0 }}
+                  control={
+                    <Switch
+                      checked={hideMergeCommits}
+                      color="primary"
+                      size="small"
+                      onChange={(event_) => { setHideMergeCommits(event_.target.checked); }}
+                    />
+                  }
+                  label={
+                    <Typography sx={{ fontSize: "0.85rem" }} variant="body2">
+                      Filter Merge Commits
+                    </Typography>
+                  }
+                />
+              </Box>
+            </Box>
 
             {loading && currentIndex >= 0 && (
               <Box sx={{ mb: 3 }}>

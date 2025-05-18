@@ -41,7 +41,12 @@ export const parseRepoUrl = (url: string): { owner: string; repo: string } | nul
 };
 
 // 使用GraphQL API获取提交数据
-const fetchCommits = async (owner: string, repo: string, token: string): Promise<Record<string, Array<{message: string, id: string}>>> => {
+const fetchCommits = async (
+  owner: string, 
+  repo: string, 
+  token: string, 
+  options: { hideMergeCommits?: boolean } = {}
+): Promise<Record<string, Array<{message: string, id: string}>>> => {
   const query = `
     query GetCommits($owner: String!, $repo: String!, $cursor: String) {
       repository(owner: $owner, name: $repo) {
@@ -105,6 +110,11 @@ const fetchCommits = async (owner: string, repo: string, token: string): Promise
       
       // 处理获取的提交
       commits.forEach((commit: any) => {
+        // 过滤 merge commit，如果选项启用
+        if (options.hideMergeCommits && commit.message.toLowerCase().startsWith('merge ')) {
+          return;
+        }
+        
         const authorLogin = commit.author?.user?.login;
         const authorName = commit.author?.name;
         const author = authorLogin || authorName || 'Unknown';
@@ -258,9 +268,6 @@ const fetchIssues = async (owner: string, repo: string, token: string): Promise<
   }
 };
 
-
-
-
 // 使用GraphQL API获取PR数据
 const fetchPullRequests = async (owner: string, repo: string, token: string): Promise<{
   prsByUser: Record<string, Array<{title: string}>>;
@@ -378,8 +385,11 @@ const fetchPullRequests = async (owner: string, repo: string, token: string): Pr
 };
 
 // 使用GraphQL API获取仓库数据
-
-export const fetchRepositoryData = async (repoUrl: string, token: string): Promise<RepoData> => {
+export const fetchRepositoryData = async (
+  repoUrl: string, 
+  token: string, 
+  options: { hideMergeCommits?: boolean } = {}
+): Promise<RepoData> => {
 	const repoInfo = parseRepoUrl(repoUrl);
 
 	if (!repoInfo) {
@@ -389,8 +399,8 @@ export const fetchRepositoryData = async (repoUrl: string, token: string): Promi
 	const { owner, repo } = repoInfo;
 
 	try {
-		// 1. 获取提交数据
-		const commits = await fetchCommits(owner, repo, token);
+		// 1. 获取提交数据，传递过滤选项
+		const commits = await fetchCommits(owner, repo, token, options);
 
 		// 2. 获取Issues数据
 		const { issuesByUser, issueCommentsByUser } = await fetchIssues(owner, repo, token);
