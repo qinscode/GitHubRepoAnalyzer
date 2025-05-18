@@ -20,6 +20,7 @@ import {
 import {
 	ExpandMore as ExpandMoreIcon,
 	Commit as CommitIcon,
+	AccessTime as TimeIcon,
 } from "@mui/icons-material";
 import type { RepoData } from "../../types/types.ts";
 
@@ -32,7 +33,7 @@ function UserCommits({
 	index,
 	user,
 }: {
-	commits: Array<{ message: string; id: string }>;
+	commits: Array<{ message: string; id: string; commitDate: string }>;
 	index: number;
 	user: string;
 }): JSX.Element {
@@ -48,6 +49,25 @@ function UserCommits({
 		light: "rgba(16, 185, 129, 0.1)",
 		lighter: "rgba(16, 185, 129, 0.05)",
 		gradient: "linear-gradient(90deg, #10B981 0%, #34D399 100%)",
+	};
+
+	// Format date from ISO string
+	const formatCommitDate = (dateString: string): string => {
+		if (!dateString) return "No date";
+		
+		try {
+			const date = new Date(dateString);
+			return date.toLocaleDateString('en-US', { 
+				year: 'numeric', 
+				month: 'short', 
+				day: 'numeric',
+				hour: '2-digit',
+				minute: '2-digit'
+			});
+		} catch (error) {
+			console.error('Date formatting error:', error);
+			return "Invalid date";
+		}
 	};
 
 	return (
@@ -164,7 +184,7 @@ function UserCommits({
 								>
 									<TableRow>
 										<TableCell
-											width="10%"
+											width="5%"
 											sx={{
 												borderBottom: `2px solid ${colors.light}`,
 												py: 1.5,
@@ -174,6 +194,18 @@ function UserCommits({
 											}}
 										>
 											#
+										</TableCell>
+										<TableCell
+											width="25%"
+											sx={{
+												borderBottom: `2px solid ${colors.light}`,
+												py: 1.5,
+												fontSize: "0.875rem",
+												fontWeight: 600,
+												color: "rgba(55, 65, 81, 0.9)",
+											}}
+										>
+											Commit Date
 										</TableCell>
 										<TableCell
 											sx={{
@@ -220,6 +252,27 @@ function UserCommits({
 											</TableCell>
 											<TableCell
 												sx={{
+													display: "flex",
+													alignItems: "center",
+													fontFamily: "monospace",
+													color: "rgba(75, 85, 99, 0.9)",
+													fontSize: "0.8rem",
+													borderBottom: "1px solid rgba(0,0,0,0.04)",
+													py: 1.25,
+												}}
+											>
+												<TimeIcon 
+													sx={{ 
+														fontSize: "0.9rem", 
+														mr: 0.75, 
+														color: colors.main,
+														opacity: 0.7 
+													}} 
+												/>
+												{formatCommitDate(commit.commitDate)}
+											</TableCell>
+											<TableCell
+												sx={{
 													fontFamily: "monospace",
 													whiteSpace: "pre-wrap",
 													wordBreak: "break-word",
@@ -245,7 +298,7 @@ function UserCommits({
 function CommitsTab({ data }: CommitsTabProps): JSX.Element {
 	// Transform commits data for display
 	const commitsByUser = useMemo(() => {
-		type Commit = { message: string; id: string };
+		type Commit = { message: string; id: string; commitDate: string };
 		const users: Record<string, Array<Commit>> = {};
 
 		Object.entries(data.commits).forEach(([user, commits]) => {

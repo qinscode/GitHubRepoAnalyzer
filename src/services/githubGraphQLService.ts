@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 interface RepoData {
-  commits: Record<string, Array<{message: string, id: string}>>;
+  commits: Record<string, Array<{message: string, id: string, commitDate: string}>>;
   issues: Record<string, Array<{title: string, body: string}>>;
   prs: Record<string, Array<{title: string, body: string}>>;
   teamwork: {
@@ -73,7 +73,7 @@ const fetchCommits = async (
   repo: string, 
   token: string, 
   options: { hideMergeCommits?: boolean } = {}
-): Promise<Record<string, Array<{message: string, id: string}>>> => {
+): Promise<Record<string, Array<{message: string, id: string, commitDate: string}>>> => {
   const query = `
     query GetCommits($owner: String!, $repo: String!, $cursor: String) {
       repository(owner: $owner, name: $repo) {
@@ -88,6 +88,7 @@ const fetchCommits = async (
                 nodes {
                   oid
                   message
+                  committedDate
                   author {
                     name
                     user {
@@ -105,7 +106,7 @@ const fetchCommits = async (
 
   try {
     // Group commits by user
-    const commitsByUser: Record<string, Array<{message: string, id: string}>> = {};
+    const commitsByUser: Record<string, Array<{message: string, id: string, commitDate: string}>> = {};
     let hasNextPage = true;
     let cursor: string | null = null;
     
@@ -154,7 +155,8 @@ const fetchCommits = async (
         if (commitsByUser[author].length < 50) {
           commitsByUser[author].push({
             id: commit.oid,
-            message: commit.message
+            message: commit.message,
+            commitDate: commit.committedDate
           });
         }
       });
