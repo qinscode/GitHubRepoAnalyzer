@@ -22,7 +22,6 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import KeyIcon from "@mui/icons-material/Key";
 import PlaylistAddCheckIcon from "@mui/icons-material/PlaylistAddCheck";
-import ViewListIcon from "@mui/icons-material/ViewList";
 import HourglassTopIcon from "@mui/icons-material/HourglassTop";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ErrorIcon from "@mui/icons-material/Error";
@@ -33,6 +32,7 @@ import {
 	parseRepoUrl,
 } from "../../services/githubGraphQLService";
 import "./FormStyles.css";
+import GitHubIcon from "@mui/icons-material/GitHub";
 
 interface RepoData {
 	commits: Record<string, Array<{ message: string; id: string }>>;
@@ -349,7 +349,7 @@ const RepoAnalysisForm = (): FunctionComponent => {
 										startAdornment: (
 											<InputAdornment position="start">
 												<div className="input-icon-container">
-													<ViewListIcon
+													<GitHubIcon
 														color="primary"
 														sx={{ opacity: 0.8, fontSize: "1.2rem" }}
 													/>
@@ -361,10 +361,6 @@ const RepoAnalysisForm = (): FunctionComponent => {
 										setRepoUrls(event_.target.value);
 									}}
 								/>
-								<Typography className="text-xs text-gray-500 mt-2 ml-1">
-									Enter one repository URL per line (e.g.,
-									https://github.com/owner/repo)
-								</Typography>
 							</Box>
 
 							<Box className="mb-5">
