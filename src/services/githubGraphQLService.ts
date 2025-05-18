@@ -3,7 +3,7 @@ import axios from 'axios';
 interface RepoData {
   commits: Record<string, Array<{message: string, id: string}>>;
   issues: Record<string, Array<{title: string, body: string}>>;
-  prs: Record<string, Array<{title: string}>>;
+  prs: Record<string, Array<{title: string, body: string}>>;
   teamwork: {
     issueComments: Record<string, number>;
     prReviews: Record<string, number>;
@@ -191,6 +191,7 @@ const fetchIssues = async (owner: string, repo: string, token: string): Promise<
             endCursor
           }
           nodes {
+            id
             title
             body
             author {
@@ -212,8 +213,10 @@ const fetchIssues = async (owner: string, repo: string, token: string): Promise<
   try {
     // Group issues by user
     const issuesByUser: Record<string, Array<{title: string, body: string}>> = {};
-    // Store issue comment statistics
+    // Store issue comment statistics - will track unique issues commented on by each user
     const issueCommentsByUser: Record<string, number> = {};
+    // Keep track of which issues each user has commented on to avoid double counting
+    const commentedIssuesByUser: Record<string, Set<string>> = {};
     
     let hasNextPage = true;
     let cursor: string | null = null;
@@ -246,6 +249,7 @@ const fetchIssues = async (owner: string, repo: string, token: string): Promise<
       
       // Process retrieved issues
       issues.forEach((issue: any) => {
+        const issueId = issue.id;
         const author = issue.author?.login || 'Unknown';
         
         // Process the issue itself
@@ -266,12 +270,21 @@ const fetchIssues = async (owner: string, repo: string, token: string): Promise<
           issue.comments.nodes.forEach((comment: any) => {
             const commentAuthor = comment.author?.login || 'Unknown';
             
-            // Don't count self-commenting on own issues
+            // Don't count comments on own issues
             if (commentAuthor !== author) {
+              // Initialize tracking structures if not exists
+              if (!commentedIssuesByUser[commentAuthor]) {
+                commentedIssuesByUser[commentAuthor] = new Set();
+              }
               if (!issueCommentsByUser[commentAuthor]) {
                 issueCommentsByUser[commentAuthor] = 0;
               }
-              issueCommentsByUser[commentAuthor] += 1;
+              
+              // If this user hasn't commented on this issue before, count it
+              if (!commentedIssuesByUser[commentAuthor].has(issueId)) {
+                commentedIssuesByUser[commentAuthor].add(issueId);
+                issueCommentsByUser[commentAuthor] += 1;
+              }
             }
           });
         }
@@ -297,7 +310,7 @@ const fetchIssues = async (owner: string, repo: string, token: string): Promise<
 
 // Fetch pull request data using GraphQL API
 const fetchPullRequests = async (owner: string, repo: string, token: string): Promise<{
-  prsByUser: Record<string, Array<{title: string}>>;
+  prsByUser: Record<string, Array<{title: string, body: string}>>;
   prReviewsByUser: Record<string, number>;
 }> => {
   const query = `
@@ -310,6 +323,7 @@ const fetchPullRequests = async (owner: string, repo: string, token: string): Pr
           }
           nodes {
             title
+            body
             author {
               login
             }
@@ -328,7 +342,7 @@ const fetchPullRequests = async (owner: string, repo: string, token: string): Pr
 
   try {
     // Group PRs by user
-    const prsByUser: Record<string, Array<{title: string}>> = {};
+    const prsByUser: Record<string, Array<{title: string, body: string}>> = {};
     // Store PR review statistics
     const prReviewsByUser: Record<string, number> = {};
     
@@ -373,7 +387,8 @@ const fetchPullRequests = async (owner: string, repo: string, token: string): Pr
         // Limit to maximum 50 PRs per user
         if (prsByUser[author].length < 50) {
           prsByUser[author].push({
-            title: pr.title
+            title: pr.title,
+            body: pr.body || ''
           });
         }
         

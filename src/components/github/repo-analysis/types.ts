@@ -3,7 +3,7 @@ import type React from "react";
 export interface RepoData {
   commits: Record<string, Array<{ message: string; id: string }>>;
   issues: Record<string, Array<{ title: string; body: string }>>;
-  prs: Record<string, Array<{ title: string }>>;
+  prs: Record<string, Array<{ title: string; body: string }>>;
   teamwork: {
     issueComments: Record<string, number>;
     prReviews: Record<string, number>;

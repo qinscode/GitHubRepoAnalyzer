@@ -1,8 +1,6 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import {
 	Box,
-	Card,
-	CardContent,
 	Typography,
 	TableContainer,
 	Table,
@@ -14,101 +12,95 @@ import {
 	Avatar,
 	LinearProgress,
 } from "@mui/material";
-import {
-	Commit as CommitIcon,
-	BugReport as IssueIcon,
-	MergeType as PRIcon,
-	Group as TeamIcon,
-} from "@mui/icons-material";
 import type { RepoData, ContributorStats } from "./types";
 
 interface SummaryTabProps {
 	data: RepoData;
 }
 
-function StatCard({
-	icon,
-	value,
-	label,
-	color,
-}: {
-	icon: JSX.Element;
-	value: number;
-	label: string;
-	color: string;
-}): JSX.Element {
-	return (
-		<Box className="flex-1 basis-40 min-w-0">
-			<Card
-				className={`h-full rounded-xl shadow-md hover:shadow-lg transition-all duration-300`}
-				sx={{
-					background: `linear-gradient(135deg, white 0%, rgb(249, 250, 251) 100%)`,
-					borderLeft: `4px solid ${color}`,
-					position: "relative",
-					overflow: "hidden",
-					transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-					"&:hover": {
-						transform: "translateY(-3px) scale(1.01)",
-						boxShadow: `0 10px 20px -10px ${color}40, 0 6px 10px -6px rgba(0,0,0,0.1)`,
-					},
-					"&::before": {
-						content: '""',
-						position: "absolute",
-						top: "-50%",
-						right: "-50%",
-						width: "100%",
-						height: "100%",
-						background: `radial-gradient(circle, ${color}10 0%, transparent 70%)`,
-						borderRadius: "50%",
-					},
-				}}
-			>
-				<CardContent className="text-center p-4 relative">
-					<Box
-						sx={{
-							position: "relative",
-							display: "inline-flex",
-							marginBottom: 1,
-							background: `linear-gradient(135deg, ${color}20, ${color}10)`,
-							borderRadius: "50%",
-							padding: "8px",
-						}}
-					>
-						{React.cloneElement(icon, {
-							sx: {
-								fontSize: "1.5rem",
-								color: color,
-							},
-						})}
-					</Box>
-					<Typography
-						className="font-bold"
-						variant="h5"
-						sx={{
-							background: `linear-gradient(to right, ${color}, #6366f1)`,
-							WebkitBackgroundClip: "text",
-							WebkitTextFillColor: "transparent",
-							marginBottom: 0.5,
-							letterSpacing: "-0.025em",
-						}}
-					>
-						{value}
-					</Typography>
-					<Typography
-						className="mt-1"
-						sx={{
-							color: "text.secondary",
-							fontSize: "0.85rem",
-							fontWeight: 500,
-						}}
-					>
-						{label}
-					</Typography>
-				</CardContent>
-			</Card>
-		</Box>
-	);
-}
+// function StatCard({
+// 	icon,
+// 	value,
+// 	label,
+// 	color,
+// }: {
+// 	icon: JSX.Element;
+// 	value: number;
+// 	label: string;
+// 	color: string;
+// }): JSX.Element {
+// 	return (
+// 		<Box className="flex-1 basis-40 min-w-0">
+// 			<Card
+// 				className={`h-full rounded-xl shadow-md hover:shadow-lg transition-all duration-300`}
+// 				sx={{
+// 					background: `linear-gradient(135deg, white 0%, rgb(249, 250, 251) 100%)`,
+// 					borderLeft: `4px solid ${color}`,
+// 					position: "relative",
+// 					overflow: "hidden",
+// 					transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+// 					"&:hover": {
+// 						transform: "translateY(-3px) scale(1.01)",
+// 						boxShadow: `0 10px 20px -10px ${color}40, 0 6px 10px -6px rgba(0,0,0,0.1)`,
+// 					},
+// 					"&::before": {
+// 						content: '""',
+// 						position: "absolute",
+// 						top: "-50%",
+// 						right: "-50%",
+// 						width: "100%",
+// 						height: "100%",
+// 						background: `radial-gradient(circle, ${color}10 0%, transparent 70%)`,
+// 						borderRadius: "50%",
+// 					},
+// 				}}
+// 			>
+// 				<CardContent className="text-center p-4 relative">
+// 					<Box
+// 						sx={{
+// 							position: "relative",
+// 							display: "inline-flex",
+// 							marginBottom: 1,
+// 							background: `linear-gradient(135deg, ${color}20, ${color}10)`,
+// 							borderRadius: "50%",
+// 							padding: "8px",
+// 						}}
+// 					>
+// 						{React.cloneElement(icon, {
+// 							sx: {
+// 								fontSize: "1.5rem",
+// 								color: color,
+// 							},
+// 						})}
+// 					</Box>
+// 					<Typography
+// 						className="font-bold"
+// 						variant="h5"
+// 						sx={{
+// 							background: `linear-gradient(to right, ${color}, #6366f1)`,
+// 							WebkitBackgroundClip: "text",
+// 							WebkitTextFillColor: "transparent",
+// 							marginBottom: 0.5,
+// 							letterSpacing: "-0.025em",
+// 						}}
+// 					>
+// 						{value}
+// 					</Typography>
+// 					<Typography
+// 						className="mt-1"
+// 						sx={{
+// 							color: "text.secondary",
+// 							fontSize: "0.85rem",
+// 							fontWeight: 500,
+// 						}}
+// 					>
+// 						{label}
+// 					</Typography>
+// 				</CardContent>
+// 			</Card>
+// 		</Box>
+// 	);
+// }
 
 function ContributionTable({
 	title,
@@ -347,15 +339,7 @@ function ContributionTable({
 
 function SummaryTab({ data }: SummaryTabProps): JSX.Element {
 	// Calculate statistics data
-	const {
-		totalCommits,
-		totalIssues,
-		totalPRs,
-		uniqueContributors,
-		commitsByUser,
-		issuesByUser,
-		prsByUser,
-	} = useMemo(() => {
+	const { commitsByUser, issuesByUser, prsByUser } = useMemo(() => {
 		const totalCommits = Object.values(data.commits).reduce(
 			(sum, commits) => sum + commits.length,
 			0
@@ -417,37 +401,6 @@ function SummaryTab({ data }: SummaryTabProps): JSX.Element {
 
 	return (
 		<Box className="flex flex-col gap-8">
-			<Box className="flex flex-wrap gap-3">
-				<StatCard
-					color="blue"
-					icon={<CommitIcon className="text-4xl mb-2 text-blue-500" />}
-					label="Total Commits"
-					value={totalCommits}
-				/>
-				<StatCard
-					color="purple"
-					icon={<IssueIcon className="text-4xl mb-2 text-purple-500" />}
-					label="Total Issues"
-					value={totalIssues}
-				/>
-				<StatCard
-					color="cyan"
-					icon={<PRIcon className="text-4xl mb-2 text-pink-500" />}
-					label="Total PRs"
-					value={totalPRs}
-				/>
-				<StatCard
-					color="green"
-					icon={<TeamIcon className="text-4xl mb-2 text-green-500" />}
-					label="Contributors"
-					value={uniqueContributors}
-				/>
-			</Box>
-
-			<Typography className="mt-6 font-bold text-xl text-gray-800">
-				Contribution Distribution
-			</Typography>
-
 			<Box>
 				<ContributionTable
 					color="primary"
