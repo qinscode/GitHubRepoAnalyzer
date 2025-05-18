@@ -16,7 +16,7 @@ import {
 	ExpandMore as ExpandMoreIcon,
 	BugReport as IssueIcon,
 } from "@mui/icons-material";
-import type { RepoData } from "../../repo-analysis/types.ts";
+import type { RepoData } from "../../types/types.ts";
 
 interface IssuesTabProps {
 	data: RepoData;

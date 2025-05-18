@@ -1,5 +1,5 @@
 import { Box, Fade } from "@mui/material";
-import type { TabPanelProps } from "./types";
+import type { TabPanelProps } from "../types/types.ts";
 import "../../../styles/FormStyles.css";
 
 function TabPanel(props: TabPanelProps): JSX.Element {

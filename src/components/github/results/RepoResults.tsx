@@ -1,4 +1,4 @@
-import type { RepoData } from "../repo-analysis/types.ts";
+import type { RepoData } from "../types/types.ts";
 import ModularRepoResults from "../repo-analysis/RepoResults.tsx";
 
 // Re-export component to maintain backward compatibility

@@ -20,7 +20,7 @@ import {
 	ChatBubble as CommentIcon,
 	RateReview as ReviewIcon,
 } from "@mui/icons-material";
-import type { RepoData } from "../../repo-analysis/types.ts";
+import type { RepoData } from "../../types/types.ts";
 
 interface TeamworkTabProps {
 	data: RepoData;

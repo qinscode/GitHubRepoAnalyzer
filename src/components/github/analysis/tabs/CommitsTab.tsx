@@ -21,7 +21,7 @@ import {
 	ExpandMore as ExpandMoreIcon,
 	Commit as CommitIcon,
 } from "@mui/icons-material";
-import type { RepoData } from "../../repo-analysis/types.ts";
+import type { RepoData } from "../../types/types.ts";
 
 interface CommitsTabProps {
 	data: RepoData;
