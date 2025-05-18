@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
 	Box,
 	Paper,
@@ -9,6 +9,7 @@ import {
 	alpha,
 	Fade,
 	Grow,
+	Typography,
 } from "@mui/material";
 import {
 	Commit as CommitIcon,
@@ -30,6 +31,24 @@ function RepoResults({ data }: RepoResultsProps): JSX.Element {
 	const [tabTransition, setTabTransition] = useState(false);
 	const theme = useTheme();
 	const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+	// Calculate total counts for each category
+	const counts = useMemo(() => {
+		return {
+			commits: Object.values(data.commits).reduce(
+				(sum, array) => sum + array.length,
+				0
+			),
+			issues: Object.values(data.issues).reduce(
+				(sum, array) => sum + array.length,
+				0
+			),
+			prs: Object.values(data.prs).reduce(
+				(sum, array) => sum + array.length,
+				0
+			),
+		};
+	}, [data]);
 
 	const handleTabChange = (
 		_event: React.SyntheticEvent,
@@ -65,6 +84,54 @@ function RepoResults({ data }: RepoResultsProps): JSX.Element {
 		prs: <PRIcon sx={{ fontSize: "1.25rem", color: colors.prs }} />,
 		teamwork: <TeamIcon sx={{ fontSize: "1.25rem", color: colors.teamwork }} />,
 	};
+
+	// Custom tab label with count
+	const TabLabelWithCount = ({
+		label,
+		count,
+		color,
+	}: {
+		label: string;
+		count: number;
+		color: string;
+	}): JSX.Element => (
+		<Box
+			sx={{
+				display: "flex",
+				alignItems: "center",
+				gap: 1.5,
+				flexWrap: "nowrap",
+			}}
+		>
+			<Typography
+				sx={{
+					fontSize: "0.95rem",
+					whiteSpace: "nowrap",
+				}}
+			>
+				{label}
+			</Typography>
+			<Box
+				sx={{
+					backgroundColor: alpha(color, 0.1),
+					color: color,
+					border: `1px solid ${alpha(color, 0.2)}`,
+					borderRadius: "12px",
+					fontSize: "0.75rem",
+					fontWeight: "bold",
+					padding: "1px 8px",
+					display: "inline-flex",
+					alignItems: "center",
+					justifyContent: "center",
+					minWidth: "28px",
+					height: "22px",
+					whiteSpace: "nowrap",
+				}}
+			>
+				{count}
+			</Box>
+		</Box>
+	);
 
 	// Tab hover effects
 	const getTabSx = (index: number): Record<string, unknown> => ({
@@ -252,6 +319,14 @@ function RepoResults({ data }: RepoResultsProps): JSX.Element {
 								color: "rgba(75, 85, 99, 0.7)",
 								transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
 								zIndex: 1,
+								minWidth: {
+									xs: "120px", // Increased min width on mobile
+									sm: "0",
+								},
+								padding: {
+									xs: "0 10px",
+									sm: "0 16px",
+								},
 							},
 							"& .Mui-selected": {
 								color:
@@ -278,20 +353,38 @@ function RepoResults({ data }: RepoResultsProps): JSX.Element {
 						<Tab
 							icon={tabIcons.commits}
 							iconPosition="start"
-							label="Commits"
 							sx={getTabSx(1)}
+							label={
+								<TabLabelWithCount
+									color={colors.commits}
+									count={counts.commits}
+									label="Commits"
+								/>
+							}
 						/>
 						<Tab
 							icon={tabIcons.issues}
 							iconPosition="start"
-							label="Issues"
 							sx={getTabSx(2)}
+							label={
+								<TabLabelWithCount
+									color={colors.issues}
+									count={counts.issues}
+									label="Issues"
+								/>
+							}
 						/>
 						<Tab
 							icon={tabIcons.prs}
 							iconPosition="start"
-							label="Pull Requests"
 							sx={getTabSx(3)}
+							label={
+								<TabLabelWithCount
+									color={colors.prs}
+									count={counts.prs}
+									label={isMobile ? "PRs" : "Pull Requests"}
+								/>
+							}
 						/>
 						<Tab
 							icon={tabIcons.teamwork}
