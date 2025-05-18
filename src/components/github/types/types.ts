@@ -1,14 +1,8 @@
 import type React from "react";
+import type { RepoData } from "../../../services/github/types";
 
-export interface RepoData {
-  commits: Record<string, Array<{ message: string; id: string }>>;
-  issues: Record<string, Array<{ title: string; body: string }>>;
-  prs: Record<string, Array<{ title: string; body: string }>>;
-  teamwork: {
-    issueComments: Record<string, number>;
-    prReviews: Record<string, number>;
-  };
-}
+// Re-export RepoData type for backwards compatibility
+export type { RepoData };
 
 export interface RepoResultsProps {
   data: RepoData;

@@ -27,6 +27,7 @@ import {
 	Check as CheckIcon,
 } from "@mui/icons-material";
 import RepoResults from "./RepoResults.tsx";
+import type { RepoResult } from "../types/batchRepoTypes";
 
 // TypeScript declaration for Tauri globals
 declare global {
@@ -37,26 +38,6 @@ declare global {
 			};
 		};
 	}
-}
-
-interface RepoData {
-	commits: Record<string, Array<{ message: string; id: string }>>;
-	issues: Record<string, Array<{ title: string; body: string }>>;
-	prs: Record<string, Array<{ title: string; body: string }>>;
-	teamwork: {
-		issueComments: Record<string, number>;
-		prReviews: Record<string, number>;
-	};
-}
-
-interface RepoResult {
-	repoUrl: string;
-	repoName: string;
-	commits: number;
-	issues: number;
-	prs: number;
-	contributors: number;
-	data: RepoData;
 }
 
 interface BatchResultsProps {

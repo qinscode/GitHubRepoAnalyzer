@@ -1,4 +1,4 @@
-import type React from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -18,6 +18,23 @@ const FormActions: React.FC<FormActionsProps> = ({
   repoItemsLength,
   success
 }) => {
+  const [showError, setShowError] = useState(!!error);
+  const [showSuccess, setShowSuccess] = useState(!!success);
+
+  // Update show states when props change
+  useEffect(() => {
+    setShowError(!!error);
+    setShowSuccess(!!success);
+  }, [error, success]);
+
+  const handleCloseError = (): void => {
+    setShowError(false);
+  };
+
+  const handleCloseSuccess = (): void => {
+    setShowSuccess(false);
+  };
+
   return (
     <>
       <Box sx={{ display: "flex", gap: 2, mt: 4 }}>
@@ -59,26 +76,28 @@ const FormActions: React.FC<FormActionsProps> = ({
         )}
       </Box>
 
-      {error && (
-        <Zoom in={!!error} timeout={300}>
+      {error && showError && (
+        <Zoom in={!!error && showError} timeout={300}>
           <Alert
             className="custom-alert error"
             icon={<ErrorIcon />}
             severity="error"
             sx={{ mt: 3 }}
+            onClose={handleCloseError}
           >
             {error}
           </Alert>
         </Zoom>
       )}
 
-      {success && !error && (
-        <Zoom in={success} timeout={300}>
+      {success && !error && showSuccess && (
+        <Zoom in={success && showSuccess} timeout={300}>
           <Alert
             className="custom-alert success"
             icon={<CheckCircleIcon />}
             severity="success"
             sx={{ mt: 3 }}
+            onClose={handleCloseSuccess}
           >
             Successfully analyzed {repoItemsLength} repositories!
           </Alert>
