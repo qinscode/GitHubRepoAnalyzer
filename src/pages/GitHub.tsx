@@ -9,18 +9,25 @@ export const GitHub = (): React.ReactElement => {
 			<Box className="mb-10 text-center">
 				<Box className="inline-flex items-center justify-center p-3 mb-4 rounded-full bg-gradient-to-br from-blue-500/5 to-indigo-500/10">
 					<GitHubIcon
-						className="text-4xl text-blue-600"
 						sx={{
-							fontSize: "2.5rem",
-							filter: "drop-shadow(0 2px 3px rgba(37, 99, 235, 0.2))",
+							color: "white",
+							fontSize: "1.4rem",
+							background: "linear-gradient(135deg, #3B82F6, #4F46E5)",
+							borderRadius: "50%",
+							width: 40,
+							height: 40,
+							padding: "8px",
+							boxShadow: "0 4px 6px -1px rgba(59, 130, 246, 0.2)",
+							display: "inline-block",
 						}}
 					/>
 				</Box>
 				<Typography
-					className="font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600"
+					className="font-bold  mb-2 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600"
 					component="h1"
 					variant="h2"
 					sx={{
+						fontWeight: "700 !important",
 						fontSize: { xs: "2.5rem", md: "3.25rem" },
 						textShadow: "0 1px 1px rgba(0,0,0,0.03)",
 						letterSpacing: "-0.5px",
