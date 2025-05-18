@@ -147,6 +147,11 @@
   color: #3B82F6 !important;
 }
 
+.enhanced-input label.Mui-error {
+  color: #DC2626 !important;
+  font-weight: 500;
+}
+
 .enhanced-input .MuiOutlinedInput-notchedOutline {
   border-color: rgba(0, 0, 0, 0.08) !important;
   transition: all 0.3s ease;
@@ -159,6 +164,50 @@
 .enhanced-input .Mui-focused .MuiOutlinedInput-notchedOutline {
   border-color: rgba(59, 130, 246, 0.6) !important;
   border-width: 1px !important;
+}
+
+/* Error state for input fields */
+.enhanced-input .Mui-error .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(220, 38, 38, 0.6) !important;
+  border-width: 1px !important;
+}
+
+.enhanced-input:hover .Mui-error .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(220, 38, 38, 0.8) !important;
+}
+
+.enhanced-input .MuiOutlinedInput-root.Mui-error {
+  background-color: rgba(254, 226, 226, 0.1);
+}
+
+/* Helper text and error styles */
+.enhanced-input .MuiFormHelperText-root {
+  margin-top: 4px !important;
+  font-size: 0.8rem !important;
+  transition: all 0.2s ease;
+}
+
+.enhanced-input .MuiFormHelperText-root.Mui-error {
+  color: #DC2626 !important;
+  font-weight: 600 !important;
+  font-size: 0.825rem !important;
+  letter-spacing: 0.2px;
+  background-color: rgba(220, 38, 38, 0.08);
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-top: 6px !important;
+  border-left: 3px solid #DC2626;
+  animation: errorPulse 2s infinite;
+}
+
+@keyframes errorPulse {
+  0%, 100% {
+    background-color: rgba(220, 38, 38, 0.08);
+  }
+  50% {
+    background-color: rgba(220, 38, 38, 0.15);
+  }
 }
 
 /* 输入框图标 */
@@ -377,8 +426,10 @@
 }
 
 .custom-alert.error {
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.05), rgba(220, 38, 38, 0.1)) !important;
-  color: #991B1B !important;
+  background: linear-gradient(135deg, #f87171, #ef4444) !important;
+  border-left: 4px solid #DC2626 !important;
+  font-weight: 500 !important;
+  box-shadow: 0 4px 8px -1px rgba(220, 38, 38, 0.15), 0 2px 4px -1px rgba(220, 38, 38, 0.1) !important;
 }
 
 /* 响应式适配 */

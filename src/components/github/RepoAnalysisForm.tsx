@@ -73,17 +73,17 @@ const RepoAnalysisForm = (): FunctionComponent => {
 	const [loading, setLoading] = useState<boolean>(false);
 	const [error, setError] = useState<string | null>(null);
 	const [success, setSuccess] = useState<boolean>(false);
-	
+
 	// Mode switch
 	const [batchMode, setBatchMode] = useState<boolean>(false);
-	
+
 	// Filtering options
 	const [hideMergeCommits, setHideMergeCommits] = useState<boolean>(false);
-	
+
 	// Single repo state
 	const [repoUrl, setRepoUrl] = useState<string>("");
 	const [repoData, setRepoData] = useState<RepoData | null>(null);
-	
+
 	// Batch repos state
 	const [repoUrls, setRepoUrls] = useState<string>("");
 	const [results, setResults] = useState<Array<RepoResult>>([]);
@@ -98,11 +98,13 @@ const RepoAnalysisForm = (): FunctionComponent => {
 			setToken(presetToken);
 		}
 	}, []);
-	
+
 	// Check if there's a preset token in environment variables
 	const hasPresetToken = !!import.meta.env["VITE_GITHUB_API_TOKEN"];
 
-	const handleSingleRepoSubmit = async (event: React.FormEvent): Promise<void> => {
+	const handleSingleRepoSubmit = async (
+		event: React.FormEvent
+	): Promise<void> => {
 		event.preventDefault();
 
 		if (!repoUrl.trim()) {
@@ -120,7 +122,9 @@ const RepoAnalysisForm = (): FunctionComponent => {
 
 		try {
 			// Use GraphQL service to fetch repository data with filtering option
-			const data = await fetchRepositoryData(repoUrl, token, { hideMergeCommits });
+			const data = await fetchRepositoryData(repoUrl, token, {
+				hideMergeCommits,
+			});
 			setRepoData(data);
 			setSuccess(true);
 		} catch (error_) {
@@ -131,7 +135,9 @@ const RepoAnalysisForm = (): FunctionComponent => {
 		}
 	};
 
-	const handleBatchRepoSubmit = async (event: React.FormEvent): Promise<void> => {
+	const handleBatchRepoSubmit = async (
+		event: React.FormEvent
+	): Promise<void> => {
 		event.preventDefault();
 
 		if (!repoUrls.trim()) {
@@ -160,7 +166,7 @@ const RepoAnalysisForm = (): FunctionComponent => {
 		setResults([]);
 		setCurrentIndex(-1);
 		setProgress(0);
-		
+
 		try {
 			// Process each URL
 			const items: Array<RepoListItem> = [];
@@ -232,7 +238,9 @@ const RepoAnalysisForm = (): FunctionComponent => {
 					if (!currentItem) continue;
 
 					const currentUrl = currentItem.url;
-					const repoData = await fetchRepositoryData(currentUrl, token, { hideMergeCommits });
+					const repoData = await fetchRepositoryData(currentUrl, token, {
+						hideMergeCommits,
+					});
 
 					// Calculate repository statistics
 					const totalCommits = Object.values(repoData.commits).reduce(
@@ -339,7 +347,7 @@ const RepoAnalysisForm = (): FunctionComponent => {
 
 		return repoUrl;
 	};
-	
+
 	const getStatusColor = (status: RepoStatus): any => {
 		switch (status) {
 			case "pending":
@@ -369,7 +377,7 @@ const RepoAnalysisForm = (): FunctionComponent => {
 				return null;
 		}
 	};
-	
+
 	// Clear the displayed results when switching modes
 	useEffect(() => {
 		setRepoData(null);
@@ -383,23 +391,31 @@ const RepoAnalysisForm = (): FunctionComponent => {
 	return (
 		<Box className="form-container">
 			<Fade in timeout={500}>
-				<Box className="mb-6">
+				<Box className="mb-6 px-4 py-2 bg-gray-50 rounded-lg shadow-sm">
 					<FormControlLabel
 						control={
 							<Switch
 								checked={batchMode}
 								color="primary"
 								disabled={loading}
-								onChange={(event_) => { setBatchMode(event_.target.checked); }}
+								onChange={(event_) => {
+									setBatchMode(event_.target.checked);
+								}}
 							/>
 						}
 						label={
 							<Box className="flex items-center">
-								<CompareArrowsIcon 
-									sx={{ mr: 1, color: batchMode ? '#4F46E5' : '#3B82F6', transition: 'color 0.3s ease' }} 
+								<CompareArrowsIcon
+									sx={{
+										mr: 1,
+										color: batchMode ? "#4F46E5" : "#3B82F6",
+										transition: "color 0.3s ease",
+									}}
 								/>
 								<Typography sx={{ fontWeight: 500 }}>
-									{batchMode ? "Batch Mode (Multiple Repositories)" : "Single Repository Mode"}
+									{batchMode
+										? "Batch Mode (Multiple Repositories)"
+										: "Single Repository Mode"}
 								</Typography>
 							</Box>
 						}
@@ -432,7 +448,10 @@ const RepoAnalysisForm = (): FunctionComponent => {
 											startAdornment: (
 												<InputAdornment position="start">
 													<div className="input-icon-container">
-														<GitHubIcon color="primary" sx={{ opacity: 0.8, fontSize: "1.2rem" }} />
+														<GitHubIcon
+															color="primary"
+															sx={{ opacity: 0.8, fontSize: "1.2rem" }}
+														/>
 													</div>
 												</InputAdornment>
 											),
@@ -464,7 +483,10 @@ const RepoAnalysisForm = (): FunctionComponent => {
 											startAdornment: (
 												<InputAdornment position="start">
 													<div className="input-icon-container">
-														<KeyIcon color="primary" sx={{ opacity: 0.8, fontSize: "1.2rem" }} />
+														<KeyIcon
+															color="primary"
+															sx={{ opacity: 0.8, fontSize: "1.2rem" }}
+														/>
 													</div>
 												</InputAdornment>
 											),
@@ -480,33 +502,35 @@ const RepoAnalysisForm = (): FunctionComponent => {
 									</Typography>
 								</Box>
 
-								<Box sx={{ 
-									display: "flex", 
-									justifyContent: "flex-start", 
-									alignItems: "center", 
-									mt: 2, 
-									mb: 0.5,
-									p: 1.5,
-									bgcolor: "rgba(59, 130, 246, 0.05)",
-									borderRadius: "8px",
-									border: "1px solid rgba(59, 130, 246, 0.1)"
-								}}>
-									<Typography 
-										variant="body2" 
-										sx={{ 
-											fontWeight: 500, 
-											fontSize: "0.85rem", 
-											color: "text.secondary", 
-											display: "flex", 
-											alignItems: "center" 
+								<Box
+									sx={{
+										display: "flex",
+										justifyContent: "flex-start",
+										alignItems: "center",
+										mt: 2,
+										mb: 0.5,
+										p: 1.5,
+										bgcolor: "rgba(59, 130, 246, 0.05)",
+										borderRadius: "8px",
+										border: "1px solid rgba(59, 130, 246, 0.1)",
+									}}
+								>
+									<Typography
+										variant="body2"
+										sx={{
+											fontWeight: 500,
+											fontSize: "0.85rem",
+											color: "text.secondary",
+											display: "flex",
+											alignItems: "center",
 										}}
 									>
-										<PlaylistAddCheckIcon 
-											sx={{ 
-												mr: 1, 
-												color: "primary.main", 
-												fontSize: "1.1rem" 
-											}} 
+										<PlaylistAddCheckIcon
+											sx={{
+												mr: 1,
+												color: "primary.main",
+												fontSize: "1.1rem",
+											}}
 										/>
 										Analysis Options
 									</Typography>
@@ -518,11 +542,16 @@ const RepoAnalysisForm = (): FunctionComponent => {
 													checked={hideMergeCommits}
 													color="primary"
 													size="small"
-													onChange={(event_) => { setHideMergeCommits(event_.target.checked); }}
+													onChange={(event_) => {
+														setHideMergeCommits(event_.target.checked);
+													}}
 												/>
 											}
 											label={
-												<Typography sx={{ fontSize: "0.85rem" }} variant="body2">
+												<Typography
+													sx={{ fontSize: "0.85rem" }}
+													variant="body2"
+												>
 													Filter Merge Commits
 												</Typography>
 											}
@@ -576,9 +605,7 @@ const RepoAnalysisForm = (): FunctionComponent => {
 						) : (
 							// Batch Repositories Form
 							<form onSubmit={handleBatchRepoSubmit}>
-								<Typography className="form-title">
-									Batch Analysis
-								</Typography>
+								<Typography className="form-title">Batch Analysis</Typography>
 
 								<Box className="mb-5 relative">
 									<Typography className="form-subtitle">
@@ -597,7 +624,10 @@ const RepoAnalysisForm = (): FunctionComponent => {
 											startAdornment: (
 												<InputAdornment position="start">
 													<div className="input-icon-container">
-														<ViewListIcon color="primary" sx={{ opacity: 0.8, fontSize: "1.2rem" }} />
+														<ViewListIcon
+															color="primary"
+															sx={{ opacity: 0.8, fontSize: "1.2rem" }}
+														/>
 													</div>
 												</InputAdornment>
 											),
@@ -607,7 +637,8 @@ const RepoAnalysisForm = (): FunctionComponent => {
 										}}
 									/>
 									<Typography className="text-xs text-gray-500 mt-2 ml-1">
-										Enter one repository URL per line (e.g., https://github.com/owner/repo)
+										Enter one repository URL per line (e.g.,
+										https://github.com/owner/repo)
 									</Typography>
 								</Box>
 
@@ -628,7 +659,10 @@ const RepoAnalysisForm = (): FunctionComponent => {
 											startAdornment: (
 												<InputAdornment position="start">
 													<div className="input-icon-container">
-														<KeyIcon color="primary" sx={{ opacity: 0.8, fontSize: "1.2rem" }} />
+														<KeyIcon
+															color="primary"
+															sx={{ opacity: 0.8, fontSize: "1.2rem" }}
+														/>
 													</div>
 												</InputAdornment>
 											),
@@ -644,33 +678,35 @@ const RepoAnalysisForm = (): FunctionComponent => {
 									</Typography>
 								</Box>
 
-								<Box sx={{ 
-									display: "flex", 
-									justifyContent: "flex-start", 
-									alignItems: "center", 
-									mt: 2, 
-									mb: 0.5,
-									p: 1.5,
-									bgcolor: "rgba(59, 130, 246, 0.05)",
-									borderRadius: "8px",
-									border: "1px solid rgba(59, 130, 246, 0.1)"
-								}}>
-									<Typography 
-										variant="body2" 
-										sx={{ 
-											fontWeight: 500, 
-											fontSize: "0.85rem", 
-											color: "text.secondary", 
-											display: "flex", 
-											alignItems: "center" 
+								<Box
+									sx={{
+										display: "flex",
+										justifyContent: "flex-start",
+										alignItems: "center",
+										mt: 2,
+										mb: 0.5,
+										p: 1.5,
+										bgcolor: "rgba(59, 130, 246, 0.05)",
+										borderRadius: "8px",
+										border: "1px solid rgba(59, 130, 246, 0.1)",
+									}}
+								>
+									<Typography
+										variant="body2"
+										sx={{
+											fontWeight: 500,
+											fontSize: "0.85rem",
+											color: "text.secondary",
+											display: "flex",
+											alignItems: "center",
 										}}
 									>
-										<PlaylistAddCheckIcon 
-											sx={{ 
-												mr: 1, 
-												color: "primary.main", 
-												fontSize: "1.1rem" 
-											}} 
+										<PlaylistAddCheckIcon
+											sx={{
+												mr: 1,
+												color: "primary.main",
+												fontSize: "1.1rem",
+											}}
 										/>
 										Analysis Options
 									</Typography>
@@ -682,11 +718,16 @@ const RepoAnalysisForm = (): FunctionComponent => {
 													checked={hideMergeCommits}
 													color="primary"
 													size="small"
-													onChange={(event_) => { setHideMergeCommits(event_.target.checked); }}
+													onChange={(event_) => {
+														setHideMergeCommits(event_.target.checked);
+													}}
 												/>
 											}
 											label={
-												<Typography sx={{ fontSize: "0.85rem" }} variant="body2">
+												<Typography
+													sx={{ fontSize: "0.85rem" }}
+													variant="body2"
+												>
 													Filter Merge Commits
 												</Typography>
 											}
@@ -744,7 +785,11 @@ const RepoAnalysisForm = (): FunctionComponent => {
 
 			{/* Single Repository Results */}
 			{!batchMode && repoData && (
-				<Zoom in={!!repoData} style={{ transitionDelay: '100ms' }} timeout={500}>
+				<Zoom
+					in={!!repoData}
+					style={{ transitionDelay: "100ms" }}
+					timeout={500}
+				>
 					<Box sx={{ mt: 4 }}>
 						<RepoResults data={repoData} />
 					</Box>
@@ -753,7 +798,11 @@ const RepoAnalysisForm = (): FunctionComponent => {
 
 			{/* Batch Progress Section */}
 			{batchMode && loading && repoItems.length > 0 && (
-				<Zoom in={loading && repoItems.length > 0} style={{ transitionDelay: '100ms' }} timeout={500}>
+				<Zoom
+					in={loading && repoItems.length > 0}
+					style={{ transitionDelay: "100ms" }}
+					timeout={500}
+				>
 					<Box className="mt-8">
 						<Card className="form-card">
 							<CardContent className="p-5">
@@ -866,14 +915,13 @@ const RepoAnalysisForm = (): FunctionComponent => {
 					}}
 					onClose={handleCloseSnackbar}
 				>
-					{!batchMode 
+					{!batchMode
 						? `Repository ${extractRepoName()} analyzed successfully!`
-						: "All repositories analyzed successfully!"
-					}
+						: "All repositories analyzed successfully!"}
 				</Alert>
 			</Snackbar>
 		</Box>
 	);
 };
 
-export default RepoAnalysisForm; 
+export default RepoAnalysisForm;

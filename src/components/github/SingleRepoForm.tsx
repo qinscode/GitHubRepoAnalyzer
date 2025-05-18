@@ -73,7 +73,17 @@ const SingleRepoForm: React.FC<SingleRepoFormProps> = ({ onDataFetched }) => {
 			// Reset form
 			setRepoUrl("");
 		} catch (error_) {
-			setError(`Repository analysis failed: ${(error_ as Error).message}`);
+			const errorMessage = (error_ as Error).message;
+			// Make error messages more specific and user-friendly
+			if (errorMessage.includes("Invalid repository URL format")) {
+				setError(`Repository format error: ${errorMessage}`);
+			} else if (errorMessage.includes("404")) {
+				setError("Repository not found. Please check the URL and try again.");
+			} else if (errorMessage.includes("401") || errorMessage.includes("403")) {
+				setError("Authentication error: Invalid or expired GitHub token.");
+			} else {
+				setError(`Repository analysis failed: ${errorMessage}`);
+			}
 			console.error(error_);
 		} finally {
 			setLoading(false);
@@ -104,7 +114,7 @@ const SingleRepoForm: React.FC<SingleRepoFormProps> = ({ onDataFetched }) => {
 								fullWidth
 								className="enhanced-input"
 								disabled={loading}
-								helperText="Repository URL or owner/repo format"
+								error={!!error && error.includes("repository")}
 								label="GitHub Repository"
 								placeholder="Enter repository URL or owner/repo (e.g. facebook/react)"
 								value={repoUrl}
@@ -123,8 +133,14 @@ const SingleRepoForm: React.FC<SingleRepoFormProps> = ({ onDataFetched }) => {
 										</InputAdornment>
 									),
 								}}
+								helperText={
+									error && error.includes("repository")
+										? error
+										: "Repository URL or owner/repo format"
+								}
 								onChange={(event_) => {
 									setRepoUrl(event_.target.value);
+									if (error) setError(null);
 								}}
 							/>
 						</Box>
@@ -135,7 +151,7 @@ const SingleRepoForm: React.FC<SingleRepoFormProps> = ({ onDataFetched }) => {
 									fullWidth
 									className="enhanced-input"
 									disabled={loading}
-									helperText="GitHub personal access token with repo scope"
+									error={!!error && error.includes("token")}
 									label="GitHub Token"
 									placeholder="Enter your GitHub personal access token"
 									type="password"
@@ -150,8 +166,14 @@ const SingleRepoForm: React.FC<SingleRepoFormProps> = ({ onDataFetched }) => {
 											</InputAdornment>
 										),
 									}}
+									helperText={
+										error && error.includes("token")
+											? error
+											: "GitHub personal access token with repo scope"
+									}
 									onChange={(event_) => {
 										setToken(event_.target.value);
+										if (error) setError(null);
 									}}
 								/>
 							</Box>

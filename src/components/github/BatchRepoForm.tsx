@@ -160,10 +160,16 @@ const BatchRepoForm: React.FC<BatchRepoFormProps> = ({ onDataFetched }) => {
 				});
 			}
 
-			if (items.length === 0) {
-				setError("No valid repository URLs found. Please check your input.");
-				setLoading(false);
-				return;
+			if (invalidUrls.length > 0) {
+				const errorMessage = invalidUrls.length <= 3 
+					? `Issues with some repositories: ${invalidUrls.join("; ")}`
+					: `Issues with ${invalidUrls.length} repositories. First few: ${invalidUrls.slice(0, 3).join("; ")}...`;
+				setError(errorMessage);
+				
+				if (items.length === 0) {
+					setLoading(false);
+					return;
+				}
 			}
 
 			setRepoItems(items);
@@ -311,26 +317,32 @@ const BatchRepoForm: React.FC<BatchRepoFormProps> = ({ onDataFetched }) => {
 								multiline
 								className="enhanced-input"
 								disabled={loading}
-								helperText="Enter one repository URL or owner/repo format per line"
+								error={!!error && (error.includes("repository") || error.includes("URL"))}
 								label="GitHub Repositories"
-								placeholder="Enter repository URLs or owner/repo formats (one per line)"
 								rows={4}
 								value={repoUrls}
 								variant="outlined"
 								InputProps={{
 									startAdornment: (
-										<InputAdornment
-											position="start"
-											sx={{ alignSelf: "flex-start", mt: 1 }}
-										>
+										<InputAdornment position="start">
 											<Box className="input-icon-container">
 												<ViewListIcon sx={{ color: "#3B82F6" }} />
 											</Box>
 										</InputAdornment>
 									),
 								}}
+								helperText={
+									error && (error.includes("repository") || error.includes("URL"))
+										? error
+										: "Enter one repository URL per line"
+								}
+								placeholder="Enter repository URLs (one per line)
+Example:
+https://github.com/facebook/react
+microsoft/typescript"
 								onChange={(event_) => {
 									setRepoUrls(event_.target.value);
+									if (error) setError(null);
 								}}
 							/>
 						</Box>
@@ -341,7 +353,7 @@ const BatchRepoForm: React.FC<BatchRepoFormProps> = ({ onDataFetched }) => {
 									fullWidth
 									className="enhanced-input"
 									disabled={loading}
-									helperText="GitHub personal access token with repo scope"
+									error={!!error && error.includes("token")}
 									label="GitHub Token"
 									placeholder="Enter your GitHub personal access token"
 									type="password"
@@ -356,8 +368,14 @@ const BatchRepoForm: React.FC<BatchRepoFormProps> = ({ onDataFetched }) => {
 											</InputAdornment>
 										),
 									}}
+									helperText={
+										error && error.includes("token")
+											? error
+											: "GitHub personal access token with repo scope"
+									}
 									onChange={(event_) => {
 										setToken(event_.target.value);
+										if (error) setError(null);
 									}}
 								/>
 							</Box>
@@ -505,11 +523,11 @@ const BatchRepoForm: React.FC<BatchRepoFormProps> = ({ onDataFetched }) => {
 											</Typography>
 											<Chip
 												icon={getStatusIcon(item.status)}
+												size="small"
 												label={
 													item.status.charAt(0).toUpperCase() +
 													item.status.slice(1)
 												}
-												size="small"
 												sx={{
 													backgroundColor: `${getStatusColor(item.status)}20`,
 													color: getStatusColor(item.status),
@@ -530,6 +548,8 @@ const BatchRepoForm: React.FC<BatchRepoFormProps> = ({ onDataFetched }) => {
 								fullWidth
 								className="submit-button"
 								disabled={loading}
+								type="submit"
+								variant="contained"
 								startIcon={
 									loading ? (
 										<CircularProgress color="inherit" size={20} />
@@ -537,8 +557,6 @@ const BatchRepoForm: React.FC<BatchRepoFormProps> = ({ onDataFetched }) => {
 										<SearchIcon />
 									)
 								}
-								type="submit"
-								variant="contained"
 							>
 								{loading ? "Analyzing Repositories..." : "Analyze Repositories"}
 							</Button>
