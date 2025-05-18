@@ -40,10 +40,6 @@ jobs:
         with:
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
-      - name: Add ARM64 Rust target
-        if: matrix.args == '--target aarch64-unknown-linux-gnu'
-        run: rustup target add aarch64-unknown-linux-gnu
-
       - name: Install Linux build dependencies
         if: matrix.platform == 'ubuntu-22.04'
         run: |
@@ -55,10 +51,45 @@ jobs:
             librsvg2-dev \
             patchelf
 
-      - name: Install frontend dependencies with pnpm
+      - name: Install frontend dependencies
         run: pnpm install
 
-      - name: Build and Publish Release
+      - name: Build frontend with Vite
+        run: pnpm run build
+
+      - name: Zip frontend static files
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          cd dist
+          zip -r ../gh-analyzer-frontend.zip .
+
+      - name: Tauri Build Only (Skip DMG Creation)
+        run: pnpm tauri build ${{ matrix.args }}
+
+      - name: Remove quarantine and manually create DMG (macOS only)
+        if: startsWith(matrix.platform, 'macos')
+        run: |
+          npm install -g create-dmg
+
+          TARGET_ARCH="${{ matrix.args == '--target aarch64-apple-darwin' && 'aarch64' || 'x86_64' }}"
+          APP_NAME="GH Analyzer.app"
+          APP_DIR="src-tauri/target/${TARGET_ARCH}-apple-darwin/release/bundle/macos"
+          APP_PATH="$APP_DIR/$APP_NAME"
+          DMG_NAME="gh-analyzer-${TARGET_ARCH}.dmg"
+
+          echo "Removing quarantine flags..."
+          xattr -cr "$APP_PATH"
+
+          echo "Creating DMG..."
+          create-dmg "$APP_PATH" \
+            --overwrite \
+            --dmg-title="GH Analyzer" \
+            --volname="GH Analyzer Installer" \
+            --out="$APP_DIR"
+
+          mv "$APP_DIR/GH Analyzer*.dmg" "$APP_DIR/$DMG_NAME"
+
+      - name: Create GitHub Release (if not exists)
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -70,14 +101,19 @@ jobs:
           prerelease: false
           args: ${{ matrix.args }}
 
-      - name: Remove quarantine flag from .app (macOS only)
+      - name: Upload frontend zip to GitHub Release
+        if: matrix.platform == 'ubuntu-22.04'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: gh-analyzer-frontend.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload custom DMG to GitHub Release
         if: startsWith(matrix.platform, 'macos')
-        run: |
-          TARGET_ARCH="${{ matrix.args == '--target aarch64-apple-darwin' && 'aarch64' || 'x86_64' }}"
-          APP_DIR="src-tauri/target/${TARGET_ARCH}-apple-darwin/release/bundle/macos"
-          if [ -d "$APP_DIR" ]; then
-            find "$APP_DIR" -name "*.app" -exec xattr -cr {} +
-          else
-            echo "No .app found at $APP_DIR, skipping xattr"
-          fi
-          
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            src-tauri/target/*-apple-darwin/release/bundle/macos/gh-analyzer-*.dmg
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
