@@ -17,10 +17,12 @@ import {
 	Fade,
 	Grow,
 	alpha,
+	Button,
 } from "@mui/material";
 import {
 	ExpandMore as ExpandMoreIcon,
 	MergeType as PRIcon,
+	MoreHoriz as MoreIcon,
 } from "@mui/icons-material";
 import type { RepoData } from "./types";
 
@@ -36,13 +38,58 @@ const colors = {
 	gradient: "linear-gradient(90deg, #F59E0B 0%, #FBBF24 100%)",
 };
 
+// Maximum characters to show before collapsing text
+const MAX_VISIBLE_CHARS = 150;
+
+// Component to handle collapsible text content
+function CollapsibleContent({ text }: { text: string }): JSX.Element {
+	const [expanded, setExpanded] = useState(false);
+	const shouldCollapse = text.length > MAX_VISIBLE_CHARS;
+
+	const toggleExpanded = (): void => {
+		setExpanded(!expanded);
+	};
+
+	// If text is shorter than threshold, just display it
+	if (!shouldCollapse) {
+		return (
+			<Typography sx={{ whiteSpace: "pre-wrap", fontSize: "0.85rem" }}>
+				{text}
+			</Typography>
+		);
+	}
+
+	return (
+		<>
+			<Typography sx={{ whiteSpace: "pre-wrap", fontSize: "0.85rem" }}>
+				{expanded ? text : `${text.substring(0, MAX_VISIBLE_CHARS)}...`}
+			</Typography>
+			<Button
+				size="small"
+				startIcon={<MoreIcon />}
+				sx={{
+					mt: 1,
+					color: colors.main,
+					fontSize: "0.75rem",
+					"&:hover": {
+						backgroundColor: alpha(colors.main, 0.08),
+					},
+				}}
+				onClick={toggleExpanded}
+			>
+				{expanded ? "Show less" : "Show more"}
+			</Button>
+		</>
+	);
+}
+
 function UserPullRequests({
 	user,
 	prs,
 	index,
 }: {
 	user: string;
-	prs: Array<{ title: string }>;
+	prs: Array<{ title: string; body: string }>;
 	index: number;
 }): JSX.Element {
 	const [expanded, setExpanded] = useState(prs.length <= 5);
@@ -164,7 +211,7 @@ function UserPullRequests({
 								>
 									<TableRow>
 										<TableCell
-											width="10%"
+											width="8%"
 											sx={{
 												borderBottom: `2px solid ${colors.light}`,
 												py: 1.5,
@@ -176,6 +223,7 @@ function UserPullRequests({
 											#
 										</TableCell>
 										<TableCell
+											width="40%"
 											sx={{
 												borderBottom: `2px solid ${colors.light}`,
 												py: 1.5,
@@ -185,6 +233,17 @@ function UserPullRequests({
 											}}
 										>
 											Pull Request Title
+										</TableCell>
+										<TableCell
+											sx={{
+												borderBottom: `2px solid ${colors.light}`,
+												py: 1.5,
+												fontSize: "0.875rem",
+												fontWeight: 600,
+												color: "rgba(55, 65, 81, 0.9)",
+											}}
+										>
+											Description
 										</TableCell>
 									</TableRow>
 								</TableHead>
@@ -233,6 +292,27 @@ function UserPullRequests({
 											>
 												{pr.title}
 											</TableCell>
+											<TableCell
+												sx={{
+													fontFamily: "monospace",
+													borderBottom: "1px solid rgba(0,0,0,0.04)",
+													py: 1.25,
+												}}
+											>
+												{pr.body ? (
+													<CollapsibleContent text={pr.body} />
+												) : (
+													<Typography
+														sx={{
+															color: "text.secondary",
+															fontStyle: "italic",
+															fontSize: "0.85rem",
+														}}
+													>
+														No description provided
+													</Typography>
+												)}
+											</TableCell>
 										</TableRow>
 									))}
 								</TableBody>
@@ -247,7 +327,7 @@ function UserPullRequests({
 
 function PullRequestsTab({ data }: PullRequestsTabProps): JSX.Element {
 	const prsByUser = useMemo(() => {
-		const users: Record<string, Array<{ title: string }>> = {};
+		const users: Record<string, Array<{ title: string; body: string }>> = {};
 
 		Object.entries(data.prs).forEach(([user, prs]) => {
 			users[user] = prs;

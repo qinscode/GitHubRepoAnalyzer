@@ -3,7 +3,7 @@ import axios from 'axios';
 interface RepoData {
   commits: Record<string, Array<{message: string, id: string}>>;
   issues: Record<string, Array<{title: string, body: string}>>;
-  prs: Record<string, Array<{title: string}>>;
+  prs: Record<string, Array<{title: string, body: string}>>;
   teamwork: {
     issueComments: Record<string, number>;
     prReviews: Record<string, number>;
@@ -310,7 +310,7 @@ const fetchIssues = async (owner: string, repo: string, token: string): Promise<
 
 // Fetch pull request data using GraphQL API
 const fetchPullRequests = async (owner: string, repo: string, token: string): Promise<{
-  prsByUser: Record<string, Array<{title: string}>>;
+  prsByUser: Record<string, Array<{title: string, body: string}>>;
   prReviewsByUser: Record<string, number>;
 }> => {
   const query = `
@@ -323,6 +323,7 @@ const fetchPullRequests = async (owner: string, repo: string, token: string): Pr
           }
           nodes {
             title
+            body
             author {
               login
             }
@@ -341,7 +342,7 @@ const fetchPullRequests = async (owner: string, repo: string, token: string): Pr
 
   try {
     // Group PRs by user
-    const prsByUser: Record<string, Array<{title: string}>> = {};
+    const prsByUser: Record<string, Array<{title: string, body: string}>> = {};
     // Store PR review statistics
     const prReviewsByUser: Record<string, number> = {};
     
@@ -386,7 +387,8 @@ const fetchPullRequests = async (owner: string, repo: string, token: string): Pr
         // Limit to maximum 50 PRs per user
         if (prsByUser[author].length < 50) {
           prsByUser[author].push({
-            title: pr.title
+            title: pr.title,
+            body: pr.body || ''
           });
         }
         
