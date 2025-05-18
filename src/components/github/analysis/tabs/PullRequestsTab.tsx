@@ -7,25 +7,18 @@ import {
 	AccordionDetails,
 	Avatar,
 	Chip,
-	TableContainer,
-	Table,
-	TableHead,
-	TableRow,
-	TableCell,
-	TableBody,
-	Paper,
 	Fade,
 	Grow,
 	alpha,
-	Button,
 } from "@mui/material";
 import {
 	ExpandMore as ExpandMoreIcon,
 	MergeType as PRIcon,
-	MoreHoriz as MoreIcon,
 } from "@mui/icons-material";
 import type { RepoData } from "../../types/types.ts";
 import type { PullRequest } from "../../../../services/github/types.ts";
+import DataTable from "../../utils/DataTable";
+import CollapsibleContent from "../../utils/CollapsibleContent";
 
 interface PullRequestsTabProps {
 	data: RepoData;
@@ -38,51 +31,6 @@ const colors = {
 	lighter: "rgba(245, 158, 11, 0.05)",
 	gradient: "linear-gradient(90deg, #F59E0B 0%, #FBBF24 100%)",
 };
-
-// Maximum characters to show before collapsing text
-const MAX_VISIBLE_CHARS = 150;
-
-// Component to handle collapsible text content
-function CollapsibleContent({ text }: { text: string }): JSX.Element {
-	const [expanded, setExpanded] = useState(false);
-	const shouldCollapse = text.length > MAX_VISIBLE_CHARS;
-
-	const toggleExpanded = (): void => {
-		setExpanded(!expanded);
-	};
-
-	// If text is shorter than threshold, just display it
-	if (!shouldCollapse) {
-		return (
-			<Typography sx={{ whiteSpace: "pre-wrap", fontSize: "0.85rem" }}>
-				{text}
-			</Typography>
-		);
-	}
-
-	return (
-		<>
-			<Typography sx={{ whiteSpace: "pre-wrap", fontSize: "0.85rem" }}>
-				{expanded ? text : `${text.substring(0, MAX_VISIBLE_CHARS)}...`}
-			</Typography>
-			<Button
-				size="small"
-				startIcon={<MoreIcon />}
-				sx={{
-					mt: 1,
-					color: colors.main,
-					fontSize: "0.75rem",
-					"&:hover": {
-						backgroundColor: alpha(colors.main, 0.08),
-					},
-				}}
-				onClick={toggleExpanded}
-			>
-				{expanded ? "Show less" : "Show more"}
-			</Button>
-		</>
-	);
-}
 
 function UserPullRequests({
 	user,
@@ -98,6 +46,39 @@ function UserPullRequests({
 	const handleChange = (): void => {
 		setExpanded(!expanded);
 	};
+
+	// Prepare data for the DataTable
+	const tableData = prs.map((pr, rowIndex) => ({
+		number: rowIndex + 1,
+		title: pr.title,
+		description: pr.body,
+		date: pr.date || "18/05/2025 14:30",
+	}));
+
+	// Define columns for the DataTable
+	const columns = [
+		{ id: "number", label: "#", width: "8%" },
+		{ id: "title", label: "Pull Request Title", width: "30%" },
+		{
+			id: "description",
+			label: "Description",
+			format: (value: string): JSX.Element =>
+				value ? (
+					<CollapsibleContent color={colors.main} maxChars={150} text={value} />
+				) : (
+					<Typography
+						sx={{
+							color: "text.secondary",
+							fontStyle: "italic",
+							fontSize: "0.85rem",
+						}}
+					>
+						No description provided
+					</Typography>
+				),
+		},
+		{ id: "date", label: "Date", width: "15%" },
+	];
 
 	return (
 		<Grow in timeout={800 + index * 150}>
@@ -193,155 +174,17 @@ function UserPullRequests({
 				</AccordionSummary>
 				<AccordionDetails sx={{ p: 0 }}>
 					<Fade in={expanded} timeout={500}>
-						<TableContainer
-							component={Paper}
-							elevation={0}
-							sx={{
-								borderRadius: 0,
-								"& .MuiTable-root": {
-									borderCollapse: "separate",
-									borderSpacing: "0",
-								},
-							}}
-						>
-							<Table size="small">
-								<TableHead
-									sx={{
-										background: `linear-gradient(to right, ${colors.lighter}, rgba(248, 250, 252, 0.8))`,
-									}}
-								>
-									<TableRow>
-										<TableCell
-											width="8%"
-											sx={{
-												borderBottom: `2px solid ${colors.light}`,
-												py: 1.5,
-												fontSize: "0.875rem",
-												fontWeight: 600,
-												color: "rgba(55, 65, 81, 0.9)",
-											}}
-										>
-											#
-										</TableCell>
-										<TableCell
-											width="30%"
-											sx={{
-												borderBottom: `2px solid ${colors.light}`,
-												py: 1.5,
-												fontSize: "0.875rem",
-												fontWeight: 600,
-												color: "rgba(55, 65, 81, 0.9)",
-											}}
-										>
-											Pull Request Title
-										</TableCell>
-										<TableCell
-											sx={{
-												borderBottom: `2px solid ${colors.light}`,
-												py: 1.5,
-												fontSize: "0.875rem",
-												fontWeight: 600,
-												color: "rgba(55, 65, 81, 0.9)",
-											}}
-										>
-											Description
-										</TableCell>
-										<TableCell
-											width="15%"
-											sx={{
-												borderBottom: `2px solid ${colors.light}`,
-												py: 1.5,
-												fontSize: "0.875rem",
-												fontWeight: 600,
-												color: "rgba(55, 65, 81, 0.9)",
-											}}
-										>
-											Date
-										</TableCell>
-									</TableRow>
-								</TableHead>
-								<TableBody>
-									{prs.map((pr, prIndex) => (
-										<TableRow
-											key={prIndex}
-											sx={{
-												transition: "background-color 0.2s ease",
-												"&:hover": {
-													backgroundColor: "rgba(245, 158, 11, 0.04)",
-												},
-												animation: `fadeIn 0.5s ease-out forwards ${prIndex * 0.03}s`,
-												opacity: 0,
-												"@keyframes fadeIn": {
-													"0%": { opacity: 0, transform: "translateY(5px)" },
-													"100%": { opacity: 1, transform: "translateY(0)" },
-												},
-												"&:nth-of-type(odd)": {
-													backgroundColor: alpha(colors.main, 0.02),
-												},
-												"&:last-child td": {
-													borderBottom: 0,
-												},
-											}}
-										>
-											<TableCell
-												sx={{
-													fontWeight: 500,
-													color: colors.main,
-													borderBottom: "1px solid rgba(0,0,0,0.04)",
-													py: 1.25,
-												}}
-											>
-												{prIndex + 1}
-											</TableCell>
-											<TableCell
-												sx={{
-													fontFamily: "monospace",
-													whiteSpace: "pre-wrap",
-													wordBreak: "break-word",
-													fontSize: "0.85rem",
-													borderBottom: "1px solid rgba(0,0,0,0.04)",
-													py: 1.25,
-												}}
-											>
-												{pr.title}
-											</TableCell>
-											<TableCell
-												sx={{
-													fontFamily: "monospace",
-													borderBottom: "1px solid rgba(0,0,0,0.04)",
-													py: 1.25,
-												}}
-											>
-												{pr.body ? (
-													<CollapsibleContent text={pr.body} />
-												) : (
-													<Typography
-														sx={{
-															color: "text.secondary",
-															fontStyle: "italic",
-															fontSize: "0.85rem",
-														}}
-													>
-														No description provided
-													</Typography>
-												)}
-											</TableCell>
-											<TableCell
-												sx={{
-													fontFamily: "monospace",
-													fontSize: "0.85rem",
-													borderBottom: "1px solid rgba(0,0,0,0.04)",
-													py: 1.25,
-													color: "text.secondary",
-												}}
-											>
-												{pr.date || "18/05/2025 14:30"}
-											</TableCell>
-										</TableRow>
-									))}
-								</TableBody>
-							</Table>
-						</TableContainer>
+						{/* Using the reusable DataTable component */}
+						<Box sx={{ position: 'relative', overflow: 'auto' }}>
+							<DataTable
+								columns={columns}
+								data={tableData}
+								emptyMessage="No pull requests available for this contributor"
+								lightColor={colors.light}
+								lighterColor={colors.lighter}
+								primaryColor={colors.main}
+							/>
+						</Box>
 					</Fade>
 				</AccordionDetails>
 			</Accordion>
@@ -355,9 +198,9 @@ function PullRequestsTab({ data }: PullRequestsTabProps): JSX.Element {
 
 		Object.entries(data.prs).forEach(([user, prs]) => {
 			// Add default date if missing
-			users[user] = prs.map(pr => ({
+			users[user] = prs.map((pr) => ({
 				...pr,
-				date: pr.date || "18/05/2025 14:30" // Default date
+				date: pr.date || "18/05/2025 14:30", // Default date
 			}));
 		});
 

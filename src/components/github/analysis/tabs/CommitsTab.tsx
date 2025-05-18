@@ -7,20 +7,12 @@ import {
 	AccordionDetails,
 	Avatar,
 	Chip,
-	TableContainer,
-	Table,
-	TableHead,
-	TableRow,
-	TableCell,
-	TableBody,
-	Paper,
 	Fade,
 	Grow,
 } from "@mui/material";
 import {
 	ExpandMore as ExpandMoreIcon,
 	Commit as CommitIcon,
-	AccessTime as TimeIcon,
 	BarChart as BarChartIcon,
 } from "@mui/icons-material";
 import {
@@ -34,6 +26,7 @@ import {
 	Legend,
 } from "recharts";
 import type { RepoData } from "../../types/types.ts";
+import DataTable from "../../utils/DataTable";
 
 interface CommitsTabProps {
 	data: RepoData;
@@ -187,6 +180,21 @@ function UserCommits({
 		}
 	};
 
+	// Prepare data for DataTable component
+	const tableData = commits.map((commit, index_) => ({
+		number: index_ + 1,
+		message: commit.message,
+		date: formatCommitDate(commit.commitDate),
+		id: commit.id || `commit-${index_}`
+	}));
+
+	// Define columns for DataTable
+	const columns = [
+		{ id: 'number', label: '#', width: '8%' },
+		{ id: 'message', label: 'Commit Message', width: '55%' },
+		{ id: 'date', label: 'Date', width: '15%' }
+	];
+
 	return (
 		<Grow in timeout={800 + index * 150}>
 			<Accordion
@@ -302,124 +310,18 @@ function UserCommits({
 								/>
 							</Box>
 							
-							{/* Commit List Table */}
-							<TableContainer
-								component={Paper}
-								elevation={0}
-								sx={{
-									borderRadius: 0,
-									"& .MuiTable-root": {
-										borderCollapse: "separate",
-										borderSpacing: "0",
-									},
-								}}
-							>
-								<Table size="small">
-									<TableHead
-										sx={{
-											background: `linear-gradient(to right, ${colors.lighter}, rgba(248, 250, 252, 0.8))`,
-										}}
-									>
-										<TableRow>
-											<TableCell
-												width="8%"
-												sx={{
-													borderBottom: `2px solid ${colors.light}`,
-													py: 1.5,
-													fontSize: "0.875rem",
-													fontWeight: 600,
-													color: "rgba(55, 65, 81, 0.9)",
-												}}
-											>
-												#
-											</TableCell>
-											<TableCell
-												width="55%"
-												sx={{
-													borderBottom: `2px solid ${colors.light}`,
-													py: 1.5,
-													fontSize: "0.875rem",
-													fontWeight: 600,
-													color: "rgba(55, 65, 81, 0.9)",
-												}}
-											>
-												Commit Message
-											</TableCell>
-											<TableCell
-												width="15%"
-												sx={{
-													borderBottom: `2px solid ${colors.light}`,
-													py: 1.5,
-													fontSize: "0.875rem",
-													fontWeight: 600,
-													color: "rgba(55, 65, 81, 0.9)",
-												}}
-											>
-												Date
-											</TableCell>
-										</TableRow>
-									</TableHead>
-									<TableBody>
-										{commits.map((commit, commitIndex) => (
-											<TableRow
-												key={commit.id || commitIndex}
-												sx={{
-													transition: "background-color 0.2s ease",
-													"&:hover": {
-														backgroundColor: "rgba(16, 185, 129, 0.04)",
-													},
-													animation: `fadeIn 0.5s ease-out forwards ${commitIndex * 0.03}s`,
-													opacity: 0,
-													"@keyframes fadeIn": {
-														"0%": { opacity: 0, transform: "translateY(5px)" },
-														"100%": { opacity: 1, transform: "translateY(0)" },
-													},
-													"&:nth-of-type(odd)": {
-														backgroundColor: "rgba(16, 185, 129, 0.02)",
-													},
-													"&:last-child td": {
-														borderBottom: 0,
-													},
-												}}
-											>
-												<TableCell
-													sx={{
-														fontWeight: 500,
-														color: colors.main,
-														borderBottom: "1px solid rgba(0,0,0,0.04)",
-														py: 1.25,
-													}}
-												>
-													{commitIndex + 1}
-												</TableCell>
-												<TableCell
-													sx={{
-														fontFamily: "monospace",
-														whiteSpace: "pre-wrap",
-														wordBreak: "break-word",
-														fontSize: "0.85rem",
-														borderBottom: "1px solid rgba(0,0,0,0.04)",
-														py: 1.25,
-													}}
-												>
-													{commit.message}
-												</TableCell>
-												<TableCell
-													sx={{
-														fontFamily: "monospace",
-														fontSize: "0.85rem",
-														borderBottom: "1px solid rgba(0,0,0,0.04)",
-														py: 1.25,
-														color: "text.secondary",
-													}}
-												>
-													{formatCommitDate(commit.commitDate)}
-												</TableCell>
-											</TableRow>
-										))}
-									</TableBody>
-								</Table>
-							</TableContainer>
+							{/* Commit List Table - Using reusable DataTable component */}
+							<Box sx={{ position: 'relative', overflow: 'auto' }}>
+								<DataTable 
+									columns={columns}
+									data={tableData}
+									emptyMessage="No commits available for this contributor."
+									getRowKey={(row): string => row.id as string}
+									lightColor={colors.light}
+									lighterColor={colors.lighter}
+									primaryColor={colors.main}
+								/>
+							</Box>
 						</Box>
 					</Fade>
 				</AccordionDetails>
