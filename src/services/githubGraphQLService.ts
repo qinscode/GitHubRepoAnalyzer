@@ -191,6 +191,7 @@ const fetchIssues = async (owner: string, repo: string, token: string): Promise<
             endCursor
           }
           nodes {
+            id
             title
             body
             author {
@@ -212,8 +213,10 @@ const fetchIssues = async (owner: string, repo: string, token: string): Promise<
   try {
     // Group issues by user
     const issuesByUser: Record<string, Array<{title: string, body: string}>> = {};
-    // Store issue comment statistics
+    // Store issue comment statistics - will track unique issues commented on by each user
     const issueCommentsByUser: Record<string, number> = {};
+    // Keep track of which issues each user has commented on to avoid double counting
+    const commentedIssuesByUser: Record<string, Set<string>> = {};
     
     let hasNextPage = true;
     let cursor: string | null = null;
@@ -246,6 +249,7 @@ const fetchIssues = async (owner: string, repo: string, token: string): Promise<
       
       // Process retrieved issues
       issues.forEach((issue: any) => {
+        const issueId = issue.id;
         const author = issue.author?.login || 'Unknown';
         
         // Process the issue itself
@@ -266,12 +270,21 @@ const fetchIssues = async (owner: string, repo: string, token: string): Promise<
           issue.comments.nodes.forEach((comment: any) => {
             const commentAuthor = comment.author?.login || 'Unknown';
             
-            // Don't count self-commenting on own issues
+            // Don't count comments on own issues
             if (commentAuthor !== author) {
+              // Initialize tracking structures if not exists
+              if (!commentedIssuesByUser[commentAuthor]) {
+                commentedIssuesByUser[commentAuthor] = new Set();
+              }
               if (!issueCommentsByUser[commentAuthor]) {
                 issueCommentsByUser[commentAuthor] = 0;
               }
-              issueCommentsByUser[commentAuthor] += 1;
+              
+              // If this user hasn't commented on this issue before, count it
+              if (!commentedIssuesByUser[commentAuthor].has(issueId)) {
+                commentedIssuesByUser[commentAuthor].add(issueId);
+                issueCommentsByUser[commentAuthor] += 1;
+              }
             }
           });
         }

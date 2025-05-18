@@ -28,6 +28,17 @@ import {
 } from "@mui/icons-material";
 import RepoResults from "./RepoResults";
 
+// TypeScript declaration for Tauri globals
+declare global {
+	interface Window {
+		__TAURI__?: {
+			shell: {
+				open: (url: string) => Promise<void>;
+			};
+		};
+	}
+}
+
 interface RepoData {
 	commits: Record<string, Array<{ message: string; id: string }>>;
 	issues: Record<string, Array<{ title: string; body: string }>>;
@@ -159,7 +170,30 @@ function BatchResults({ results }: BatchResultsProps): JSX.Element {
 	};
 
 	const openInGitHub = (url: string): void => {
-		window.open(url, "_blank");
+		// Ensure the URL is properly formatted
+		const formattedUrl = url.startsWith('http') ? url : `https://${url}`;
+		
+		try {
+			// Check if we're in a Tauri environment
+			if (window.__TAURI__) {
+				// Use Tauri's API to open URLs
+				window.__TAURI__.shell.open(formattedUrl).catch((e) => {
+					console.error("Failed to open URL with Tauri:", e);
+					alert("无法打开GitHub链接，请检查应用权限。");
+				});
+			} else {
+				// Browser environment fallback
+				const newTab = window.open('about:blank', '_blank');
+				if (newTab) {
+					newTab.location.href = formattedUrl;
+				} else {
+					window.open(formattedUrl, '_blank');
+				}
+			}
+		} catch (error) {
+			console.error('Failed to open GitHub URL:', error);
+			alert("无法打开GitHub链接，请手动复制URL。");
+		}
 	};
 
 	return (
