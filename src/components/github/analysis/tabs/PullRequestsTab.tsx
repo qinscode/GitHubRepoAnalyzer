@@ -24,7 +24,7 @@ import {
 	MergeType as PRIcon,
 	MoreHoriz as MoreIcon,
 } from "@mui/icons-material";
-import type { RepoData } from "./types";
+import type { RepoData } from "../../types/types.ts";
 
 interface PullRequestsTabProps {
 	data: RepoData;

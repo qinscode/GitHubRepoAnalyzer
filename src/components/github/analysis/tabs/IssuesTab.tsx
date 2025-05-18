@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
 	Box,
 	Typography,
@@ -7,53 +7,46 @@ import {
 	AccordionDetails,
 	Avatar,
 	Chip,
-	TableContainer,
-	Table,
-	TableHead,
-	TableRow,
-	TableCell,
-	TableBody,
-	Paper,
 	Fade,
 	Grow,
+	alpha,
+	Card,
 } from "@mui/material";
 import {
 	ExpandMore as ExpandMoreIcon,
-	Commit as CommitIcon,
+	BugReport as IssueIcon,
 } from "@mui/icons-material";
-import type { RepoData } from "./types";
+import type { RepoData } from "../../types/types.ts";
 
-interface CommitsTabProps {
+interface IssuesTabProps {
 	data: RepoData;
 }
 
-function UserCommits({
-	commits,
-	index,
+const colors = {
+	main: "#8B5CF6", // purple
+	light: "rgba(139, 92, 246, 0.1)",
+	lighter: "rgba(139, 92, 246, 0.05)",
+	gradient: "linear-gradient(90deg, #8B5CF6 0%, #A78BFA 100%)",
+};
+
+function UserIssues({
 	user,
+	issues,
+	index,
 }: {
-	commits: Array<{ message: string; id: string }>;
-	index: number;
 	user: string;
+	issues: Array<{ title: string; body: string }>;
+	index: number;
 }): JSX.Element {
-	const [expanded, setExpanded] = React.useState(false);
+	const [expanded, setExpanded] = useState(false);
 
 	const handleChange = (): void => {
 		setExpanded(!expanded);
 	};
 
-	// 生成渐变颜色
-	const colors = {
-		main: "#10B981", // green
-		light: "rgba(16, 185, 129, 0.1)",
-		lighter: "rgba(16, 185, 129, 0.05)",
-		gradient: "linear-gradient(90deg, #10B981 0%, #34D399 100%)",
-	};
-
 	return (
 		<Grow in timeout={800 + index * 150}>
 			<Accordion
-				key={user}
 				expanded={expanded}
 				sx={{
 					mb: 2.5,
@@ -72,7 +65,7 @@ function UserCommits({
 					},
 					"&:hover": {
 						boxShadow:
-							"0 10px 15px -3px rgba(16, 185, 129, 0.1), 0 4px 6px -2px rgba(16, 185, 129, 0.05)",
+							"0 10px 15px -3px rgba(139, 92, 246, 0.1), 0 4px 6px -2px rgba(139, 92, 246, 0.05)",
 					},
 				}}
 				onChange={handleChange}
@@ -111,7 +104,7 @@ function UserCommits({
 									mr: 2,
 									background: colors.gradient,
 									fontSize: "0.9rem",
-									boxShadow: `0 2px 5px ${colors.main}40`,
+									boxShadow: `0 2px 5px ${alpha(colors.main, 0.4)}`,
 								}}
 							>
 								{user.charAt(0).toUpperCase()}
@@ -127,15 +120,15 @@ function UserCommits({
 							</Typography>
 						</Box>
 						<Chip
-							icon={<CommitIcon style={{ fontSize: "0.9rem" }} />}
-							label={`${commits.length} commits`}
+							icon={<IssueIcon style={{ fontSize: "0.9rem" }} />}
+							label={`${issues.length} issues`}
 							size="small"
 							sx={{
 								ml: 2,
 								background: colors.gradient,
 								color: "white",
 								fontWeight: 500,
-								boxShadow: "0 2px 5px rgba(16, 185, 129, 0.2)",
+								boxShadow: "0 2px 5px rgba(139, 92, 246, 0.2)",
 								"& .MuiChip-icon": {
 									color: "white",
 								},
@@ -143,98 +136,87 @@ function UserCommits({
 						/>
 					</Box>
 				</AccordionSummary>
-				<AccordionDetails sx={{ p: 0 }}>
+				<AccordionDetails sx={{ p: expanded ? 3 : 0 }}>
 					<Fade in={expanded} timeout={500}>
-						<TableContainer
-							component={Paper}
-							elevation={0}
-							sx={{
-								borderRadius: 0,
-								"& .MuiTable-root": {
-									borderCollapse: "separate",
-									borderSpacing: "0",
-								},
-							}}
-						>
-							<Table size="small">
-								<TableHead
+						<Box>
+							{issues.map((issue, issueIndex) => (
+								<Card
+									key={issueIndex}
+									elevation={1}
 									sx={{
-										background: `linear-gradient(to right, ${colors.lighter}, rgba(248, 250, 252, 0.8))`,
+										p: 0,
+										mb: 2.5,
+										borderRadius: "8px",
+										overflow: "hidden",
+										animation: `fadeIn 0.5s ease-out forwards ${issueIndex * 0.05}s`,
+										opacity: 0,
+										"&:last-child": {
+											mb: 0,
+										},
+										"@keyframes fadeIn": {
+											"0%": { opacity: 0, transform: "translateY(10px)" },
+											"100%": { opacity: 1, transform: "translateY(0)" },
+										},
+										transition: "all 0.2s ease",
+										border: "1px solid rgba(139, 92, 246, 0.1)",
+										"&:hover": {
+											boxShadow: "0 4px 8px -2px rgba(139, 92, 246, 0.15)",
+											transform: "translateY(-2px)",
+										},
 									}}
 								>
-									<TableRow>
-										<TableCell
-											width="10%"
+									<Box
+										sx={{
+											display: "flex",
+											alignItems: "center",
+											p: 2,
+											borderBottom: issue.body
+												? "1px solid rgba(0,0,0,0.04)"
+												: "none",
+											background: `linear-gradient(to right, ${colors.lighter}, rgba(249, 250, 251, 0.6))`,
+										}}
+									>
+										<Typography
 											sx={{
-												borderBottom: `2px solid ${colors.light}`,
-												py: 1.5,
-												fontSize: "0.875rem",
-												fontWeight: 600,
+												fontWeight: "600",
+												fontSize: "0.95rem",
 												color: "rgba(55, 65, 81, 0.9)",
-											}}
-										>
-											#
-										</TableCell>
-										<TableCell
-											sx={{
-												borderBottom: `2px solid ${colors.light}`,
-												py: 1.5,
-												fontSize: "0.875rem",
-												fontWeight: 600,
-												color: "rgba(55, 65, 81, 0.9)",
-											}}
-										>
-											Commit Message
-										</TableCell>
-									</TableRow>
-								</TableHead>
-								<TableBody>
-									{commits.map((commit, commitIndex) => (
-										<TableRow
-											key={commit.id || commitIndex}
-											sx={{
-												transition: "background-color 0.2s ease",
-												"&:hover": {
-													backgroundColor: "rgba(16, 185, 129, 0.04)",
-												},
-												animation: `fadeIn 0.5s ease-out forwards ${commitIndex * 0.03}s`,
-												opacity: 0,
-												"@keyframes fadeIn": {
-													"0%": { opacity: 0, transform: "translateY(5px)" },
-													"100%": { opacity: 1, transform: "translateY(0)" },
-												},
-												"&:last-child td": {
-													borderBottom: 0,
-												},
-											}}
-										>
-											<TableCell
-												sx={{
-													fontWeight: 500,
+												"& span": {
 													color: colors.main,
-													borderBottom: "1px solid rgba(0,0,0,0.04)",
-													py: 1.25,
-												}}
-											>
-												{commitIndex + 1}
-											</TableCell>
-											<TableCell
+													fontWeight: "700",
+													mr: 1,
+												},
+											}}
+										>
+											<span>{issueIndex + 1}.</span> {issue.title}
+										</Typography>
+									</Box>
+
+									{issue.body && (
+										<Box sx={{ p: 2 }}>
+											<Typography
+												component="div"
+												variant="body2"
 												sx={{
-													fontFamily: "monospace",
 													whiteSpace: "pre-wrap",
-													wordBreak: "break-word",
+													fontFamily: "monospace",
+													bgcolor: alpha("#F9FAFB", 0.8),
+													p: 2,
+													borderRadius: 1,
+													border: "1px solid rgba(139, 92, 246, 0.1)",
+													overflowX: "auto",
 													fontSize: "0.85rem",
-													borderBottom: "1px solid rgba(0,0,0,0.04)",
-													py: 1.25,
+													lineHeight: 1.5,
+													color: "rgba(55, 65, 81, 0.9)",
 												}}
 											>
-												{commit.message}
-											</TableCell>
-										</TableRow>
-									))}
-								</TableBody>
-							</Table>
-						</TableContainer>
+												{issue.body}
+											</Typography>
+										</Box>
+									)}
+								</Card>
+							))}
+						</Box>
 					</Fade>
 				</AccordionDetails>
 			</Accordion>
@@ -242,20 +224,19 @@ function UserCommits({
 	);
 }
 
-function CommitsTab({ data }: CommitsTabProps): JSX.Element {
-	// Transform commits data for display
-	const commitsByUser = useMemo(() => {
-		type Commit = { message: string; id: string };
-		const users: Record<string, Array<Commit>> = {};
+function IssuesTab({ data }: IssuesTabProps): JSX.Element {
+	const issuesByUser = useMemo(() => {
+		type Issue = { title: string; body: string };
+		const users: Record<string, Array<Issue>> = {};
 
-		Object.entries(data.commits).forEach(([user, commits]) => {
-			users[user] = commits;
+		// Group issues by user
+		Object.entries(data.issues).forEach(([user, issues]) => {
+			users[user] = issues;
 		});
 
-		return Object.entries(users).sort(
-			([, commitsA], [, commitsB]) => commitsB.length - commitsA.length
-		);
-	}, [data.commits]);
+		// Sort users by number of issues (descending)
+		return Object.entries(users).sort(([, a], [, b]) => b.length - a.length);
+	}, [data.issues]);
 
 	return (
 		<Fade in timeout={500}>
@@ -277,8 +258,8 @@ function CommitsTab({ data }: CommitsTabProps): JSX.Element {
 						mb: 4,
 						borderRadius: "14px",
 						background:
-							"linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(5, 150, 105, 0.04))",
-						border: "1px solid rgba(16, 185, 129, 0.15)",
+							"linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(124, 58, 237, 0.04))",
+						border: "1px solid rgba(139, 92, 246, 0.15)",
 						boxShadow:
 							"0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.01)",
 						position: "relative",
@@ -292,7 +273,7 @@ function CommitsTab({ data }: CommitsTabProps): JSX.Element {
 							height: 120,
 							borderRadius: "50%",
 							background:
-								"radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0) 70%)",
+								"radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, rgba(139, 92, 246, 0) 70%)",
 							zIndex: 0,
 						},
 					}}
@@ -301,13 +282,13 @@ function CommitsTab({ data }: CommitsTabProps): JSX.Element {
 						variant="h6"
 						sx={{
 							fontWeight: 600,
-							color: "#065F46",
+							color: "#5B21B6",
 							mb: 1,
 							position: "relative",
 							zIndex: 1,
 						}}
 					>
-						Commit Activity Analysis
+						Issues Analysis
 					</Typography>
 					<Typography
 						variant="body2"
@@ -317,8 +298,7 @@ function CommitsTab({ data }: CommitsTabProps): JSX.Element {
 							zIndex: 1,
 						}}
 					>
-						This analysis shows commit activity by contributor, with detailed
-						commit messages.
+						This analysis shows issues created by repository contributors.
 					</Typography>
 				</Box>
 
@@ -327,7 +307,7 @@ function CommitsTab({ data }: CommitsTabProps): JSX.Element {
 						sx={{
 							fontSize: "1.15rem",
 							fontWeight: 600,
-							color: "#065F46",
+							color: "#5B21B6",
 							mb: 2.5,
 							position: "relative",
 							paddingLeft: "16px",
@@ -345,7 +325,7 @@ function CommitsTab({ data }: CommitsTabProps): JSX.Element {
 								width: "4px",
 								height: "18px",
 								borderRadius: "2px",
-								background: "linear-gradient(90deg, #10B981 0%, #34D399 100%)",
+								background: "linear-gradient(90deg, #8B5CF6 0%, #A78BFA 100%)",
 							},
 							"&::after": {
 								content: '""',
@@ -354,7 +334,7 @@ function CommitsTab({ data }: CommitsTabProps): JSX.Element {
 								left: 16,
 								width: "40%",
 								height: "2px",
-								background: "linear-gradient(90deg, #10B981 0%, #34D399 100%)",
+								background: "linear-gradient(90deg, #8B5CF6 0%, #A78BFA 100%)",
 								transition: "width 0.3s ease",
 							},
 							"&:hover::after": {
@@ -362,24 +342,19 @@ function CommitsTab({ data }: CommitsTabProps): JSX.Element {
 							},
 						}}
 					>
-						Commits by Contributor
+						Issues by Creator
 					</Typography>
 				</Box>
 
-				{commitsByUser.length === 0 ? (
+				{issuesByUser.length === 0 ? (
 					<Box sx={{ p: 3, textAlign: "center", color: "text.secondary" }}>
 						<Typography>
-							No commit data available for this repository.
+							No issues data available for this repository.
 						</Typography>
 					</Box>
 				) : (
-					commitsByUser.map(([user, commits], index) => (
-						<UserCommits
-							key={user}
-							commits={commits}
-							index={index}
-							user={user}
-						/>
+					issuesByUser.map(([user, issues], index) => (
+						<UserIssues key={user} index={index} issues={issues} user={user} />
 					))
 				)}
 
@@ -388,8 +363,8 @@ function CommitsTab({ data }: CommitsTabProps): JSX.Element {
 						mt: 4,
 						p: 2,
 						borderRadius: "12px",
-						border: "1px dashed rgba(16, 185, 129, 0.3)",
-						backgroundColor: "rgba(16, 185, 129, 0.03)",
+						border: "1px dashed rgba(139, 92, 246, 0.3)",
+						backgroundColor: "rgba(139, 92, 246, 0.03)",
 					}}
 				>
 					<Box
@@ -399,12 +374,12 @@ function CommitsTab({ data }: CommitsTabProps): JSX.Element {
 							gap: 1.5,
 						}}
 					>
-						<CommitIcon sx={{ color: "#10B981", fontSize: "1.1rem" }} />
+						<IssueIcon sx={{ color: "#8B5CF6", fontSize: "1.1rem" }} />
 						<Typography
-							sx={{ color: "#065F46", fontWeight: 500 }}
+							sx={{ color: "#5B21B6", fontWeight: 500 }}
 							variant="body2"
 						>
-							Total Commits: {Object.values(data.commits).flat().length}
+							Total Issues: {Object.values(data.issues).flat().length}
 						</Typography>
 					</Box>
 					<Typography
@@ -417,7 +392,7 @@ function CommitsTab({ data }: CommitsTabProps): JSX.Element {
 							opacity: 0.8,
 						}}
 					>
-						From {Object.keys(data.commits).length} contributors
+						Created by {Object.keys(data.issues).length} users
 					</Typography>
 				</Box>
 			</Box>
@@ -425,4 +400,4 @@ function CommitsTab({ data }: CommitsTabProps): JSX.Element {
 	);
 }
 
-export default CommitsTab;
+export default IssuesTab;

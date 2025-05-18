@@ -27,7 +27,8 @@
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
     "commitlint": "commitlint --edit",
-    "commitizen": "exec < /dev/tty && git cz --hook || true"
+    "commitizen": "exec < /dev/tty && git cz --hook || true",
+    "release": "node scripts/sync-version.js"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

@@ -26,7 +26,7 @@ import {
 	OpenInNew as OpenInNewIcon,
 	Check as CheckIcon,
 } from "@mui/icons-material";
-import RepoResults from "./RepoResults";
+import RepoResults from "./RepoResults.tsx";
 
 // TypeScript declaration for Tauri globals
 declare global {

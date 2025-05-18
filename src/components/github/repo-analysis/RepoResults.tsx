@@ -18,13 +18,13 @@ import {
 	Group as TeamIcon,
 	Assessment as SummaryIcon,
 } from "@mui/icons-material";
-import type { RepoResultsProps } from "./types";
+import type { RepoResultsProps } from "../types/types.ts";
 import TabPanel from "./TabPanel";
-import SummaryTab from "./SummaryTab";
-import CommitsTab from "./CommitsTab";
-import IssuesTab from "./IssuesTab";
-import PullRequestsTab from "./PullRequestsTab";
-import TeamworkTab from "./TeamworkTab";
+import SummaryTab from "../analysis/tabs/SummaryTab.tsx";
+import CommitsTab from "../analysis/tabs/CommitsTab.tsx";
+import IssuesTab from "../analysis/tabs/IssuesTab.tsx";
+import PullRequestsTab from "../analysis/tabs/PullRequestsTab.tsx";
+import TeamworkTab from "../analysis/tabs/TeamworkTab.tsx";
 
 function RepoResults({ data }: RepoResultsProps): JSX.Element {
 	const [tabValue, setTabValue] = useState(0);

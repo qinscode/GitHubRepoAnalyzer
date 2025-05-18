@@ -1,6 +1,6 @@
 import { Box, Grow } from "@mui/material";
-import type { FunctionComponent } from "../../common/types";
-import "../github/FormStyles.css";
+import type { FunctionComponent } from "../../../../common/types.ts";
+import "../../../../styles/FormStyles.css";
 
 const RepoTabs = (): FunctionComponent => {
 	return (
