@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
-import { 
-	Box, 
-	Paper, 
-	Tabs, 
-	Tab, 
-	useTheme, 
-	useMediaQuery, 
-	alpha, 
+import {
+	Box,
+	Paper,
+	Tabs,
+	Tab,
+	useTheme,
+	useMediaQuery,
+	alpha,
 	Fade,
-	Grow
+	Grow,
 } from "@mui/material";
 import {
 	Commit as CommitIcon,
@@ -29,8 +29,8 @@ function RepoResults({ data }: RepoResultsProps): JSX.Element {
 	const [tabValue, setTabValue] = useState(0);
 	const [tabTransition, setTabTransition] = useState(false);
 	const theme = useTheme();
-	const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-	
+	const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
 	const handleTabChange = (
 		_event: React.SyntheticEvent,
 		newValue: number
@@ -51,67 +51,160 @@ function RepoResults({ data }: RepoResultsProps): JSX.Element {
 		summary: "#3B82F6", // blue
 		commits: "#10B981", // green
 		issues: "#8B5CF6", // purple
-		prs: "#F59E0B",     // amber
+		prs: "#F59E0B", // amber
 		teamwork: "#EC4899", // pink
 	};
 
 	// Tab icons with customized colors
 	const tabIcons = {
-		summary: <SummaryIcon sx={{ fontSize: '1.25rem', color: colors.summary }} />,
-		commits: <CommitIcon sx={{ fontSize: '1.25rem', color: colors.commits }} />,
-		issues: <IssueIcon sx={{ fontSize: '1.25rem', color: colors.issues }} />,
-		prs: <PRIcon sx={{ fontSize: '1.25rem', color: colors.prs }} />,
-		teamwork: <TeamIcon sx={{ fontSize: '1.25rem', color: colors.teamwork }} />,
+		summary: (
+			<SummaryIcon sx={{ fontSize: "1.25rem", color: colors.summary }} />
+		),
+		commits: <CommitIcon sx={{ fontSize: "1.25rem", color: colors.commits }} />,
+		issues: <IssueIcon sx={{ fontSize: "1.25rem", color: colors.issues }} />,
+		prs: <PRIcon sx={{ fontSize: "1.25rem", color: colors.prs }} />,
+		teamwork: <TeamIcon sx={{ fontSize: "1.25rem", color: colors.teamwork }} />,
 	};
 
+	// Tab hover effects
+	const getTabSx = (index: number): Record<string, unknown> => ({
+		overflow: "hidden",
+		position: "relative",
+		"&::after": {
+			content: '""',
+			position: "absolute",
+			bottom: 0,
+			left: "50%",
+			width: tabValue === index ? "100%" : "0%",
+			height: "3px",
+			transform: "translateX(-50%)",
+			transition: "width 0.3s ease-in-out",
+			borderRadius: "3px 3px 0 0",
+			background:
+				index === 0
+					? `linear-gradient(90deg, ${colors.summary}, ${alpha(colors.summary, 0.7)})`
+					: index === 1
+						? `linear-gradient(90deg, ${colors.commits}, ${alpha(colors.commits, 0.7)})`
+						: index === 2
+							? `linear-gradient(90deg, ${colors.issues}, ${alpha(colors.issues, 0.7)})`
+							: index === 3
+								? `linear-gradient(90deg, ${colors.prs}, ${alpha(colors.prs, 0.7)})`
+								: `linear-gradient(90deg, ${colors.teamwork}, ${alpha(colors.teamwork, 0.7)})`,
+			opacity: 0.8,
+			zIndex: 1,
+		},
+		"&:hover::after": {
+			width: "70%",
+		},
+		"&.Mui-selected::after": {
+			width: "100%",
+		},
+		"&::before": {
+			content: '""',
+			position: "absolute",
+			top: 0,
+			left: 0,
+			right: 0,
+			bottom: 0,
+			background: "rgba(0, 0, 0, 0.03)",
+			opacity: 0,
+			transition: "opacity 0.3s ease",
+			zIndex: 0,
+		},
+		"&:hover::before": {
+			opacity: 1,
+		},
+		"&.Mui-selected::before": {
+			opacity: 0,
+		},
+		// Icon and label styling
+		"& .MuiTab-iconWrapper": {
+			transition: "transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
+			marginRight: "8px",
+		},
+		"&:hover .MuiTab-iconWrapper": {
+			transform: "translateY(-2px) scale(1.1)",
+		},
+	});
+
 	return (
-		<Box sx={{ 
-			position: 'relative',
-			pt: 2,
-			'&::before': {
-				content: '""',
-				position: 'absolute',
-				top: -100,
-				left: -150,
-				width: 300,
-				height: 300,
-				background: 'radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, rgba(59, 130, 246, 0) 70%)',
-				borderRadius: '50%',
-				zIndex: -1,
-				animation: 'pulse 15s infinite alternate ease-in-out',
-			},
-			'&::after': {
-				content: '""',
-				position: 'absolute',
-				bottom: -50,
-				right: -100,
-				width: 250,
-				height: 250,
-				background: 'radial-gradient(circle, rgba(236, 72, 153, 0.06) 0%, rgba(236, 72, 153, 0) 70%)',
-				borderRadius: '50%',
-				zIndex: -1,
-				animation: 'pulse 12s infinite alternate-reverse ease-in-out',
-			},
-			'@keyframes pulse': {
-				'0%': { opacity: 0.5, transform: 'scale(1)' },
-				'100%': { opacity: 0.7, transform: 'scale(1.1)' },
-			},
-		}}>
+		<Box
+			sx={{
+				position: "relative",
+				pt: 2,
+				"&::before": {
+					content: '""',
+					position: "absolute",
+					top: -100,
+					left: -150,
+					width: 300,
+					height: 300,
+					background:
+						"radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, rgba(59, 130, 246, 0) 70%)",
+					borderRadius: "50%",
+					zIndex: -1,
+					animation: "pulse 15s infinite alternate ease-in-out",
+				},
+				"&::after": {
+					content: '""',
+					position: "absolute",
+					bottom: -50,
+					right: -100,
+					width: 250,
+					height: 250,
+					background:
+						"radial-gradient(circle, rgba(236, 72, 153, 0.06) 0%, rgba(236, 72, 153, 0) 70%)",
+					borderRadius: "50%",
+					zIndex: -1,
+					animation: "pulse 12s infinite alternate-reverse ease-in-out",
+				},
+				"@keyframes pulse": {
+					"0%": { opacity: 0.5, transform: "scale(1)" },
+					"100%": { opacity: 0.7, transform: "scale(1.1)" },
+				},
+			}}
+		>
 			<Grow in timeout={800}>
 				<Paper
-					className="mb-6 rounded-xl overflow-hidden"
 					elevation={2}
-					sx={{ 
-						background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(249, 250, 251, 0.9))',
-						backdropFilter: 'blur(8px)',
-						transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-						borderLeft: '1px solid rgba(255, 255, 255, 0.5)',
-						borderTop: '1px solid rgba(255, 255, 255, 0.5)',
-						boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025)',
-						'&:hover': {
-							transform: 'translateY(-2px)',
-							boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.06), 0 10px 10px -5px rgba(0, 0, 0, 0.03)',
-						}
+					sx={{
+						mb: 6,
+						borderRadius: "16px",
+						overflow: "hidden",
+						background:
+							"linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(249, 250, 251, 0.9))",
+						backdropFilter: "blur(8px)",
+						transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+						borderLeft: "1px solid rgba(255, 255, 255, 0.5)",
+						borderTop: "1px solid rgba(255, 255, 255, 0.5)",
+						boxShadow:
+							"0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025)",
+						"&:hover": {
+							transform: "translateY(-2px)",
+							boxShadow:
+								"0 20px 25px -5px rgba(0, 0, 0, 0.06), 0 10px 10px -5px rgba(0, 0, 0, 0.03)",
+						},
+						position: "relative",
+						// Glowing accent based on active tab
+						"&::before": {
+							content: '""',
+							position: "absolute",
+							bottom: 0,
+							left: 0,
+							width: "100%",
+							height: "3px",
+							background:
+								tabValue === 0
+									? `linear-gradient(90deg, ${colors.summary}, transparent)`
+									: tabValue === 1
+										? `linear-gradient(90deg, ${colors.commits}, transparent)`
+										: tabValue === 2
+											? `linear-gradient(90deg, ${colors.issues}, transparent)`
+											: tabValue === 3
+												? `linear-gradient(90deg, ${colors.prs}, transparent)`
+												: `linear-gradient(90deg, ${colors.teamwork}, transparent)`,
+							opacity: 0.8,
+						},
 					}}
 				>
 					<Tabs
@@ -122,74 +215,57 @@ function RepoResults({ data }: RepoResultsProps): JSX.Element {
 						TabIndicatorProps={{
 							sx: {
 								background: `linear-gradient(90deg, ${
-									tabValue === 0 ? colors.summary :
-									tabValue === 1 ? colors.commits :
-									tabValue === 2 ? colors.issues :
-									tabValue === 3 ? colors.prs :
-									colors.teamwork
+									tabValue === 0
+										? colors.summary
+										: tabValue === 1
+											? colors.commits
+											: tabValue === 2
+												? colors.issues
+												: tabValue === 3
+													? colors.prs
+													: colors.teamwork
 								} 30%, ${alpha(
-									tabValue === 0 ? colors.summary :
-									tabValue === 1 ? colors.commits :
-									tabValue === 2 ? colors.issues :
-									tabValue === 3 ? colors.prs :
-									colors.teamwork, 0.7
+									tabValue === 0
+										? colors.summary
+										: tabValue === 1
+											? colors.commits
+											: tabValue === 2
+												? colors.issues
+												: tabValue === 3
+													? colors.prs
+													: colors.teamwork,
+									0.7
 								)} 100%)`,
 								height: 3,
-								borderRadius: '3px 3px 0 0',
-								transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
-							}
+								borderRadius: "3px 3px 0 0",
+								transition: "all 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",
+							},
 						}}
 						sx={{
-							minHeight: '60px',
-							borderBottom: '1px solid rgba(0,0,0,0.04)',
-							'& .MuiTab-root': {
-								textTransform: 'none',
-								fontSize: '0.95rem',
+							minHeight: "60px",
+							borderBottom: "1px solid rgba(0,0,0,0.04)",
+							"& .MuiTab-root": {
+								textTransform: "none",
+								fontSize: "0.95rem",
 								fontWeight: 500,
-								minHeight: '60px',
-								color: 'rgba(75, 85, 99, 0.7)',
-								transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-								position: 'relative',
-								overflow: 'hidden',
-								'&::after': {
-									content: '""',
-									position: 'absolute',
-									bottom: 0,
-									left: '50%',
-									width: '0%',
-									height: '100%',
-									background: 'linear-gradient(to top, rgba(0, 0, 0, 0.01), transparent)',
-									transition: 'all 0.3s ease',
-									transform: 'translateX(-50%)',
-									zIndex: -1,
-									opacity: 0,
-								},
-								'&:hover': {
-									color: 'rgba(75, 85, 99, 0.9)',
-									backgroundColor: 'rgba(0, 0, 0, 0.01)',
-									'&::after': {
-										width: '100%',
-										opacity: 1,
-									}
-								},
-								'&.Mui-selected': {
-									color: tabValue === 0 ? colors.summary :
-										   tabValue === 1 ? colors.commits :
-										   tabValue === 2 ? colors.issues :
-										   tabValue === 3 ? colors.prs :
-										   colors.teamwork,
-									fontWeight: 600,
-								},
-								'& .MuiSvgIcon-root': {
-									transition: 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
-									marginRight: '8px',
-									opacity: 0.9,
-								},
-								'&:hover .MuiSvgIcon-root': {
-									transform: 'translateY(-2px)',
-									opacity: 1,
-								}
-							}
+								minHeight: "60px",
+								color: "rgba(75, 85, 99, 0.7)",
+								transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+								zIndex: 1,
+							},
+							"& .Mui-selected": {
+								color:
+									tabValue === 0
+										? colors.summary
+										: tabValue === 1
+											? colors.commits
+											: tabValue === 2
+												? colors.issues
+												: tabValue === 3
+													? colors.prs
+													: colors.teamwork,
+								fontWeight: 600,
+							},
 						}}
 						onChange={handleTabChange}
 					>
@@ -197,36 +273,43 @@ function RepoResults({ data }: RepoResultsProps): JSX.Element {
 							icon={tabIcons.summary}
 							iconPosition="start"
 							label="Summary"
+							sx={getTabSx(0)}
 						/>
-						<Tab 
+						<Tab
 							icon={tabIcons.commits}
-							iconPosition="start" 
-							label="Commits" 
+							iconPosition="start"
+							label="Commits"
+							sx={getTabSx(1)}
 						/>
-						<Tab 
+						<Tab
 							icon={tabIcons.issues}
-							iconPosition="start" 
-							label="Issues" 
+							iconPosition="start"
+							label="Issues"
+							sx={getTabSx(2)}
 						/>
-						<Tab 
-							icon={tabIcons.prs} 
-							iconPosition="start" 
-							label="Pull Requests" 
+						<Tab
+							icon={tabIcons.prs}
+							iconPosition="start"
+							label="Pull Requests"
+							sx={getTabSx(3)}
 						/>
-						<Tab 
+						<Tab
 							icon={tabIcons.teamwork}
-							iconPosition="start" 
-							label="Teamwork" 
+							iconPosition="start"
+							label="Teamwork"
+							sx={getTabSx(4)}
 						/>
 					</Tabs>
 				</Paper>
 			</Grow>
 
 			<Fade in={tabTransition} timeout={400}>
-				<Box sx={{ 
-					position: 'relative', 
-					minHeight: '300px',
-				}}>
+				<Box
+					sx={{
+						position: "relative",
+						minHeight: "300px",
+					}}
+				>
 					<TabPanel index={0} value={tabValue}>
 						<SummaryTab data={data} />
 					</TabPanel>
