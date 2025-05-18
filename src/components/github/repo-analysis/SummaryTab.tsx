@@ -38,7 +38,7 @@ function StatCard({
 	color: string;
 }): JSX.Element {
 	return (
-		<Box className="flex-1 basis-48 min-w-0">
+		<Box className="flex-1 basis-40 min-w-0">
 			<Card
 				className={`h-full rounded-xl shadow-md hover:shadow-lg transition-all duration-300`}
 				sx={{
@@ -63,32 +63,32 @@ function StatCard({
 					},
 				}}
 			>
-				<CardContent className="text-center p-6 relative">
+				<CardContent className="text-center p-4 relative">
 					<Box
 						sx={{
 							position: "relative",
 							display: "inline-flex",
-							marginBottom: 1.5,
+							marginBottom: 1,
 							background: `linear-gradient(135deg, ${color}20, ${color}10)`,
 							borderRadius: "50%",
-							padding: "12px",
+							padding: "8px",
 						}}
 					>
 						{React.cloneElement(icon, {
 							sx: {
-								fontSize: "2rem",
+								fontSize: "1.5rem",
 								color: color,
 							},
 						})}
 					</Box>
 					<Typography
 						className="font-bold"
-						variant="h3"
+						variant="h5"
 						sx={{
 							background: `linear-gradient(to right, ${color}, #6366f1)`,
 							WebkitBackgroundClip: "text",
 							WebkitTextFillColor: "transparent",
-							marginBottom: 1,
+							marginBottom: 0.5,
 							letterSpacing: "-0.025em",
 						}}
 					>
@@ -98,7 +98,7 @@ function StatCard({
 						className="mt-1"
 						sx={{
 							color: "text.secondary",
-							fontSize: "0.95rem",
+							fontSize: "0.85rem",
 							fontWeight: 500,
 						}}
 					>
@@ -417,28 +417,28 @@ function SummaryTab({ data }: SummaryTabProps): JSX.Element {
 
 	return (
 		<Box className="flex flex-col gap-8">
-			<Box className="flex flex-wrap gap-4">
+			<Box className="flex flex-wrap gap-3">
 				<StatCard
 					color="blue"
-					icon={<CommitIcon className="text-5xl mb-3 text-blue-500" />}
+					icon={<CommitIcon className="text-4xl mb-2 text-blue-500" />}
 					label="Total Commits"
 					value={totalCommits}
 				/>
 				<StatCard
 					color="purple"
-					icon={<IssueIcon className="text-5xl mb-3 text-purple-500" />}
+					icon={<IssueIcon className="text-4xl mb-2 text-purple-500" />}
 					label="Total Issues"
 					value={totalIssues}
 				/>
 				<StatCard
 					color="cyan"
-					icon={<PRIcon className="text-5xl mb-3 text-pink-500" />}
+					icon={<PRIcon className="text-4xl mb-2 text-pink-500" />}
 					label="Total PRs"
 					value={totalPRs}
 				/>
 				<StatCard
 					color="green"
-					icon={<TeamIcon className="text-5xl mb-3 text-green-500" />}
+					icon={<TeamIcon className="text-4xl mb-2 text-green-500" />}
 					label="Contributors"
 					value={uniqueContributors}
 				/>
