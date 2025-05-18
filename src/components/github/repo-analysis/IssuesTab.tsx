@@ -39,7 +39,7 @@ function UserIssues({
 	issues: Array<{ title: string; body: string }>;
 	index: number;
 }): JSX.Element {
-	const [expanded, setExpanded] = useState(issues.length <= 5);
+	const [expanded, setExpanded] = useState(false);
 
 	const handleChange = (): void => {
 		setExpanded(!expanded);

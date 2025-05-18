@@ -92,7 +92,7 @@ function UserPullRequests({
 	prs: Array<{ title: string; body: string }>;
 	index: number;
 }): JSX.Element {
-	const [expanded, setExpanded] = useState(prs.length <= 5);
+	const [expanded, setExpanded] = useState(false);
 
 	const handleChange = (): void => {
 		setExpanded(!expanded);
