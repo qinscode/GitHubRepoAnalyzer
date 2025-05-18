@@ -42,7 +42,7 @@ declare global {
 interface RepoData {
 	commits: Record<string, Array<{ message: string; id: string }>>;
 	issues: Record<string, Array<{ title: string; body: string }>>;
-	prs: Record<string, Array<{ title: string }>>;
+	prs: Record<string, Array<{ title: string; body: string }>>;
 	teamwork: {
 		issueComments: Record<string, number>;
 		prReviews: Record<string, number>;
@@ -171,27 +171,27 @@ function BatchResults({ results }: BatchResultsProps): JSX.Element {
 
 	const openInGitHub = (url: string): void => {
 		// Ensure the URL is properly formatted
-		const formattedUrl = url.startsWith('http') ? url : `https://${url}`;
-		
+		const formattedUrl = url.startsWith("http") ? url : `https://${url}`;
+
 		try {
 			// Check if we're in a Tauri environment
 			if (window.__TAURI__) {
 				// Use Tauri's API to open URLs
-				window.__TAURI__.shell.open(formattedUrl).catch((e) => {
-					console.error("Failed to open URL with Tauri:", e);
-					alert("无法打开GitHub链接，请检查应用权限。");
+				window.__TAURI__.shell.open(formattedUrl).catch((error) => {
+					console.error("Failed to open URL with Tauri:", error);
+					alert("Cannot open URL with Tauri. Please check your configuration.");
 				});
 			} else {
 				// Browser environment fallback
-				const newTab = window.open('about:blank', '_blank');
+				const newTab = window.open("about:blank", "_blank");
 				if (newTab) {
 					newTab.location.href = formattedUrl;
 				} else {
-					window.open(formattedUrl, '_blank');
+					window.open(formattedUrl, "_blank");
 				}
 			}
 		} catch (error) {
-			console.error('Failed to open GitHub URL:', error);
+			console.error("Failed to open GitHub URL:", error);
 			alert("无法打开GitHub链接，请手动复制URL。");
 		}
 	};
