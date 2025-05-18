@@ -31,7 +31,7 @@ import {
 	fetchRepositoryData,
 	parseRepoUrl,
 } from "../../services/githubGraphQLService";
-import "./FormStyles.css";
+import "../../styles/FormStyles.css";
 import GitHubIcon from "@mui/icons-material/GitHub";
 
 interface RepoData {

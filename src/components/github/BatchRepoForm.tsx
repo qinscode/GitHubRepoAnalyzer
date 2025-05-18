@@ -29,7 +29,7 @@ import {
 	fetchRepositoryData,
 	parseRepoUrl,
 } from "../../services/githubGraphQLService";
-import "./FormStyles.css";
+import "../../styles/FormStyles.css";
 
 interface BatchRepoFormProps {
 	onDataFetched: (results: Array<any>) => void;
@@ -161,11 +161,12 @@ const BatchRepoForm: React.FC<BatchRepoFormProps> = ({ onDataFetched }) => {
 			}
 
 			if (invalidUrls.length > 0) {
-				const errorMessage = invalidUrls.length <= 3 
-					? `Issues with some repositories: ${invalidUrls.join("; ")}`
-					: `Issues with ${invalidUrls.length} repositories. First few: ${invalidUrls.slice(0, 3).join("; ")}...`;
+				const errorMessage =
+					invalidUrls.length <= 3
+						? `Issues with some repositories: ${invalidUrls.join("; ")}`
+						: `Issues with ${invalidUrls.length} repositories. First few: ${invalidUrls.slice(0, 3).join("; ")}...`;
 				setError(errorMessage);
-				
+
 				if (items.length === 0) {
 					setLoading(false);
 					return;
@@ -317,7 +318,10 @@ const BatchRepoForm: React.FC<BatchRepoFormProps> = ({ onDataFetched }) => {
 								multiline
 								className="enhanced-input"
 								disabled={loading}
-								error={!!error && (error.includes("repository") || error.includes("URL"))}
+								error={
+									!!error &&
+									(error.includes("repository") || error.includes("URL"))
+								}
 								label="GitHub Repositories"
 								rows={4}
 								value={repoUrls}
@@ -332,7 +336,8 @@ const BatchRepoForm: React.FC<BatchRepoFormProps> = ({ onDataFetched }) => {
 									),
 								}}
 								helperText={
-									error && (error.includes("repository") || error.includes("URL"))
+									error &&
+									(error.includes("repository") || error.includes("URL"))
 										? error
 										: "Enter one repository URL per line"
 								}
