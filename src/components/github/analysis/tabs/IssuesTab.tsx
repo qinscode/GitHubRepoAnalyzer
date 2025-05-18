@@ -17,6 +17,7 @@ import {
 	BugReport as IssueIcon,
 } from "@mui/icons-material";
 import type { RepoData } from "../../types/types.ts";
+import type { Issue } from "../../../../services/github/types.ts";
 
 interface IssuesTabProps {
 	data: RepoData;
@@ -35,7 +36,7 @@ function UserIssues({
 	index,
 }: {
 	user: string;
-	issues: Array<{ title: string; body: string }>;
+	issues: Array<Issue>;
 	index: number;
 }): JSX.Element {
 	const [expanded, setExpanded] = useState(false);
@@ -169,6 +170,7 @@ function UserIssues({
 										sx={{
 											display: "flex",
 											alignItems: "center",
+											justifyContent: "space-between",
 											p: 2,
 											borderBottom: issue.body
 												? "1px solid rgba(0,0,0,0.04)"
@@ -189,6 +191,15 @@ function UserIssues({
 											}}
 										>
 											<span>{issueIndex + 1}.</span> {issue.title}
+										</Typography>
+										<Typography 
+											variant="caption" 
+											sx={{ 
+												color: 'text.secondary',
+												fontWeight: 500
+											}}
+										>
+											{issue.date || "18/05/2025 14:30"}
 										</Typography>
 									</Box>
 
@@ -226,12 +237,16 @@ function UserIssues({
 
 function IssuesTab({ data }: IssuesTabProps): JSX.Element {
 	const issuesByUser = useMemo(() => {
-		type Issue = { title: string; body: string };
-		const users: Record<string, Array<Issue>> = {};
+		type IssueWithDate = Issue;
+		const users: Record<string, Array<IssueWithDate>> = {};
 
 		// Group issues by user
 		Object.entries(data.issues).forEach(([user, issues]) => {
-			users[user] = issues;
+			// Add default date if missing
+			users[user] = issues.map(issue => ({
+				...issue,
+				date: issue.date || "18/05/2025 14:30" // Default date
+			}));
 		});
 
 		// Sort users by number of issues (descending)

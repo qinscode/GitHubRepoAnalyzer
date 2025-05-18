@@ -19,8 +19,8 @@ export interface ContributorStats {
 // Main repository data structure
 export interface RepoData {
   commits: Record<string, Array<{ message: string; id: string; commitDate: string }>>;
-  issues: Record<string, Array<{ title: string; body: string }>>;
-  prs: Record<string, Array<{ title: string; body: string }>>;
+  issues: Record<string, Array<{ title: string; body: string; date?: string }>>;
+  prs: Record<string, Array<{ title: string; body: string; date?: string }>>;
   teamwork: {
     issueComments: Record<string, number>;
     prReviews: Record<string, number>;
@@ -50,12 +50,14 @@ export interface Commit {
 export interface Issue {
   title: string;
   body: string;
+  date?: string;
 }
 
 // Pull request data structure
 export interface PullRequest {
   title: string;
   body: string;
+  date?: string;
 }
 
 // Teamwork statistics

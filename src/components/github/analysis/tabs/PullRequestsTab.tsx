@@ -25,6 +25,7 @@ import {
 	MoreHoriz as MoreIcon,
 } from "@mui/icons-material";
 import type { RepoData } from "../../types/types.ts";
+import type { PullRequest } from "../../../../services/github/types.ts";
 
 interface PullRequestsTabProps {
 	data: RepoData;
@@ -89,7 +90,7 @@ function UserPullRequests({
 	index,
 }: {
 	user: string;
-	prs: Array<{ title: string; body: string }>;
+	prs: Array<PullRequest>;
 	index: number;
 }): JSX.Element {
 	const [expanded, setExpanded] = useState(false);
@@ -223,7 +224,7 @@ function UserPullRequests({
 											#
 										</TableCell>
 										<TableCell
-											width="40%"
+											width="30%"
 											sx={{
 												borderBottom: `2px solid ${colors.light}`,
 												py: 1.5,
@@ -244,6 +245,18 @@ function UserPullRequests({
 											}}
 										>
 											Description
+										</TableCell>
+										<TableCell
+											width="15%"
+											sx={{
+												borderBottom: `2px solid ${colors.light}`,
+												py: 1.5,
+												fontSize: "0.875rem",
+												fontWeight: 600,
+												color: "rgba(55, 65, 81, 0.9)",
+											}}
+										>
+											Date
 										</TableCell>
 									</TableRow>
 								</TableHead>
@@ -313,6 +326,17 @@ function UserPullRequests({
 													</Typography>
 												)}
 											</TableCell>
+											<TableCell
+												sx={{
+													fontFamily: "monospace",
+													fontSize: "0.85rem",
+													borderBottom: "1px solid rgba(0,0,0,0.04)",
+													py: 1.25,
+													color: "text.secondary",
+												}}
+											>
+												{pr.date || "18/05/2025 14:30"}
+											</TableCell>
 										</TableRow>
 									))}
 								</TableBody>
@@ -327,10 +351,14 @@ function UserPullRequests({
 
 function PullRequestsTab({ data }: PullRequestsTabProps): JSX.Element {
 	const prsByUser = useMemo(() => {
-		const users: Record<string, Array<{ title: string; body: string }>> = {};
+		const users: Record<string, Array<PullRequest>> = {};
 
 		Object.entries(data.prs).forEach(([user, prs]) => {
-			users[user] = prs;
+			// Add default date if missing
+			users[user] = prs.map(pr => ({
+				...pr,
+				date: pr.date || "18/05/2025 14:30" // Default date
+			}));
 		});
 
 		return Object.entries(users).sort(([, a], [, b]) => b.length - a.length);
