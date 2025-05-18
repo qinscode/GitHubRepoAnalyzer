@@ -338,10 +338,10 @@ function TeamworkInteractionsTable({
 			<Box sx={{ mt: 4 }}>
 				<SectionTitle title="Teamwork Interactions by User" />
 
-				<Box 
-					sx={{ 
-						display: "flex", 
-						flexDirection: "column", 
+				<Box
+					sx={{
+						display: "flex",
+						flexDirection: "column",
 						gap: 3,
 					}}
 				>
@@ -356,33 +356,81 @@ function TeamworkInteractionsTable({
 							border: "1px solid rgba(236, 72, 153, 0.1)",
 						}}
 					>
-						<Box sx={{ flex: 3, fontWeight: 600, color: "#BE185D", fontSize: "0.95rem" }}>Contributor</Box>
-						<Box sx={{ flex: 2, fontWeight: 600, color: "#BE185D", fontSize: "0.95rem", textAlign: "center" }}>Issues Commented</Box>
-						<Box sx={{ flex: 2, fontWeight: 600, color: "#5B21B6", fontSize: "0.95rem", textAlign: "center" }}>PRs Reviewed</Box>
-						<Box sx={{ flex: 2, fontWeight: 600, color: "#BE185D", fontSize: "0.95rem", textAlign: "center" }}>Total</Box>
+						<Box
+							sx={{
+								flex: 3,
+								fontWeight: 600,
+								color: "#BE185D",
+								fontSize: "0.95rem",
+							}}
+						>
+							Contributor
+						</Box>
+						<Box
+							sx={{
+								flex: 2,
+								fontWeight: 600,
+								color: "#BE185D",
+								fontSize: "0.95rem",
+								textAlign: "center",
+							}}
+						>
+							Issues Commented
+						</Box>
+						<Box
+							sx={{
+								flex: 2,
+								fontWeight: 600,
+								color: "#5B21B6",
+								fontSize: "0.95rem",
+								textAlign: "center",
+							}}
+						>
+							PRs Reviewed
+						</Box>
+						<Box
+							sx={{
+								flex: 2,
+								fontWeight: 600,
+								color: "#BE185D",
+								fontSize: "0.95rem",
+								textAlign: "center",
+							}}
+						>
+							Total
+						</Box>
 					</Box>
 
 					{/* 用户数据卡片 */}
 					{teamworkStats.map((stats, index) => (
-						<Grow in key={stats.user} timeout={300 + index * 100} style={{ transformOrigin: "0 0 0" }}>
+						<Grow
+							key={stats.user}
+							in
+							style={{ transformOrigin: "0 0 0" }}
+							timeout={300 + index * 100}
+						>
 							<Card
 								elevation={2}
 								sx={{
 									borderRadius: "12px",
 									overflow: "hidden",
-									background: "linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(249, 250, 251, 0.9))",
+									background:
+										"linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(249, 250, 251, 0.9))",
 									backdropFilter: "blur(8px)",
 									transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-									borderLeft: stats.total > 10 
-										? "3px solid #EC4899"
-										: stats.total > 5
-											? "3px solid rgba(236, 72, 153, 0.7)"
-											: "3px solid rgba(236, 72, 153, 0.3)",
+									borderLeft:
+										stats.total > 10
+											? "3px solid #EC4899"
+											: stats.total > 5
+												? "3px solid rgba(236, 72, 153, 0.7)"
+												: "3px solid rgba(236, 72, 153, 0.3)",
 									borderTop: "1px solid rgba(255, 255, 255, 0.7)",
-									boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02)",
+									boxShadow:
+										"0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02)",
 									"&:hover": {
 										transform: "translateY(-3px) scale(1.01)",
-										boxShadow: "0 20px 25px -5px rgba(236, 72, 153, 0.1), 0 10px 10px -5px rgba(236, 72, 153, 0.05)",
+										boxShadow:
+											"0 20px 25px -5px rgba(236, 72, 153, 0.1), 0 10px 10px -5px rgba(236, 72, 153, 0.05)",
 									},
 									position: "relative",
 									"&::before": {
@@ -392,11 +440,12 @@ function TeamworkInteractionsTable({
 										left: 0,
 										right: 0,
 										height: "100%",
-										background: stats.total > 10 
-											? "linear-gradient(90deg, rgba(236, 72, 153, 0.05) 0%, transparent 20%)"
-											: stats.total > 5
-												? "linear-gradient(90deg, rgba(236, 72, 153, 0.03) 0%, transparent 15%)"
-												: "none",
+										background:
+											stats.total > 10
+												? "linear-gradient(90deg, rgba(236, 72, 153, 0.05) 0%, transparent 20%)"
+												: stats.total > 5
+													? "linear-gradient(90deg, rgba(236, 72, 153, 0.03) 0%, transparent 15%)"
+													: "none",
 										zIndex: 0,
 									},
 								}}
@@ -412,10 +461,10 @@ function TeamworkInteractionsTable({
 									}}
 								>
 									{/* 贡献者信息 */}
-									<Box 
-										sx={{ 
-											flex: 3, 
-											display: "flex", 
+									<Box
+										sx={{
+											flex: 3,
+											display: "flex",
 											alignItems: "center",
 											mr: 2,
 										}}
@@ -427,9 +476,10 @@ function TeamworkInteractionsTable({
 												mr: 1.5,
 												fontSize: "1rem",
 												fontWeight: "bold",
-												background: stats.total > 10 
-													? colors.gradient
-													: `linear-gradient(90deg, ${alpha(colors.main, 0.9)}, ${alpha("#D946EF", 0.9)})`,
+												background:
+													stats.total > 10
+														? colors.gradient
+														: `linear-gradient(90deg, ${alpha(colors.main, 0.9)}, ${alpha("#D946EF", 0.9)})`,
 												boxShadow: `0 4px 8px ${alpha(colors.main, stats.total > 10 ? 0.4 : 0.2)}`,
 												border: "2px solid white",
 												transition: "all 0.3s ease",
@@ -463,11 +513,11 @@ function TeamworkInteractionsTable({
 									</Box>
 
 									{/* 议题评论 */}
-									<Box 
-										sx={{ 
-											flex: 2, 
-											display: "flex", 
-											flexDirection: "column", 
+									<Box
+										sx={{
+											flex: 2,
+											display: "flex",
+											flexDirection: "column",
 											alignItems: "center",
 										}}
 									>
@@ -487,29 +537,38 @@ function TeamworkInteractionsTable({
 												sx={{
 													fontWeight: 700,
 													fontSize: "1.3rem",
-													color: stats.issueComments > 0 ? "#BE185D" : "rgba(107, 114, 128, 0.6)",
+													color:
+														stats.issueComments > 0
+															? "#BE185D"
+															: "rgba(107, 114, 128, 0.6)",
 												}}
 											>
 												{stats.issueComments}
 											</Typography>
 										</Box>
-										<Box 
+										<Box
 											sx={{
 												display: "flex",
 												alignItems: "center",
 												gap: 0.5,
 											}}
 										>
-											<CommentIcon 
-												sx={{ 
-													fontSize: "0.85rem", 
-													color: stats.issueComments > 0 ? "#BE185D" : "rgba(107, 114, 128, 0.6)"
-												}} 
+											<CommentIcon
+												sx={{
+													fontSize: "0.85rem",
+													color:
+														stats.issueComments > 0
+															? "#BE185D"
+															: "rgba(107, 114, 128, 0.6)",
+												}}
 											/>
 											<Typography
 												sx={{
 													fontSize: "0.75rem",
-													color: stats.issueComments > 0 ? "#BE185D" : "rgba(107, 114, 128, 0.6)",
+													color:
+														stats.issueComments > 0
+															? "#BE185D"
+															: "rgba(107, 114, 128, 0.6)",
 													fontWeight: 500,
 												}}
 											>
@@ -519,12 +578,12 @@ function TeamworkInteractionsTable({
 									</Box>
 
 									{/* PR 评审 */}
-									<Box 
-										sx={{ 
-											flex: 2, 
-											display: "flex", 
-											flexDirection: "column", 
-											alignItems: "center" 
+									<Box
+										sx={{
+											flex: 2,
+											display: "flex",
+											flexDirection: "column",
+											alignItems: "center",
 										}}
 									>
 										<Box
@@ -543,29 +602,38 @@ function TeamworkInteractionsTable({
 												sx={{
 													fontWeight: 700,
 													fontSize: "1.3rem",
-													color: stats.prReviews > 0 ? "#5B21B6" : "rgba(107, 114, 128, 0.6)",
+													color:
+														stats.prReviews > 0
+															? "#5B21B6"
+															: "rgba(107, 114, 128, 0.6)",
 												}}
 											>
 												{stats.prReviews}
 											</Typography>
 										</Box>
-										<Box 
+										<Box
 											sx={{
 												display: "flex",
 												alignItems: "center",
 												gap: 0.5,
 											}}
 										>
-											<ReviewIcon 
-												sx={{ 
-													fontSize: "0.85rem", 
-													color: stats.prReviews > 0 ? "#5B21B6" : "rgba(107, 114, 128, 0.6)" 
-												}} 
+											<ReviewIcon
+												sx={{
+													fontSize: "0.85rem",
+													color:
+														stats.prReviews > 0
+															? "#5B21B6"
+															: "rgba(107, 114, 128, 0.6)",
+												}}
 											/>
 											<Typography
 												sx={{
 													fontSize: "0.75rem",
-													color: stats.prReviews > 0 ? "#5B21B6" : "rgba(107, 114, 128, 0.6)",
+													color:
+														stats.prReviews > 0
+															? "#5B21B6"
+															: "rgba(107, 114, 128, 0.6)",
 													fontWeight: 500,
 												}}
 											>
@@ -575,37 +643,40 @@ function TeamworkInteractionsTable({
 									</Box>
 
 									{/* 总交互 */}
-									<Box 
-										sx={{ 
-											flex: 2, 
-											display: "flex", 
-											flexDirection: "column", 
-											alignItems: "center" 
+									<Box
+										sx={{
+											flex: 2,
+											display: "flex",
+											flexDirection: "column",
+											alignItems: "center",
 										}}
 									>
 										<Chip
 											label={stats.total}
 											sx={{
-												background: stats.total > 10
-													? colors.gradient
-													: stats.total > 5
-														? `linear-gradient(90deg, ${alpha(colors.main, 0.7)} 0%, ${alpha("#D946EF", 0.7)} 100%)`
-														: "rgba(236, 72, 153, 0.15)",
+												background:
+													stats.total > 10
+														? colors.gradient
+														: stats.total > 5
+															? `linear-gradient(90deg, ${alpha(colors.main, 0.7)} 0%, ${alpha("#D946EF", 0.7)} 100%)`
+															: "rgba(236, 72, 153, 0.15)",
 												color: stats.total > 5 ? "white" : "#BE185D",
 												fontWeight: 700,
 												minWidth: "48px",
 												height: "32px",
 												fontSize: "1rem",
-												boxShadow: stats.total > 5
-													? `0 3px 6px ${alpha(colors.main, 0.3)}`
-													: "none",
+												boxShadow:
+													stats.total > 5
+														? `0 3px 6px ${alpha(colors.main, 0.3)}`
+														: "none",
 												borderRadius: "16px",
 												transition: "all 0.3s ease",
 												"&:hover": {
 													transform: "scale(1.1)",
-													boxShadow: stats.total > 5
-														? `0 6px 12px ${alpha(colors.main, 0.4)}`
-														: `0 3px 6px ${alpha(colors.main, 0.2)}`,
+													boxShadow:
+														stats.total > 5
+															? `0 6px 12px ${alpha(colors.main, 0.4)}`
+															: `0 3px 6px ${alpha(colors.main, 0.2)}`,
 												},
 											}}
 										/>
@@ -644,8 +715,10 @@ function TeamworkTab({ data }: TeamworkTabProps): JSX.Element {
 		.slice(0, 5);
 
 	// 检查是否有数据可显示
-	const hasData = (teamwork?.issueComments && Object.keys(teamwork.issueComments).length > 0) || 
-				   (teamwork?.prReviews && Object.keys(teamwork.prReviews).length > 0);
+	const hasData =
+		(teamwork?.issueComments &&
+			Object.keys(teamwork.issueComments).length > 0) ||
+		(teamwork?.prReviews && Object.keys(teamwork.prReviews).length > 0);
 
 	// 没有数据时显示提示信息
 	if (!hasData) {
@@ -669,48 +742,63 @@ function TeamworkTab({ data }: TeamworkTabProps): JSX.Element {
 						mx: "auto",
 					}}
 				>
-					This repository doesn't have any recorded issue comments or pull request reviews,
-					or the data couldn't be retrieved from the GitHub API.
+					This repository doesn't have any recorded issue comments or pull
+					request reviews, or the data couldn't be retrieved from the GitHub
+					API.
 				</Typography>
 			</Box>
 		);
 	}
-	
+
 	return (
-		<Box
-			sx={{
-				position: "relative",
-				"&::before": {
-					content: '""',
-					position: "absolute",
-					top: -100,
-					right: -150,
-					width: 300,
-					height: 300,
-					background:
-						"radial-gradient(circle, rgba(236, 72, 153, 0.06) 0%, rgba(236, 72, 153, 0) 70%)",
-					borderRadius: "50%",
-					zIndex: -1,
-				},
-			}}
-		>
-			<Box sx={{ display: "flex", flexWrap: "wrap", gap: 3, mb: 4 }}>
-				<TeamworkTable
-					title="Issue Comments"
-					data={issueCommentsData}
-					valueLabel="Comments"
-					index={0}
-				/>
-				<TeamworkTable
-					title="PR Reviews"
-					data={prReviewsData}
-					valueLabel="Reviews"
-					index={1}
+		<Fade in timeout={500}>
+			<Box
+				sx={{
+					position: "relative",
+					"&::before": {
+						content: '""',
+						position: "absolute",
+						top: -100,
+						right: -150,
+						width: 300,
+						height: 300,
+						background:
+							"radial-gradient(circle, rgba(236, 72, 153, 0.06) 0%, rgba(236, 72, 153, 0) 70%)",
+						borderRadius: "50%",
+						zIndex: -1,
+					},
+				}}
+			>
+				<Box sx={{ display: "flex", flexWrap: "wrap", gap: 3, mb: 4 }}>
+					<TeamworkTable
+						data={issueCommentsData}
+						index={0}
+						title="Issue Comments"
+						valueLabel="Comments"
+					/>
+					<TeamworkTable
+						data={prReviewsData}
+						index={1}
+						title="PR Reviews"
+						valueLabel="Reviews"
+					/>
+				</Box>
+
+				<TeamworkInteractionsTable
+					data={
+						teamwork
+							? {
+									issueComments: teamwork.issueComments || {},
+									prReviews: teamwork.prReviews || {},
+								}
+							: {
+									issueComments: {},
+									prReviews: {},
+								}
+					}
 				/>
 			</Box>
-
-			<TeamworkInteractionsTable data={teamwork || { issueComments: {}, prReviews: {} }} />
-		</Box>
+		</Fade>
 	);
 }
 
