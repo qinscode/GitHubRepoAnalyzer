@@ -6,7 +6,7 @@ import RepoTabs from "../components/github/analysis/tabs/RepoTabs.tsx";
 export const GitHub = () => {
 	return (
 		<Container className="!p-4 md:!p-8" maxWidth="xl">
-			<Box className="mb-10 text-center">
+			<Box className="mb-6 text-center">
 				<Box className="inline-flex items-center justify-center p-3 mb-4 rounded-full bg-gradient-to-br from-blue-500/5 to-indigo-500/10">
 					<GitHubIcon
 						sx={{
@@ -23,7 +23,7 @@ export const GitHub = () => {
 					/>
 				</Box>
 				<Typography
-					className="font-bold  mb-2 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600"
+					className="font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600"
 					component="h1"
 					variant="h2"
 					sx={{
@@ -31,9 +31,22 @@ export const GitHub = () => {
 						fontSize: { xs: "2.5rem", md: "3.25rem" },
 						textShadow: "0 1px 1px rgba(0,0,0,0.03)",
 						letterSpacing: "-0.5px",
+						marginBottom: "0.5rem",
 					}}
 				>
-					GitHub Repository Analyzer v0.2.7
+					GitHub Repository Analyzer
+				</Typography>
+				<Typography
+					color="text.secondary"
+					variant="subtitle1"
+					sx={{
+						fontSize: "0.9rem",
+						opacity: 0.8,
+						marginTop: "-0.5rem",
+						marginBottom: "1rem",
+					}}
+				>
+					v0.3.7
 				</Typography>
 			</Box>
 
