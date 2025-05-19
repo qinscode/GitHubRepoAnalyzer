@@ -66,10 +66,11 @@ const GitHubTokenInput = ({
 
 			<Box sx={{ display: "flex", gap: 1, mt: 1 }}>
 				<Button
+					className="submit-button"
 					color="primary"
 					size="small"
 					startIcon={<SaveIcon />}
-					variant="outlined"
+					variant="contained"
 					onClick={() => {
 						onTokenSave(token);
 					}}
@@ -78,10 +79,11 @@ const GitHubTokenInput = ({
 				</Button>
 				{hasSavedToken && (
 					<Button
+						className="submit-button"
 						color="error"
 						size="small"
 						startIcon={<DeleteIcon />}
-						variant="outlined"
+						variant="contained"
 						onClick={onTokenDelete}
 					>
 						Delete Token
