@@ -31,8 +31,8 @@ const HeaderControls = ({
       >
         <ExpandSwitch
           isExpanded={isAllExpanded}
-          toggleExpanded={toggleAll}
           theme={theme}
+          toggleExpanded={toggleAll}
         />
       </Box>
     );
@@ -50,10 +50,10 @@ const HeaderControls = ({
       <HeaderTitle headerTitle={headerTitle} theme={theme} />
       <ExpandSwitch
         isExpanded={isAllExpanded}
-        toggleExpanded={toggleAll}
         showLessLabel="Show Less Description"
         showMoreLabel="Show More Description"
         theme={theme}
+        toggleExpanded={toggleAll}
       />
     </Box>
   );

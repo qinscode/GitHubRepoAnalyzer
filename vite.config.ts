@@ -30,6 +30,7 @@ export default defineConfig({
 		extensions: [".js", ".ts", ".jsx", ".tsx", ".json"],
 		alias: {
 			"@": path.resolve(__dirname, "./src"),
+			"@components": path.resolve(__dirname, "./src/components"),
 		},
 	},
 });

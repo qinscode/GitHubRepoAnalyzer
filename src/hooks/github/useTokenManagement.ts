@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import type { TokenMessage } from "../../types";
+import type { TokenMessage } from "@/types";
 
 export interface UseTokenManagementReturn {
 	token: string;

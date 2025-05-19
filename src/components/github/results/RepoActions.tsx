@@ -48,7 +48,7 @@ export const RepoActions = ({
                 transform: "translateY(-2px)",
               },
             }}
-            onClick={() => copyRepoUrl(result.repoUrl)}
+            onClick={() => { copyRepoUrl(result.repoUrl); }}
           >
             {copiedUrl === result.repoUrl ? (
               <CheckIcon fontSize="small" />
@@ -72,7 +72,7 @@ export const RepoActions = ({
                 transform: "translateY(-2px)",
               },
             }}
-            onClick={() => openInGitHub(result.repoUrl)}
+            onClick={() => { openInGitHub(result.repoUrl); }}
           >
             <OpenInNewIcon fontSize="small" />
           </IconButton>
@@ -80,8 +80,9 @@ export const RepoActions = ({
 
         <Button
           color="primary"
-          size="small"
           endIcon={expandedRepo === result.repoUrl ? <CollapseIcon /> : <ExpandIcon />}
+          size="small"
+          variant={expandedRepo === result.repoUrl ? "contained" : "outlined"}
           sx={{
             borderRadius: "8px",
             textTransform: "none",
@@ -110,8 +111,7 @@ export const RepoActions = ({
                 : {}),
             },
           }}
-          variant={expandedRepo === result.repoUrl ? "contained" : "outlined"}
-          onClick={() => onToggleDetails(result.repoUrl)}
+          onClick={() => { onToggleDetails(result.repoUrl); }}
         >
           {expandedRepo === result.repoUrl ? "Hide Details" : "View Details"}
         </Button>
