@@ -773,7 +773,7 @@ function TeamworkTab({ data }: TeamworkTabProps): JSX.Element {
 					<TeamworkTable
 						data={issueCommentsData}
 						index={0}
-						title="Issue Comments"
+						title="Issue Comments on the Otthers' Issues"
 						valueLabel="Comments"
 					/>
 					<TeamworkTable

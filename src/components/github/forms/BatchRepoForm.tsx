@@ -331,7 +331,7 @@ microsoft/typescript"
 
 						<AnalysisOptions
 							hideMergeCommits={hideMergeCommits}
-							setHideMergeCommits={setHideMergeCommits}
+							onHideMergeCommitsChange={(checked) => { setHideMergeCommits(checked); }}
 						/>
 
 						<ProcessingProgress

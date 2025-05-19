@@ -63,12 +63,12 @@ function IssuesTab({ data }: IssuesTabProps): JSX.Element {
 			creatorLabel="Created by"
 			description="This analysis shows issues created by repository contributors."
 			headerTitle="Issues by Creator"
-			statsIcon={
-				<IssueIcon sx={{ color: issuesTheme.main, fontSize: "1.1rem" }} />
-			}
 			theme={issuesTheme}
 			title="Issues Analysis"
 			totalCount={Object.values(data.issues).flat().length}
+			statsIcon={
+				<IssueIcon sx={{ color: issuesTheme.main, fontSize: "1.1rem" }} />
+			}
 		>
 			{issuesByUser.length === 0 ? (
 				<div style={{ padding: "12px", textAlign: "center", color: "#666" }}>

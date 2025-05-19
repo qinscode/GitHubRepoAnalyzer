@@ -24,6 +24,7 @@ export const fetchIssues = async (owner: string, repo: string, token: string): P
             id
             title
             body
+            url
             author {
               login
             }
@@ -77,7 +78,8 @@ export const fetchIssues = async (owner: string, repo: string, token: string): P
         if (issuesByUser[author].length < 50) {
           issuesByUser[author].push({
             title: issue.title,
-            body: issue.body || ''
+            body: issue.body || '',
+            url: issue.url
           });
         }
         

@@ -1,63 +1,41 @@
 import { useState, useEffect } from "react";
 import {
 	Box,
-	TextField,
 	Button,
-	Alert,
 	CircularProgress,
 	Typography,
-	InputAdornment,
 	Card,
 	CardContent,
-	Fade,
-	Snackbar,
 	Grow,
 	Zoom,
-	FormControlLabel,
-	Switch,
-	LinearProgress,
-	Stack,
-	Chip,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import KeyIcon from "@mui/icons-material/Key";
-import PlaylistAddCheckIcon from "@mui/icons-material/PlaylistAddCheck";
-import HourglassTopIcon from "@mui/icons-material/HourglassTop";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import ErrorIcon from "@mui/icons-material/Error";
-import type { FunctionComponent } from "../../common/types";
-import type { RepoData } from "../../services/github";
 import BatchResults from "./results/BatchResults.tsx";
 import { fetchRepositoryData, parseRepoUrl } from "../../services/github";
 import "../../styles/FormStyles.css";
-import GitHubIcon from "@mui/icons-material/GitHub";
 
-interface RepoResult {
-	repoUrl: string;
-	repoName: string;
-	commits: number;
-	issues: number;
-	prs: number;
-	contributors: number;
-	data: RepoData;
-}
+// Components
+import RepoUrlsInput from "./forms/RepoUrlsInput";
+import GitHubTokenInput from "./forms/GitHubTokenInput";
+import AnalysisOptions from "./forms/AnalysisOptions";
+import ErrorNotification from "./notifications/ErrorNotification";
+import SuccessNotification from "./notifications/SuccessNotification";
+import TokenNotification from "./notifications/TokenNotification";
+import ProgressTracker from "./progress/ProgressTracker";
 
-type RepoStatus = "pending" | "processing" | "completed" | "error";
+// Types
+import { RepoResult, RepoListItem } from "./types";
 
-interface RepoListItem {
-	id: string;
-	url: string;
-	status: RepoStatus;
-	result?: RepoResult;
-	error?: string;
-}
-
-const RepoAnalysisForm = (): FunctionComponent => {
+const RepoAnalysisForm = (): JSX.Element => {
 	// Form state
 	const [token, setToken] = useState<string>("");
 	const [loading, setLoading] = useState<boolean>(false);
 	const [error, setError] = useState<string | null>(null);
 	const [success, setSuccess] = useState<boolean>(false);
+	const [tokenMessage, setTokenMessage] = useState<{
+		message: string;
+		severity: "success" | "error" | "info";
+	} | null>(null);
 
 	// Filtering options
 	const [hideMergeCommits, setHideMergeCommits] = useState<boolean>(true);
@@ -69,16 +47,60 @@ const RepoAnalysisForm = (): FunctionComponent => {
 	const [currentIndex, setCurrentIndex] = useState<number>(-1);
 	const [progress, setProgress] = useState<number>(0);
 
-	// Get the preset GitHub token from environment variables
+	// Get the GitHub token from localStorage first, then fallback to environment variables
 	useEffect(() => {
-		const presetToken = import.meta.env["VITE_GITHUB_API_TOKEN"];
-		if (presetToken) {
-			setToken(presetToken);
+		const savedToken = localStorage.getItem("githubToken");
+		if (savedToken) {
+			setToken(savedToken);
+		} else {
+			const presetToken = import.meta.env["VITE_GITHUB_API_TOKEN"];
+			if (presetToken) {
+				setToken(presetToken);
+			}
 		}
 	}, []);
 
+	// Check if there's a saved token in localStorage
+	const hasSavedToken = !!localStorage.getItem("githubToken");
 	// Check if there's a preset token in environment variables
 	const hasPresetToken = !!import.meta.env["VITE_GITHUB_API_TOKEN"];
+
+	// Save token to localStorage
+	const saveToken = (): void => {
+		if (token.trim()) {
+			localStorage.setItem("githubToken", token);
+			setTokenMessage({
+				message: "GitHub token saved to browser storage",
+				severity: "success",
+			});
+		} else {
+			setTokenMessage({
+				message: "Please enter a token to save",
+				severity: "error",
+			});
+		}
+	};
+
+	// Delete token from localStorage
+	const deleteToken = (): void => {
+		localStorage.removeItem("githubToken");
+		setTokenMessage({
+			message: "GitHub token removed from browser storage",
+			severity: "success",
+		});
+
+		// Fallback to environment variable token if available
+		const presetToken = import.meta.env["VITE_GITHUB_API_TOKEN"];
+		if (presetToken) {
+			setToken(presetToken);
+		} else {
+			setToken("");
+		}
+	};
+
+	const handleTokenMessageClose = (): void => {
+		setTokenMessage(null);
+	};
 
 	const handleRepoSubmit = async (event: React.FormEvent): Promise<void> => {
 		event.preventDefault();
@@ -280,34 +302,20 @@ const RepoAnalysisForm = (): FunctionComponent => {
 		setSuccess(false);
 	};
 
-	const getStatusColor = (status: RepoStatus): any => {
-		switch (status) {
-			case "pending":
-				return "default";
-			case "processing":
-				return "primary";
-			case "completed":
-				return "success";
-			case "error":
-				return "error";
-			default:
-				return "default";
-		}
+	const handleErrorClose = (): void => {
+		setError("");
 	};
 
-	const getStatusIcon = (status: RepoStatus): JSX.Element | null => {
-		switch (status) {
-			case "pending":
-				return <HourglassTopIcon fontSize="small" />;
-			case "processing":
-				return <CircularProgress size={16} />;
-			case "completed":
-				return <CheckCircleIcon fontSize="small" />;
-			case "error":
-				return <ErrorIcon fontSize="small" />;
-			default:
-				return null;
-		}
+	const handleTokenChange = (newToken: string): void => {
+		setToken(newToken);
+	};
+
+	const handleRepoUrlsChange = (newUrls: string): void => {
+		setRepoUrls(newUrls);
+	};
+
+	const handleHideMergeCommitsChange = (checked: boolean): void => {
+		setHideMergeCommits(checked);
 	};
 
 	return (
@@ -320,151 +328,30 @@ const RepoAnalysisForm = (): FunctionComponent => {
 								Repository Analysis
 							</Typography>
 
-							<Box className="mb-5 relative">
-								<Typography className="form-subtitle">
-									GitHub Repository URLs
-								</Typography>
-								<TextField
-									fullWidth
-									multiline
-									className="enhanced-input"
-									placeholder="Enter GitHub repository URLs (one per line)"
-									rows={4}
-									value={repoUrls}
-									variant="outlined"
-									InputProps={{
-										className: "rounded-md bg-white",
-										startAdornment: (
-											<InputAdornment position="start">
-												<div className="input-icon-container">
-													<GitHubIcon
-														color="primary"
-														sx={{ opacity: 0.8, fontSize: "1.2rem" }}
-													/>
-												</div>
-											</InputAdornment>
-										),
-									}}
-									onChange={(event_): void => {
-										setRepoUrls(event_.target.value);
-									}}
-								/>
-							</Box>
+							{/* Repository URLs Input */}
+							<RepoUrlsInput
+								repoUrls={repoUrls}
+								onRepoUrlsChange={handleRepoUrlsChange}
+							/>
 
-							<Box className="mb-5">
-								<Typography className="form-subtitle">
-									GitHub Personal Access Token
-								</Typography>
-								<TextField
-									fullWidth
-									className="enhanced-input"
-									disabled={false}
-									placeholder="Enter your GitHub token"
-									type="password"
-									value={token}
-									variant="outlined"
-									InputProps={{
-										className: "rounded-md bg-white",
-										startAdornment: (
-											<InputAdornment position="start">
-												<div className="input-icon-container">
-													<KeyIcon
-														color="primary"
-														sx={{ opacity: 0.8, fontSize: "1.2rem" }}
-													/>
-												</div>
-											</InputAdornment>
-										),
-									}}
-									onChange={(event_): void => {
-										setToken(event_.target.value);
-									}}
-								/>
-								<Typography className="text-xs text-gray-500 mt-2 ml-1">
-									{hasPresetToken
-										? "Preset token from environment variables is loaded, but you can modify it"
-										: "Required for API access (needs repo scope permissions)"}
-								</Typography>
-							</Box>
+							{/* GitHub Token Input */}
+							<GitHubTokenInput
+								hasPresetToken={hasPresetToken}
+								hasSavedToken={hasSavedToken}
+								token={token}
+								onTokenChange={handleTokenChange}
+								onTokenDelete={deleteToken}
+								onTokenSave={saveToken}
+							/>
 
-							<Box
-								sx={{
-									display: "flex",
-									justifyContent: "flex-start",
-									alignItems: "center",
-									mt: 2,
-									mb: 0.5,
-									p: 1.5,
-									bgcolor: "rgba(59, 130, 246, 0.05)",
-									borderRadius: "8px",
-									border: "1px solid rgba(59, 130, 246, 0.1)",
-								}}
-							>
-								<Typography
-									variant="body2"
-									sx={{
-										fontWeight: 500,
-										fontSize: "0.85rem",
-										color: "text.secondary",
-										display: "flex",
-										alignItems: "center",
-									}}
-								>
-									<PlaylistAddCheckIcon
-										sx={{
-											mr: 1,
-											color: "primary.main",
-											fontSize: "1.1rem",
-										}}
-									/>
-									Analysis Options
-								</Typography>
-								<Box sx={{ ml: "auto" }}>
-									<FormControlLabel
-										sx={{ mr: 0 }}
-										control={
-											<Switch
-												checked={hideMergeCommits}
-												color="primary"
-												size="small"
-												onChange={(event_) => {
-													setHideMergeCommits(event_.target.checked);
-												}}
-											/>
-										}
-										label={
-											<Typography sx={{ fontSize: "0.85rem" }} variant="body2">
-												Filter Merge Commits
-											</Typography>
-										}
-									/>
-								</Box>
-							</Box>
+							{/* Analysis Options */}
+							<AnalysisOptions
+								hideMergeCommits={hideMergeCommits}
+								onHideMergeCommitsChange={handleHideMergeCommitsChange}
+							/>
 
-							{error && (
-								<Fade in={!!error} timeout={{ enter: 300, exit: 200 }}>
-									<Alert
-										className="mb-5 rounded-lg custom-alert error"
-										severity="error"
-										sx={{
-											borderRadius: "12px",
-											boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
-											".MuiAlert-icon": {
-												color: "white",
-											},
-											".MuiAlert-message": {
-												color: "white",
-												fontWeight: "500",
-											},
-										}}
-										onClose={() => {
-											setError("");
-										}}
-									>
-										{error}
-									</Alert>
-								</Fade>
-							)}
+							{/* Error Notification */}
+							<ErrorNotification error={error} onClose={handleErrorClose} />
 
 							<Box className="flex justify-end mt-8">
 								<Button
@@ -492,91 +379,12 @@ const RepoAnalysisForm = (): FunctionComponent => {
 			</Grow>
 
 			{/* Progress Section */}
-			{loading && repoItems.length > 0 && (
-				<Zoom
-					in={loading && repoItems.length > 0}
-					style={{ transitionDelay: "100ms" }}
-					timeout={500}
-				>
-					<Box className="mt-8">
-						<Card className="form-card">
-							<CardContent className="p-5">
-								<Box className="flex justify-between items-center mb-3">
-									<Typography className="font-semibold text-gray-700">
-										Analysis Progress
-									</Typography>
-									<Typography className="text-sm text-gray-600">
-										{`${currentIndex + 1} of ${repoItems.length} repositories (${progress}%)`}
-									</Typography>
-								</Box>
-
-								<LinearProgress
-									value={progress}
-									variant="determinate"
-									sx={{
-										height: 8,
-										borderRadius: 4,
-										mb: 3,
-										backgroundColor: "rgba(59, 130, 246, 0.1)",
-										"& .MuiLinearProgress-bar": {
-											background: "linear-gradient(45deg, #2563eb, #4f46e5)",
-											borderRadius: 4,
-										},
-									}}
-								/>
-
-								<Stack maxHeight="200px" spacing={1} sx={{ overflowY: "auto" }}>
-									{repoItems.map((repo, index) => (
-										<Box
-											key={repo.id}
-											className={`p-2 rounded-md flex items-center justify-between ${
-												index === currentIndex && repo.status === "processing"
-													? "bg-blue-50"
-													: repo.status === "completed"
-														? "bg-green-50"
-														: repo.status === "error"
-															? "bg-red-50"
-															: ""
-											}`}
-										>
-											<Box className="flex items-center">
-												<Box
-													sx={{
-														width: 24,
-														mr: 1.5,
-														display: "flex",
-														justifyContent: "center",
-													}}
-												>
-													{getStatusIcon(repo.status)}
-												</Box>
-												<Typography
-													noWrap
-													className="text-sm text-gray-700 font-medium"
-													sx={{ maxWidth: 250 }}
-												>
-													{repo.url.replace("https://github.com/", "")}
-												</Typography>
-											</Box>
-											<Chip
-												className="min-w-[90px]"
-												color={getStatusColor(repo.status)}
-												size="small"
-												sx={{ fontWeight: 500 }}
-												variant="outlined"
-												label={
-													repo.status.charAt(0).toUpperCase() +
-													repo.status.slice(1)
-												}
-											/>
-										</Box>
-									))}
-								</Stack>
-							</CardContent>
-						</Card>
-					</Box>
-				</Zoom>
-			)}
+			<ProgressTracker
+				currentIndex={currentIndex}
+				loading={loading}
+				progress={progress}
+				repoItems={repoItems}
+			/>
 
 			{/* Results Section */}
 			{results.length > 0 && (
@@ -590,29 +398,14 @@ const RepoAnalysisForm = (): FunctionComponent => {
 				</Zoom>
 			)}
 
-			{/* Success Notifications */}
-			<Snackbar
-				TransitionComponent={Zoom}
-				autoHideDuration={5000}
-				open={success}
-				onClose={handleCloseSnackbar}
-			>
-				<Alert
-					className="custom-alert success"
-					severity="success"
-					sx={{
-						width: "100%",
-						boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-						color: "white",
-						".MuiAlert-icon": {
-							color: "white",
-						},
-					}}
-					onClose={handleCloseSnackbar}
-				>
-					Repositories analyzed successfully!
-				</Alert>
-			</Snackbar>
+			{/* Success Notification */}
+			<SuccessNotification open={success} onClose={handleCloseSnackbar} />
+
+			{/* Token Management Notification */}
+			<TokenNotification
+				tokenMessage={tokenMessage}
+				onClose={handleTokenMessageClose}
+			/>
 		</Box>
 	);
 };
