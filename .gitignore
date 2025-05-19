@@ -38,3 +38,5 @@ storybook-static
 # tests
 /coverage/
 /release.sh
+
+*.sh

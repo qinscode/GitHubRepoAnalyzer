@@ -121,7 +121,7 @@ function CommitsTab({ data }: CommitsTabProps): JSX.Element {
 		<AnalysisTabLayout
 			creatorCount={Object.keys(data.commits).length}
 			creatorLabel="From"
-			description="This analysis shows commit activity by contributor, with detailed commit messages and weekly statistics."
+			description="Due to GitHub API limitations, commit data only shows the last 50 commits per user."
 			headerTitle="Commits by Contributor"
 			theme={commitsTheme}
 			title="Commit Activity Analysis"

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
 	Box,
 	Button,
@@ -11,8 +11,14 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import BatchResults from "./results/BatchResults.tsx";
-import { fetchRepositoryData, parseRepoUrl } from "../../services/github";
 import "../../styles/FormStyles.css";
+
+// Custom hooks
+import {
+	useTokenManagement,
+	useRepoUrlsManagement,
+	useRepoAnalysis,
+} from "../../hooks";
 
 // Components
 import RepoUrlsInput from "./forms/RepoUrlsInput";
@@ -23,339 +29,47 @@ import SuccessNotification from "./notifications/SuccessNotification";
 import TokenNotification from "./notifications/TokenNotification";
 import ProgressTracker from "./progress/ProgressTracker";
 
-// Types
-import { RepoResult, RepoListItem } from "./types";
-
 const RepoAnalysisForm = (): JSX.Element => {
-	// Form state
-	const [token, setToken] = useState<string>("");
-	const [loading, setLoading] = useState<boolean>(false);
-	const [error, setError] = useState<string | null>(null);
-	const [success, setSuccess] = useState<boolean>(false);
-	const [tokenMessage, setTokenMessage] = useState<{
-		message: string;
-		severity: "success" | "error" | "info";
-	} | null>(null);
+	// Token management
+	const {
+		token,
+		tokenMessage,
+		hasSavedToken,
+		hasPresetToken,
+		handleTokenChange,
+		saveToken,
+		deleteToken,
+		handleTokenMessageClose,
+	} = useTokenManagement();
 
-	// Filtering options
-	const [hideMergeCommits, setHideMergeCommits] = useState<boolean>(true);
+	// URL management
+	const [localTokenMessage, setLocalTokenMessage] = useState(tokenMessage);
+	const {
+		repoUrls,
+		hasSavedUrls,
+		handleRepoUrlsChange,
+		handleRepoUrlsSave,
+		handleRepoUrlsDelete,
+	} = useRepoUrlsManagement(setLocalTokenMessage);
 
-	// Repository state
-	const [repoUrls, setRepoUrls] = useState<string>("");
-	const [results, setResults] = useState<Array<RepoResult>>([]);
-	const [repoItems, setRepoItems] = useState<Array<RepoListItem>>([]);
-	const [currentIndex, setCurrentIndex] = useState<number>(-1);
-	const [progress, setProgress] = useState<number>(0);
+	// Repository analysis
+	const {
+		loading,
+		error,
+		success,
+		repoItems,
+		results,
+		currentIndex,
+		progress,
+		hideMergeCommits,
+		setHideMergeCommits,
+		handleRepoSubmit,
+		handleCloseSnackbar,
+		handleErrorClose,
+	} = useRepoAnalysis(repoUrls, token);
 
-	// Add new state for saved URLs
-	const [hasSavedUrls, setHasSavedUrls] = useState<boolean>(false);
-
-	// Get the GitHub token from localStorage first, then fallback to environment variables
-	useEffect(() => {
-		const savedToken = localStorage.getItem("githubToken");
-		if (savedToken) {
-			setToken(savedToken);
-		} else {
-			const presetToken = import.meta.env["VITE_GITHUB_API_TOKEN"];
-			if (presetToken) {
-				setToken(presetToken);
-			}
-		}
-	}, []);
-
-	// Check if there's a saved token in localStorage
-	const hasSavedToken = !!localStorage.getItem("githubToken");
-	// Check if there's a preset token in environment variables
-	const hasPresetToken = !!import.meta.env["VITE_GITHUB_API_TOKEN"];
-
-	// Load saved URLs from localStorage on component mount
-	useEffect(() => {
-		const savedUrls = localStorage.getItem("githubRepoUrls");
-		if (savedUrls) {
-			setRepoUrls(savedUrls);
-			setHasSavedUrls(true);
-		}
-	}, []);
-
-	// Save token to localStorage
-	const saveToken = (): void => {
-		if (token.trim()) {
-			localStorage.setItem("githubToken", token);
-			setTokenMessage({
-				message: "GitHub token saved to browser storage",
-				severity: "success",
-			});
-		} else {
-			setTokenMessage({
-				message: "Please enter a token to save",
-				severity: "error",
-			});
-		}
-	};
-
-	// Delete token from localStorage
-	const deleteToken = (): void => {
-		localStorage.removeItem("githubToken");
-		setTokenMessage({
-			message: "GitHub token removed from browser storage",
-			severity: "success",
-		});
-
-		// Fallback to environment variable token if available
-		const presetToken = import.meta.env["VITE_GITHUB_API_TOKEN"];
-		if (presetToken) {
-			setToken(presetToken);
-		} else {
-			setToken("");
-		}
-	};
-
-	// Save URLs to localStorage
-	const handleRepoUrlsSave = (): void => {
-		if (repoUrls.trim()) {
-			localStorage.setItem("githubRepoUrls", repoUrls);
-			setHasSavedUrls(true);
-			setTokenMessage({
-				message: "Repository URLs saved to browser storage",
-				severity: "success",
-			});
-		} else {
-			setTokenMessage({
-				message: "Please enter URLs to save",
-				severity: "error",
-			});
-		}
-	};
-
-	// Delete URLs from localStorage
-	const handleRepoUrlsDelete = (): void => {
-		localStorage.removeItem("githubRepoUrls");
-		setHasSavedUrls(false);
-		setTokenMessage({
-			message: "Repository URLs removed from browser storage",
-			severity: "success",
-		});
-	};
-
-	const handleTokenMessageClose = (): void => {
-		setTokenMessage(null);
-	};
-
-	const handleRepoSubmit = async (event: React.FormEvent): Promise<void> => {
-		event.preventDefault();
-
-		if (!repoUrls.trim()) {
-			setError("Please enter GitHub repository URLs");
-			return;
-		}
-
-		if (!token.trim()) {
-			setError("Please enter a GitHub token");
-			return;
-		}
-
-		// Parse repository URLs directly
-		const urlList = repoUrls
-			.trim()
-			.split("\n")
-			.filter((url) => url.trim() !== "");
-
-		if (urlList.length === 0) {
-			setError("Please enter at least one valid GitHub repository URL");
-			return;
-		}
-
-		setLoading(true);
-		setError(null);
-		setResults([]);
-		setCurrentIndex(-1);
-		setProgress(0);
-
-		try {
-			// Process each URL
-			const items: Array<RepoListItem> = [];
-			const invalidUrls: Array<string> = [];
-
-			// Validate URLs first
-			for (const url of urlList) {
-				const trimmedUrl = url.trim();
-				const repoInfo = parseRepoUrl(trimmedUrl);
-
-				if (!repoInfo) {
-					invalidUrls.push(`Invalid repository URL format: ${trimmedUrl}`);
-					continue;
-				}
-
-				// Check for duplicates
-				if (
-					items.some(
-						(repo) => repo.url.toLowerCase() === trimmedUrl.toLowerCase()
-					)
-				) {
-					invalidUrls.push(`Duplicate repository URL: ${trimmedUrl}`);
-					continue;
-				}
-
-				items.push({
-					id:
-						Date.now().toString() + Math.random().toString(36).substring(2, 9),
-					url: trimmedUrl,
-					status: "pending",
-				});
-			}
-
-			if (items.length === 0) {
-				setError("No valid repository URLs found. Please check your input.");
-				setLoading(false);
-				return;
-			}
-
-			if (invalidUrls.length > 0) {
-				setError(
-					`Some URLs were invalid and will be skipped:\n${invalidUrls.join("\n")}`
-				);
-			}
-
-			setRepoItems(items);
-
-			// Process each repository sequentially
-			const analysisResults: Array<RepoResult> = [];
-
-			for (let index = 0; index < items.length; index++) {
-				// Update current processing repository index
-				setCurrentIndex(index);
-
-				// Update progress percentage
-				const progressPercent = Math.round((index / items.length) * 100);
-				setProgress(progressPercent);
-
-				// Update status to processing
-				setRepoItems((previousItems) => {
-					return previousItems.map((item, index_) =>
-						index_ === index ? { ...item, status: "processing" } : item
-					);
-				});
-
-				try {
-					// Use GraphQL API to get repository data
-					const currentItem = items[index];
-					if (!currentItem) continue;
-
-					const currentUrl = currentItem.url;
-					const repoData = await fetchRepositoryData(currentUrl, token, {
-						hideMergeCommits,
-					});
-
-					// Calculate repository statistics
-					const totalCommits = Object.values(repoData.commits).reduce(
-						(sum, commits) => sum + commits.length,
-						0
-					);
-					const totalIssues = Object.values(repoData.issues).reduce(
-						(sum, issues) => sum + issues.length,
-						0
-					);
-					const totalPRs = Object.values(repoData.prs).reduce(
-						(sum, prs) => sum + prs.length,
-						0
-					);
-					const contributors = new Set([
-						...Object.keys(repoData.commits),
-						...Object.keys(repoData.issues),
-						...Object.keys(repoData.prs),
-					]).size;
-
-					// Get repository name
-					const repoInfo = parseRepoUrl(currentUrl);
-					const repoName = repoInfo
-						? repoInfo.repo
-						: currentUrl.split("/").pop() || currentUrl;
-
-					// Create result object
-					const result: RepoResult = {
-						repoUrl: currentUrl,
-						repoName,
-						commits: totalCommits,
-						issues: totalIssues,
-						prs: totalPRs,
-						contributors,
-						data: repoData,
-					};
-
-					analysisResults.push(result);
-
-					// Update status to completed and add result
-					setRepoItems((previousItems) => {
-						return previousItems.map((item, index_) =>
-							index_ === index ? { ...item, status: "completed", result } : item
-						);
-					});
-
-					// Update results as they complete
-					setResults([...analysisResults]);
-				} catch (error_) {
-					const currentItem = items[index];
-					if (currentItem) {
-						console.error(`Error analyzing ${currentItem.url}:`, error_);
-					}
-
-					// Update status to error
-					setRepoItems((previousItems) => {
-						return previousItems.map((item, index_) =>
-							index_ === index
-								? {
-										...item,
-										status: "error",
-										error: `Failed to analyze: ${(error_ as Error).message}`,
-									}
-								: item
-						);
-					});
-				}
-
-				// Short delay to make progress visible
-				await new Promise((resolve) => {
-					setTimeout(resolve, 300);
-				});
-			}
-
-			// Set final progress
-			setProgress(100);
-
-			if (analysisResults.length === 0) {
-				setError(
-					"Failed to analyze any repositories. Please check your input or token."
-				);
-			} else {
-				setSuccess(true);
-			}
-		} catch (error_) {
-			setError(`Batch analysis failed: ${(error_ as Error).message}`);
-			console.error(error_);
-		} finally {
-			setLoading(false);
-		}
-	};
-
-	const handleCloseSnackbar = (): void => {
-		setSuccess(false);
-	};
-
-	const handleErrorClose = (): void => {
-		setError("");
-	};
-
-	const handleTokenChange = (newToken: string): void => {
-		setToken(newToken);
-	};
-
-	const handleRepoUrlsChange = (newUrls: string): void => {
-		setRepoUrls(newUrls);
-	};
-
-	const handleHideMergeCommitsChange = (checked: boolean): void => {
-		setHideMergeCommits(checked);
-	};
+	// Combine token messages from both hooks
+	const combinedTokenMessage = tokenMessage || localTokenMessage;
 
 	return (
 		<Box className="form-container">
@@ -389,7 +103,7 @@ const RepoAnalysisForm = (): JSX.Element => {
 							{/* Analysis Options */}
 							<AnalysisOptions
 								hideMergeCommits={hideMergeCommits}
-								onHideMergeCommitsChange={handleHideMergeCommitsChange}
+								onHideMergeCommitsChange={setHideMergeCommits}
 							/>
 
 							{/* Error Notification */}
@@ -445,7 +159,7 @@ const RepoAnalysisForm = (): JSX.Element => {
 
 			{/* Token Management Notification */}
 			<TokenNotification
-				tokenMessage={tokenMessage}
+				tokenMessage={combinedTokenMessage}
 				onClose={handleTokenMessageClose}
 			/>
 		</Box>
