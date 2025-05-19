@@ -47,6 +47,9 @@ const RepoAnalysisForm = (): JSX.Element => {
 	const [currentIndex, setCurrentIndex] = useState<number>(-1);
 	const [progress, setProgress] = useState<number>(0);
 
+	// Add new state for saved URLs
+	const [hasSavedUrls, setHasSavedUrls] = useState<boolean>(false);
+
 	// Get the GitHub token from localStorage first, then fallback to environment variables
 	useEffect(() => {
 		const savedToken = localStorage.getItem("githubToken");
@@ -64,6 +67,15 @@ const RepoAnalysisForm = (): JSX.Element => {
 	const hasSavedToken = !!localStorage.getItem("githubToken");
 	// Check if there's a preset token in environment variables
 	const hasPresetToken = !!import.meta.env["VITE_GITHUB_API_TOKEN"];
+
+	// Load saved URLs from localStorage on component mount
+	useEffect(() => {
+		const savedUrls = localStorage.getItem("githubRepoUrls");
+		if (savedUrls) {
+			setRepoUrls(savedUrls);
+			setHasSavedUrls(true);
+		}
+	}, []);
 
 	// Save token to localStorage
 	const saveToken = (): void => {
@@ -96,6 +108,33 @@ const RepoAnalysisForm = (): JSX.Element => {
 		} else {
 			setToken("");
 		}
+	};
+
+	// Save URLs to localStorage
+	const handleRepoUrlsSave = (): void => {
+		if (repoUrls.trim()) {
+			localStorage.setItem("githubRepoUrls", repoUrls);
+			setHasSavedUrls(true);
+			setTokenMessage({
+				message: "Repository URLs saved to browser storage",
+				severity: "success",
+			});
+		} else {
+			setTokenMessage({
+				message: "Please enter URLs to save",
+				severity: "error",
+			});
+		}
+	};
+
+	// Delete URLs from localStorage
+	const handleRepoUrlsDelete = (): void => {
+		localStorage.removeItem("githubRepoUrls");
+		setHasSavedUrls(false);
+		setTokenMessage({
+			message: "Repository URLs removed from browser storage",
+			severity: "success",
+		});
 	};
 
 	const handleTokenMessageClose = (): void => {
@@ -330,8 +369,11 @@ const RepoAnalysisForm = (): JSX.Element => {
 
 							{/* Repository URLs Input */}
 							<RepoUrlsInput
+								hasSavedUrls={hasSavedUrls}
 								repoUrls={repoUrls}
 								onRepoUrlsChange={handleRepoUrlsChange}
+								onRepoUrlsDelete={handleRepoUrlsDelete}
+								onRepoUrlsSave={handleRepoUrlsSave}
 							/>
 
 							{/* GitHub Token Input */}
