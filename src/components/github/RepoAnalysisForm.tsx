@@ -336,12 +336,12 @@ const RepoAnalysisForm = (): JSX.Element => {
 
 							{/* GitHub Token Input */}
 							<GitHubTokenInput
+								hasPresetToken={hasPresetToken}
+								hasSavedToken={hasSavedToken}
 								token={token}
 								onTokenChange={handleTokenChange}
-								onTokenSave={saveToken}
 								onTokenDelete={deleteToken}
-								hasSavedToken={hasSavedToken}
-								hasPresetToken={hasPresetToken}
+								onTokenSave={saveToken}
 							/>
 
 							{/* Analysis Options */}
@@ -383,10 +383,10 @@ const RepoAnalysisForm = (): JSX.Element => {
 
 			{/* Progress Section */}
 			<ProgressTracker
-				loading={loading}
-				repoItems={repoItems}
 				currentIndex={currentIndex}
+				loading={loading}
 				progress={progress}
+				repoItems={repoItems}
 			/>
 
 			{/* Results Section */}

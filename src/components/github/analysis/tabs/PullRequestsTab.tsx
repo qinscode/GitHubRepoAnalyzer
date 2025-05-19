@@ -60,12 +60,12 @@ function PullRequestsTab({ data }: PullRequestsTabProps): JSX.Element {
 			creatorLabel="Created by"
 			description="This analysis shows pull requests created by repository contributors."
 			headerTitle="Pull Requests by Author"
-			statsIcon={
-				<PRIcon sx={{ color: pullRequestsTheme.main, fontSize: "1.1rem" }} />
-			}
 			theme={pullRequestsTheme}
 			title="Pull Requests Analysis"
 			totalCount={Object.values(data.prs).flat().length}
+			statsIcon={
+				<PRIcon sx={{ color: pullRequestsTheme.main, fontSize: "1.1rem" }} />
+			}
 		>
 			{prsByUser.length === 0 ? (
 				<div style={{ padding: "12px", textAlign: "center", color: "#666" }}>

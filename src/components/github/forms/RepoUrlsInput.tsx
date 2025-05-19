@@ -38,7 +38,7 @@ const RepoUrlsInput = ({ repoUrls, onRepoUrlsChange }: RepoUrlsInputProps) => {
             </InputAdornment>
           ),
         }}
-        onChange={(event) => onRepoUrlsChange(event.target.value)}
+        onChange={(event) => { onRepoUrlsChange(event.target.value); }}
       />
     </Box>
   );

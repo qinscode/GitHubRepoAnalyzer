@@ -23,7 +23,7 @@ interface RepoListItem {
 
 interface ProgressTrackerProps {
   loading: boolean;
-  repoItems: RepoListItem[];
+  repoItems: Array<RepoListItem>;
   currentIndex: number;
   progress: number;
 }
@@ -68,7 +68,7 @@ const ProgressTracker = ({
 
   return (
     <Zoom
-      in={true}
+      in
       style={{ transitionDelay: "100ms" }}
       timeout={500}
     >
