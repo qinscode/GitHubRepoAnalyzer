@@ -24,7 +24,6 @@ const GitHubTokenInput = ({
 	onTokenSave,
 	onTokenDelete,
 	hasSavedToken,
-	hasPresetToken,
 }: GitHubTokenInputProps): JSX.Element => {
 	return (
 		<Box className="mb-5">
@@ -57,11 +56,7 @@ const GitHubTokenInput = ({
 				}}
 			/>
 			<Typography className="text-xs text-gray-500 mt-2 ml-1 mb-2">
-				{hasSavedToken
-					? "Token loaded from browser storage"
-					: hasPresetToken
-						? "Token loaded from environment variables"
-						: "Required for API access (needs repo scope permissions)"}
+				{hasSavedToken && "Token loaded from browser storage"}
 			</Typography>
 
 			<Box sx={{ display: "flex", gap: 1, mt: 1 }}>

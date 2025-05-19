@@ -86,7 +86,7 @@ const RepoAnalysisForm = (): JSX.Element => {
 		localStorage.removeItem("githubToken");
 		setTokenMessage({
 			message: "GitHub token removed from browser storage",
-			severity: "info",
+			severity: "success",
 		});
 
 		// Fallback to environment variable token if available
@@ -329,9 +329,9 @@ const RepoAnalysisForm = (): JSX.Element => {
 							</Typography>
 
 							{/* Repository URLs Input */}
-							<RepoUrlsInput 
-								repoUrls={repoUrls} 
-								onRepoUrlsChange={handleRepoUrlsChange} 
+							<RepoUrlsInput
+								repoUrls={repoUrls}
+								onRepoUrlsChange={handleRepoUrlsChange}
 							/>
 
 							{/* GitHub Token Input */}
@@ -351,10 +351,7 @@ const RepoAnalysisForm = (): JSX.Element => {
 							/>
 
 							{/* Error Notification */}
-							<ErrorNotification
-								error={error}
-								onClose={handleErrorClose}
-							/>
+							<ErrorNotification error={error} onClose={handleErrorClose} />
 
 							<Box className="flex justify-end mt-8">
 								<Button
@@ -402,15 +399,12 @@ const RepoAnalysisForm = (): JSX.Element => {
 			)}
 
 			{/* Success Notification */}
-			<SuccessNotification 
-				open={success} 
-				onClose={handleCloseSnackbar} 
-			/>
-			
+			<SuccessNotification open={success} onClose={handleCloseSnackbar} />
+
 			{/* Token Management Notification */}
-			<TokenNotification 
-				tokenMessage={tokenMessage} 
-				onClose={handleTokenMessageClose} 
+			<TokenNotification
+				tokenMessage={tokenMessage}
+				onClose={handleTokenMessageClose}
 			/>
 		</Box>
 	);
