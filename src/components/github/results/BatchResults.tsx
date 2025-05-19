@@ -1,32 +1,6 @@
-import { useState } from "react";
-import {
-	Box,
-	Typography,
-	Card,
-	CardContent,
-	Button,
-	Collapse,
-	Avatar,
-	Tooltip,
-	Stack,
-	Divider,
-	alpha,
-	IconButton,
-	Fade,
-	useTheme,
-} from "@mui/material";
-import {
-	Commit as CommitIcon,
-	BugReport as IssueIcon,
-	MergeType as PRIcon,
-	KeyboardArrowDown as ExpandIcon,
-	KeyboardArrowUp as CollapseIcon,
-	GitHub as GitHubIcon,
-	ContentCopy as CopyIcon,
-	OpenInNew as OpenInNewIcon,
-	Check as CheckIcon,
-} from "@mui/icons-material";
-import RepoResults from "./RepoResults.tsx";
+import { Box, Typography, Stack, Fade } from "@mui/material";
+import { useState, useEffect } from "react";
+
 import type { RepoResult } from "../types/batchRepoTypes";
 import { RepoCard } from "./RepoCard";
 
@@ -45,90 +19,22 @@ interface BatchResultsProps {
 	results: Array<RepoResult>;
 }
 
-// Custom color configuration
-const statColors = {
-	commits: {
-		main: "#2563eb",
-		light: "rgba(37, 99, 235, 0.1)",
-		gradient: "linear-gradient(45deg, #2563eb, #1d4ed8)",
-	},
-	issues: {
-		main: "#8e44ad",
-		light: "rgba(142, 68, 173, 0.1)",
-		gradient: "linear-gradient(45deg, #8e44ad, #9b59b6)",
-	},
-	prs: {
-		main: "#0891b2",
-		light: "rgba(8, 145, 178, 0.1)",
-		gradient: "linear-gradient(45deg, #0891b2, #06b6d4)",
-	},
-	contributors: {
-		main: "#16a34a",
-		light: "rgba(22, 163, 74, 0.1)",
-		gradient: "linear-gradient(45deg, #16a34a, #22c55e)",
-	},
-};
-
-// Statistics item component
-const StatItem = ({
-	icon,
-	label,
-	value,
-	color,
-}: {
-	icon: React.ReactNode;
-	label: string;
-	value: number;
-	color: string;
-}): JSX.Element => {
-	return (
-		<Box
-			sx={{
-				display: "flex",
-				alignItems: "center",
-				gap: 0.5,
-				transition: "transform 0.2s ease",
-				"&:hover": {
-					transform: "translateY(-2px)",
-				},
-			}}
-		>
-			<Box
-				sx={{
-					color,
-					display: "flex",
-					alignItems: "center",
-					justifyContent: "center",
-				}}
-			>
-				{icon}
-			</Box>
-			<Typography
-				variant="h6"
-				sx={{
-					fontWeight: 600,
-					fontSize: "1.1rem",
-					color,
-				}}
-			>
-				{value}
-			</Typography>
-			<Typography
-				variant="caption"
-				sx={{
-					color: alpha(color, 0.7),
-					fontWeight: 500,
-					fontSize: "0.75rem",
-				}}
-			>
-				{label}
-			</Typography>
-		</Box>
-	);
-};
-
 // Main component
 function BatchResults({ results }: BatchResultsProps): JSX.Element {
+	const [mounted, setMounted] = useState(false);
+
+	useEffect(() => {
+		// Delay mounting to ensure smooth animation
+		const timer = setTimeout(() => {
+			setMounted(true);
+		}, 100);
+
+		return () => {
+			clearTimeout(timer);
+			setMounted(false);
+		};
+	}, []);
+
 	return (
 		<Box
 			sx={{
@@ -179,10 +85,15 @@ function BatchResults({ results }: BatchResultsProps): JSX.Element {
 				{results.map((result, index) => (
 					<Fade
 						key={result.repoUrl}
-						in
+						mountOnEnter
+						unmountOnExit
+						in={mounted}
 						style={{ transitionDelay: `${index * 80}ms` }}
+						timeout={500}
 					>
-						<RepoCard result={result} index={index} />
+						<div>
+							<RepoCard index={index} result={result} />
+						</div>
 					</Fade>
 				))}
 			</Stack>
