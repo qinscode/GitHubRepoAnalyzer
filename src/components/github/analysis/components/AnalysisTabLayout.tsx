@@ -153,46 +153,47 @@ const AnalysisTabLayout = ({
 				)}
 
 				{children}
-
-				<Box
-					sx={{
-						mt: 4,
-						p: 2,
-						borderRadius: "12px",
-						border: `1px dashed ${theme.light.replace("0.1", "0.3")}`,
-						backgroundColor: theme.lighter.replace("0.05", "0.03"),
-					}}
-				>
+				{hasContent && (
 					<Box
 						sx={{
-							display: "flex",
-							alignItems: "center",
-							gap: 1.5,
+							mt: 4,
+							p: 2,
+							borderRadius: "12px",
+							border: `1px dashed ${theme.light.replace("0.1", "0.3")}`,
+							backgroundColor: theme.lighter.replace("0.05", "0.03"),
 						}}
 					>
-						{statsIcon}
-						<Typography
-							sx={{ color: theme.textColor, fontWeight: 500 }}
-							variant="body2"
+						<Box
+							sx={{
+								display: "flex",
+								alignItems: "center",
+								gap: 1.5,
+							}}
 						>
-							Total {title.split(" ")[0]}: {totalCount}
+							{statsIcon}
+							<Typography
+								sx={{ color: theme.textColor, fontWeight: 500 }}
+								variant="body2"
+							>
+								Total {title.split(" ")[0]}: {totalCount}
+							</Typography>
+						</Box>
+						<Typography
+							variant="caption"
+							sx={{
+								display: "block",
+								ml: 3.5,
+								mt: 0.5,
+								color: "text.secondary",
+								opacity: 0.8,
+							}}
+						>
+							{creatorCount > 0
+								? `${creatorLabel} ${creatorCount} ${creatorCount === 1 ? "user" : "users"}`
+								: "No data available"}
 						</Typography>
 					</Box>
-					<Typography
-						variant="caption"
-						sx={{
-							display: "block",
-							ml: 3.5,
-							mt: 0.5,
-							color: "text.secondary",
-							opacity: 0.8,
-						}}
-					>
-						{creatorCount > 0
-							? `${creatorLabel} ${creatorCount} ${creatorCount === 1 ? "user" : "users"}`
-							: "No data available"}
-					</Typography>
-				</Box>
+				)}
 			</Box>
 		</Fade>
 	);

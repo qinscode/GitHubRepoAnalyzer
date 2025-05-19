@@ -75,6 +75,8 @@ function BonusMarksTab({ data }: BonusMarksTabProps): JSX.Element {
 	const handleMarkChange = (user: string, value: number): void => {
 		const currentMark = bonusMarks[user]?.mark ?? 0;
 		const newTotal = totalBonusMarks - currentMark + value;
+		
+		// Only allow the change if the new total would be <= 4
 		if (newTotal <= 4) {
 			setBonusMarks((previous) => ({
 				...previous,
@@ -241,35 +243,48 @@ function BonusMarksTab({ data }: BonusMarksTabProps): JSX.Element {
 				const currentRow = tableData.find((row) => row.mark === mark);
 				if (!currentRow) return <></>;
 
-				const newTotal = totalBonusMarks - mark + (mark === 0 ? 0 : 1);
-				const isDisabled = newTotal > 4 && mark < 4;
+				// Calculate what the new total would be if this mark was changed
+				const calculateNewTotal = (newMark: number) => {
+					return totalBonusMarks - mark + newMark;
+				};
+
+				// Check if a mark value would exceed the total limit
+				const wouldExceedLimit = (newMark: number) => {
+					return calculateNewTotal(newMark) > 4;
+				};
 
 				return (
 					<Tooltip
 						placement="top"
-						title={isDisabled ? "Total bonus marks cannot exceed 4" : ""}
+						title={
+							wouldExceedLimit(4)
+								? `Cannot exceed total bonus marks limit of 4. Current total: ${totalBonusMarks}`
+								: ""
+						}
 					>
 						<FormControl size="small" sx={{ minWidth: 120 }}>
 							<Select
 								MenuProps={menuProps}
-								disabled={isDisabled}
 								value={mark}
 								sx={{
 									...selectStyles,
-									...(isDisabled && {
+									...(wouldExceedLimit(4) && {
 										opacity: 0.7,
 										cursor: "not-allowed",
 										backgroundColor: alpha("#FFFFFF", 0.5),
 									}),
 								}}
 								onChange={(e) => {
-									handleMarkChange(currentRow.user, e.target.value);
+									const newMark = Number(e.target.value);
+									if (!wouldExceedLimit(newMark)) {
+										handleMarkChange(currentRow.user, newMark);
+									}
 								}}
 							>
 								{[0, 1, 2, 3, 4].map((m) => (
 									<MenuItem
 										key={m}
-										disabled={totalBonusMarks - mark + m > 4}
+										disabled={wouldExceedLimit(m)}
 										value={m}
 									>
 										{m}
