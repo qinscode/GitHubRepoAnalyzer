@@ -1,15 +1,10 @@
 import type { ReactNode } from "react";
-import {
-	Box,
-	Typography,
-	Fade,
-	Tooltip,
-	Switch,
-	FormControlLabel,
-	alpha,
-} from "@mui/material";
 import type { ThemeConfig } from "./AnalysisThemes";
 import { useCollapseStore } from "../store/useCollapseStore";
+import AnimatedContainer from "./AnimatedContainer";
+import AnalysisHeader from "./AnalysisHeader";
+import HeaderControls from "./HeaderControls";
+import StatsFooter from "./StatsFooter";
 
 interface AnalysisTabLayoutProps {
 	title: string;
@@ -41,250 +36,34 @@ const AnalysisTabLayout = ({
 	const { isAllExpanded, toggleAll } = useCollapseStore();
 
 	return (
-		<Fade in timeout={500}>
-			<Box
-				sx={{
-					position: "relative",
-					animation: "fadeIn 0.5s ease-out forwards",
-					opacity: 0,
-					"@keyframes fadeIn": {
-						"0%": { opacity: 0 },
-						"100%": { opacity: 1 },
-					},
-				}}
-			>
-				{hasContent && (
-					<Tooltip
-						arrow
-						enterDelay={500}
-						leaveDelay={200}
-						placement="top"
-						title={`${title}${description ? ` - ${description}` : ""}${headerTitle ? ` (${headerTitle})` : ""}`}
-					>
-						<Box
-							className="shine-effect"
-							sx={{
-								p: 2,
-								mb: 4,
-								borderRadius: "14px",
-								background: `linear-gradient(135deg, ${theme.light}, ${theme.lighter.replace("0.05", "0.04")})`,
-								border: `1px solid ${theme.light.replace("0.1", "0.15")}`,
-								boxShadow:
-									"0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.01)",
-								position: "relative",
-								overflow: "hidden",
-								"&::before": {
-									content: '""',
-									position: "absolute",
-									top: -30,
-									right: -30,
-									width: 120,
-									height: 120,
-									borderRadius: "50%",
-									background: `radial-gradient(circle, ${theme.light} 0%, ${theme.light.replace("0.1", "0")} 70%)`,
-									zIndex: 0,
-								},
-							}}
-						>
-							{title && (
-								<Typography
-									variant="h6"
-									sx={{
-										fontWeight: 600,
-										color: theme.textColor,
-										mb: description ? 1 : 0,
-										position: "relative",
-										zIndex: 1,
-									}}
-								>
-									{title}
-								</Typography>
-							)}
-							{description && (
-								<Typography
-									variant="body2"
-									sx={{
-										color: "rgba(107, 114, 128, 0.9)",
-										position: "relative",
-										zIndex: 1,
-									}}
-								>
-									{description}
-								</Typography>
-							)}
-						</Box>
-					</Tooltip>
-				)}
+		<AnimatedContainer>
+			<AnalysisHeader
+				title={title}
+				description={description}
+				headerTitle={headerTitle}
+				theme={theme}
+			/>
+			
+			<HeaderControls
+				headerTitle={headerTitle}
+				isAllExpanded={isAllExpanded}
+				toggleAll={toggleAll}
+				theme={theme}
+			/>
 
-				{headerTitle && (
-					<Box
-						sx={{
-							mb: 2,
-							display: "flex",
-							justifyContent: "space-between",
-							alignItems: "center",
-						}}
-					>
-						<Typography
-							sx={{
-								fontSize: "1.15rem",
-								fontWeight: 600,
-								color: theme.textColor,
-								position: "relative",
-								paddingLeft: "16px",
-								display: "inline-block",
-								transition: "transform 0.2s ease",
-								"&:hover": {
-									transform: "translateX(2px)",
-								},
-								"&::before": {
-									content: '""',
-									position: "absolute",
-									left: 0,
-									top: "50%",
-									transform: "translateY(-50%)",
-									width: "4px",
-									height: "18px",
-									borderRadius: "2px",
-									background: theme.gradient,
-								},
-								"&::after": {
-									content: '""',
-									position: "absolute",
-									bottom: -5,
-									left: 16,
-									width: "40%",
-									height: "2px",
-									background: theme.gradient,
-									transition: "width 0.3s ease",
-								},
-								"&:hover::after": {
-									width: "80%",
-								},
-							}}
-						>
-							{headerTitle}
-						</Typography>
-
-						<FormControlLabel
-							control={
-								<Switch
-									checked={isAllExpanded}
-									sx={{
-										"& .MuiSwitch-switchBase.Mui-checked": {
-											color: theme.main,
-											"&:hover": {
-												backgroundColor: alpha(theme.main, 0.08),
-											},
-										},
-										"& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
-											backgroundColor: theme.main,
-										},
-									}}
-									onChange={toggleAll}
-								/>
-							}
-							label={
-								<Typography
-									sx={{
-										fontSize: "0.875rem",
-										color: theme.textColor,
-									}}
-								>
-									{isAllExpanded
-										? "Show Less Description"
-										: "Show More Description"}
-								</Typography>
-							}
-						/>
-					</Box>
-				)}
-
-				{!headerTitle && (
-					<Box
-						sx={{
-							display: "flex",
-							justifyContent: "flex-end",
-							mb: 2,
-							px: 1,
-						}}
-					>
-						<FormControlLabel
-							control={
-								<Switch
-									checked={isAllExpanded}
-									sx={{
-										"& .MuiSwitch-switchBase.Mui-checked": {
-											color: theme.main,
-											"&:hover": {
-												backgroundColor: alpha(theme.main, 0.08),
-											},
-										},
-										"& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
-											backgroundColor: theme.main,
-										},
-									}}
-									onChange={toggleAll}
-								/>
-							}
-							label={
-								<Typography
-									sx={{
-										fontSize: "0.875rem",
-										color: theme.textColor,
-									}}
-								>
-									{isAllExpanded ? "Collapse All" : "Expand All"}
-								</Typography>
-							}
-						/>
-					</Box>
-				)}
-
-				{children}
-				{hasContent && (
-					<Box
-						sx={{
-							mt: 4,
-							p: 2,
-							borderRadius: "12px",
-							border: `1px dashed ${theme.light.replace("0.1", "0.3")}`,
-							backgroundColor: theme.lighter.replace("0.05", "0.03"),
-						}}
-					>
-						<Box
-							sx={{
-								display: "flex",
-								alignItems: "center",
-								gap: 1.5,
-							}}
-						>
-							{statsIcon}
-							<Typography
-								sx={{ color: theme.textColor, fontWeight: 500 }}
-								variant="body2"
-							>
-								Total {title.split(" ")[0]}: {totalCount}
-							</Typography>
-						</Box>
-						<Typography
-							variant="caption"
-							sx={{
-								display: "block",
-								ml: 3.5,
-								mt: 0.5,
-								color: "text.secondary",
-								opacity: 0.8,
-							}}
-						>
-							{creatorCount > 0
-								? `${creatorLabel} ${creatorCount} ${creatorCount === 1 ? "user" : "users"}`
-								: "No data available"}
-						</Typography>
-					</Box>
-				)}
-			</Box>
-		</Fade>
+			{children}
+			
+			{hasContent && (
+				<StatsFooter
+					title={title}
+					totalCount={totalCount}
+					creatorCount={creatorCount}
+					creatorLabel={creatorLabel}
+					statsIcon={statsIcon}
+					theme={theme}
+				/>
+			)}
+		</AnimatedContainer>
 	);
 };
 
