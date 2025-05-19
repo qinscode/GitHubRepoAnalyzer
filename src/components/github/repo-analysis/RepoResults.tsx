@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Box, Paper, Fade, Grow, useTheme, useMediaQuery } from "@mui/material";
 import type { RepoResultsProps } from "@/types/github";
 import TabPanel from "./TabPanel";
@@ -46,9 +46,38 @@ function RepoResults({ data }: RepoResultsProps) {
 		}, 150);
 	};
 
+	const handleKeyNavigation = useCallback((event: KeyboardEvent) => {
+		if (event.key === 'ArrowRight') {
+			// Move to next tab (with circular navigation)
+			const nextTab = tabValue < 5 ? tabValue + 1 : 0;
+			setTabTransition(false);
+			setTimeout(() => {
+				setTabValue(nextTab);
+				setTabTransition(true);
+			}, 150);
+		} else if (event.key === 'ArrowLeft') {
+			// Move to previous tab (with circular navigation)
+			const prevTab = tabValue > 0 ? tabValue - 1 : 5;
+			setTabTransition(false);
+			setTimeout(() => {
+				setTabValue(prevTab);
+				setTabTransition(true);
+			}, 150);
+		}
+	}, [tabValue]);
+
 	useEffect(() => {
 		setTabTransition(true);
 	}, []);
+
+	useEffect(() => {
+		// Add keyboard event listener when component mounts
+		window.addEventListener('keydown', handleKeyNavigation);
+		// Remove event listener when component unmounts
+		return () => {
+			window.removeEventListener('keydown', handleKeyNavigation);
+		};
+	}, [handleKeyNavigation]);
 
 	return (
 		<RepoResultsContainer>
