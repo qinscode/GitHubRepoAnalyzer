@@ -66,10 +66,10 @@ function RepoResults({ data }: RepoResultsProps) {
 				}, 150);
 			} else if (event.key === "ArrowLeft") {
 				// Move to previous tab (with circular navigation)
-				const prevTab = tabValue > 0 ? tabValue - 1 : 5;
+				const previousTab = tabValue > 0 ? tabValue - 1 : 5;
 				setTabTransition(false);
 				setTimeout(() => {
-					setTabValue(prevTab);
+					setTabValue(previousTab);
 					setTabTransition(true);
 				}, 150);
 			}
