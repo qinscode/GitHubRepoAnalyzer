@@ -133,7 +133,6 @@ const RepoAnalysisForm = () => {
 					</CardContent>
 				</Card>
 			</Grow>
-
 			{/* Progress Section */}
 			<ProgressTracker
 				currentIndex={currentIndex}
@@ -141,7 +140,6 @@ const RepoAnalysisForm = () => {
 				progress={progress}
 				repoItems={repoItems}
 			/>
-
 			{/* Results Section */}
 			{results.length > 0 && (
 				<Zoom in={results.length > 0} timeout={500}>
@@ -153,10 +151,8 @@ const RepoAnalysisForm = () => {
 					</Box>
 				</Zoom>
 			)}
-
 			{/* Success Notification */}
 			<SuccessNotification open={success} onClose={handleCloseSnackbar} />
-
 			{/* Token Management Notification */}
 			<TokenNotification
 				tokenMessage={combinedTokenMessage}
