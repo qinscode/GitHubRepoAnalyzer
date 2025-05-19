@@ -75,7 +75,7 @@ const AllContributorsCommitChart = ({
 		return `${date.getDate()} ${date.toLocaleString("default", { month: "short" })}`;
 	};
 
-	const chartData = useMemo(() => {
+	const chartData = useMemo<Array<Record<string, number | string>>>(() => {
 		// If no stats are available, return empty array
 		if (!contributorStats || contributorStats.length === 0) {
 			return [];
@@ -145,14 +145,16 @@ const AllContributorsCommitChart = ({
 
 		// Format data for the chart
 		return recentTimestamps.map((timestamp) => {
-			const dataPoint: Record<string, any> = {
+			// 使用更具体的类型
+			const dataPoint: Record<string, number | string> = {
 				name: formatWeekDate(timestamp),
-				timestamp,
+				timestamp: timestamp, // 确保是number类型
 			};
 
 			// Add commit count for each contributor
 			Object.entries(contributorsData).forEach(([user, data]) => {
-				dataPoint[user] = data[timestamp];
+				// 确保插入的是number类型
+				dataPoint[user] = data[timestamp] || 0;
 				dataPoint[`${user}_additions`] = additionsData[user]?.[timestamp] || 0;
 				dataPoint[`${user}_deletions`] = deletionsData[user]?.[timestamp] || 0;
 			});
@@ -292,11 +294,27 @@ const AllContributorsCommitChart = ({
 
 	// Find the max commit count to set a better Y-axis
 	const maxCommitCount = Math.max(
-		...chartData.flatMap((point) =>
+		1, // 默认最小值为1
+		...chartData.flatMap((point) => {
+			// 使用显式的类型转换和过滤
+			const commitCounts: Array<number> = [];
+
+			// 遍历有效的贡献者
 			validContributors
 				.filter((c) => !hiddenContributors.has(c.author.login))
-				.map((c) => point[c.author.login] || 0)
-		)
+				.forEach((c) => {
+					const login = c.author.login;
+					const value = point[login];
+					// 只添加number类型的值
+					if (typeof value === "number") {
+						commitCounts.push(value);
+					} else {
+						commitCounts.push(0); // 默认值
+					}
+				});
+
+			return commitCounts;
+		})
 	);
 
 	// Add a 20% buffer to the max commit count
@@ -382,7 +400,7 @@ const AllContributorsCommitChart = ({
 							padding: "10px 14px",
 							backdropFilter: "blur(6px)",
 						}}
-						formatter={(value: number, name: string, entry: any) => {
+						formatter={(value: number, _name: string, entry: any) => {
 							const dataKey = entry.dataKey;
 							// Check if this is a regular contributor line
 							if (
@@ -432,7 +450,7 @@ const AllContributorsCommitChart = ({
 						layout="horizontal"
 						verticalAlign="bottom"
 						wrapperStyle={{ paddingTop: "15px" }}
-						formatter={(value, entry) => {
+						formatter={(value, _entry) => {
 							const isHidden = hiddenContributors.has(value);
 							return (
 								<span
@@ -453,7 +471,7 @@ const AllContributorsCommitChart = ({
 						onClick={handleLegendClick}
 					/>
 
-					{validContributors.map((contributor, index) => {
+					{validContributors.map((contributor, _index) => {
 						const login = contributor.author.login;
 						const color = contributorColors[login] || primaryColor;
 						const dashPattern = contributorDashPatterns[login];
@@ -495,7 +513,7 @@ const AllContributorsCommitChart = ({
 						);
 					})}
 
-					{validContributors.map((contributor, index) => {
+					{validContributors.map((contributor, _index) => {
 						const login = contributor.author.login;
 						const isHidden = hiddenContributors.has(login);
 
