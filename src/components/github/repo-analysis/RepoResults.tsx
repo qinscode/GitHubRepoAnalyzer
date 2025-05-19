@@ -14,10 +14,10 @@ import SummaryTab from "@components/github/analysis/tabs/SummaryTab";
 import CommitsTab from "@components/github/analysis/tabs/CommitsTab";
 import IssuesTab from "@components/github/analysis/tabs/IssuesTab";
 import PullRequestsTab from "@components/github/analysis/tabs/PullRequestsTab";
-import TeamworkTab from "@components/github/analysis/tabs/TeamworkTab";
 import BonusMarksTab from "@components/github/analysis/tabs/BonusMarksTab";
 import RepoTabBar from "./RepoTabBar";
 import RepoResultsContainer from "./RepoResultsContainer";
+import TeamworkTab from "@components/github/analysis/tabs/TeamworkTab.tsx";
 
 function RepoResults({ data }: RepoResultsProps) {
 	const [tabValue, setTabValue] = useState(0);
