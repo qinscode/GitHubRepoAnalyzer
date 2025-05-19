@@ -204,6 +204,7 @@ function BonusMarksTab({ data }: BonusMarksTabProps) {
 			id: "studentOrder",
 			label: "Student Order",
 			width: "35%",
+			align: "center",
 			format: (value: any) => {
 				const { orderIndex } = value;
 
@@ -213,7 +214,7 @@ function BonusMarksTab({ data }: BonusMarksTabProps) {
 						<Box
 							sx={{
 								display: "flex",
-								alignItems: "left",
+								alignItems: "center",
 								justifyContent: "center",
 							}}
 						>
@@ -225,7 +226,8 @@ function BonusMarksTab({ data }: BonusMarksTabProps) {
 									fontWeight: 600,
 									fontSize: "0.95rem",
 									minWidth: "32px",
-									height: "32px",
+									height: "28px",
+									borderRadius: "6px",
 									border: `1px solid ${alpha(bonusMarksTheme.main, 0.2)}`,
 								}}
 							/>
