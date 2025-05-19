@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useEffect, useRef } from "react";
 import {
 	Box,
 	Typography,
@@ -14,6 +14,23 @@ import {
 } from "@mui/material";
 import { RepoData } from "@/services/github/types";
 import { ContributorStats } from "@/types/github";
+import { useStudentStore } from "@/store/useStudentStore";
+import {
+	DndContext,
+	closestCenter,
+	KeyboardSensor,
+	PointerSensor,
+	useSensor,
+	useSensors,
+	DragEndEvent,
+} from "@dnd-kit/core";
+import {
+	SortableContext,
+	sortableKeyboardCoordinates,
+	useSortable,
+	horizontalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface SummaryTabProps {
 	data: RepoData;
@@ -32,7 +49,11 @@ interface ContributionTableProps {
 	color: "primary" | "secondary" | "info";
 }
 
-const ContributionTable: React.FC<ContributionTableProps> = ({ title, data, color }) => {
+const ContributionTable: React.FC<ContributionTableProps> = ({
+	title,
+	data,
+	color,
+}) => {
 	const colorMap: Record<"primary" | "secondary" | "info", ColorMap> = {
 		primary: {
 			main: "#3B82F6",
@@ -259,7 +280,161 @@ const ContributionTable: React.FC<ContributionTableProps> = ({ title, data, colo
 	);
 };
 
+interface StudentCardProps {
+	student: string;
+	isSelected: boolean;
+	onSelect: () => void;
+	id: string;
+}
+
+const StudentCard = ({
+	student,
+	isSelected,
+	onSelect,
+	id,
+}: StudentCardProps) => {
+	const {
+		attributes,
+		listeners,
+		setNodeRef,
+		transform,
+		transition,
+		isDragging,
+	} = useSortable({ id });
+
+	const style = {
+		transform: CSS.Transform.toString(transform),
+		transition,
+		zIndex: isDragging ? 10 : 1,
+		opacity: isDragging ? 0.8 : 1,
+	};
+
+	return (
+		<Box
+			ref={setNodeRef}
+			style={style}
+			{...attributes}
+			sx={{
+				width: { xs: "calc(50% - 8px)", sm: "calc(25% - 12px)" },
+				cursor: "grab",
+			}}
+		>
+			<Box
+				className={`p-4 rounded-xl cursor-pointer transition-all duration-200 ${
+					isSelected
+						? "bg-blue-500 text-white shadow-lg"
+						: "bg-white hover:bg-blue-50"
+				}`}
+				sx={{
+					border: "1px solid",
+					borderColor: isSelected ? "transparent" : "rgba(0,0,0,0.1)",
+					boxShadow: isSelected
+						? "0 10px 15px -3px rgba(59, 130, 246, 0.3), 0 4px 6px -2px rgba(59, 130, 246, 0.1)"
+						: "0 1px 3px rgba(0,0,0,0.05)",
+				}}
+				onClick={onSelect}
+				{...listeners}
+			>
+				<Box className="flex items-center">
+					<Avatar
+						className={`w-10 h-10 mr-3 text-[1rem]`}
+						sx={{
+							background: isSelected
+								? "rgba(255,255,255,0.2)"
+								: "linear-gradient(90deg, #3B82F6 0%, #60A5FA 100%)",
+							color: isSelected ? "white" : "white",
+							fontWeight: 500,
+							boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+						}}
+					>
+						{student.charAt(0).toUpperCase()}
+					</Avatar>
+					<Typography
+						sx={{
+							fontWeight: 500,
+							fontSize: "1rem",
+						}}
+					>
+						{student}
+					</Typography>
+				</Box>
+			</Box>
+		</Box>
+	);
+};
+
 const SummaryTab: React.FC<SummaryTabProps> = ({ data }) => {
+	const {
+		selectedStudent,
+		setSelectedStudent,
+		studentOrder,
+		setStudentOrder,
+		reorderStudents,
+	} = useStudentStore();
+
+	// Use a ref to track if we've already initialized the student order
+	const initializedRef = useRef(false);
+
+	// Set up DnD sensors
+	const sensors = useSensors(
+		useSensor(PointerSensor, {
+			activationConstraint: {
+				distance: 8,
+			},
+		}),
+		useSensor(KeyboardSensor, {
+			coordinateGetter: sortableKeyboardCoordinates,
+		})
+	);
+
+	// Handle drag end event
+	const handleDragEnd = (event: DragEndEvent) => {
+		const { active, over } = event;
+
+		if (over && active.id !== over.id) {
+			const activeIndex = studentOrder.findIndex(
+				(student) => `student-${student}` === active.id
+			);
+			const overIndex = studentOrder.findIndex(
+				(student) => `student-${student}` === over.id
+			);
+
+			if (activeIndex !== -1 && overIndex !== -1) {
+				reorderStudents(activeIndex, overIndex);
+			}
+		}
+	};
+
+	// Update student order with actual contributors only once on initial load
+	useEffect(() => {
+		// Skip if we've already initialized
+		if (initializedRef.current) return;
+
+		const actualContributors = Array.from(
+			new Set([
+				...Object.keys(data.commits),
+				...Object.keys(data.issues),
+				...Object.keys(data.prs),
+			])
+		);
+
+		// If we have actual contributors, update the generic student names
+		if (actualContributors.length > 0) {
+			const updatedOrder = [...studentOrder];
+			for (
+				let index = 0;
+				index < Math.min(actualContributors.length, 4);
+				index++
+			) {
+				updatedOrder[index] =
+					actualContributors[index] || `Student ${index + 1}`;
+			}
+			setStudentOrder(updatedOrder);
+			// Mark as initialized
+			initializedRef.current = true;
+		}
+	}, [data, studentOrder, setStudentOrder]); // Include all dependencies but prevent infinite loop with ref
+
 	// Calculate statistics data
 	const { commitsByUser, issuesByUser, prsByUser } = useMemo(() => {
 		const totalCommits = Object.values(data.commits).reduce(
@@ -285,30 +460,62 @@ const SummaryTab: React.FC<SummaryTabProps> = ({ data }) => {
 			...Object.keys(data.teamwork.prReviews),
 		]).size;
 
+		// Helper function to sort by student order
+		const sortByStudentOrder = (a: ContributorStats, b: ContributorStats) => {
+			// If a student is selected, prioritize them
+			if (selectedStudent) {
+				if (a.user === selectedStudent) return -1;
+				if (b.user === selectedStudent) return 1;
+			}
+
+			// Get indices from student order
+			const aIndex = studentOrder.indexOf(a.user);
+			const bIndex = studentOrder.indexOf(b.user);
+
+			// If both users are in the student order
+			if (aIndex !== -1 && bIndex !== -1) {
+				return aIndex - bIndex; // Sort by student order
+			}
+
+			// If only one is in the student order, prioritize that one
+			if (aIndex !== -1) return -1;
+			if (bIndex !== -1) return 1;
+
+			// For users not in the student order, sort by contribution count
+			return b.count - a.count;
+		};
+
+		// Process all users to ensure they're included in the results
+		const processContributions = (
+			dataObject: Record<string, Array<any>>,
+			totalCount: number
+		): Array<ContributorStats> => {
+			// First, create stats for all users in the data
+			const stats = Object.entries(dataObject).map(([user, items]) => ({
+				user,
+				count: items.length,
+				percentage: ((items.length / totalCount) * 100).toFixed(1),
+			}));
+
+			// Add entries with zero counts for students in studentOrder who don't have contributions
+			studentOrder.forEach((student) => {
+				if (!stats.some((stat) => stat.user === student)) {
+					stats.push({
+						user: student,
+						count: 0,
+						percentage: "0.0",
+					});
+				}
+			});
+
+			// Sort the combined results
+			return stats.sort(sortByStudentOrder);
+		};
+
 		// Calculate contribution percentage for each user
-		const commitsByUser = Object.entries(data.commits)
-			.map(([user, commits]) => ({
-				user,
-				count: commits.length,
-				percentage: ((commits.length / totalCommits) * 100).toFixed(1),
-			}))
-			.sort((a, b) => b.count - a.count);
-
-		const issuesByUser = Object.entries(data.issues)
-			.map(([user, issues]) => ({
-				user,
-				count: issues.length,
-				percentage: ((issues.length / totalIssues) * 100).toFixed(1),
-			}))
-			.sort((a, b) => b.count - a.count);
-
-		const prsByUser = Object.entries(data.prs)
-			.map(([user, prs]) => ({
-				user,
-				count: prs.length,
-				percentage: ((prs.length / totalPRs) * 100).toFixed(1),
-			}))
-			.sort((a, b) => b.count - a.count);
+		const commitsByUser = processContributions(data.commits, totalCommits);
+		const issuesByUser = processContributions(data.issues, totalIssues);
+		const prsByUser = processContributions(data.prs, totalPRs);
 
 		return {
 			totalCommits,
@@ -319,10 +526,54 @@ const SummaryTab: React.FC<SummaryTabProps> = ({ data }) => {
 			issuesByUser,
 			prsByUser,
 		};
-	}, [data]);
+	}, [data, selectedStudent, studentOrder]);
 
 	return (
 		<Box className="flex flex-col gap-8">
+			<Box className="mb-6">
+				<Typography className="mb-3" sx={{ fontWeight: 500 }} variant="h6">
+					Select Student (Drag to Reorder)
+				</Typography>
+				<DndContext
+					collisionDetection={closestCenter}
+					sensors={sensors}
+					onDragEnd={handleDragEnd}
+				>
+					<SortableContext
+						items={studentOrder.map((student) => `student-${student}`)}
+						strategy={horizontalListSortingStrategy}
+					>
+						<Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+							{studentOrder.map((student) => (
+								<StudentCard
+									key={`student-${student}`}
+									id={`student-${student}`}
+									isSelected={selectedStudent === student}
+									student={student}
+									onSelect={() => {
+										setSelectedStudent(
+											student === selectedStudent ? null : student
+										);
+									}}
+								/>
+							))}
+						</Box>
+					</SortableContext>
+				</DndContext>
+				{selectedStudent && (
+					<Box className="mt-3 text-right">
+						<Typography
+							className="inline-block cursor-pointer text-blue-500 hover:text-blue-700 transition-colors"
+							sx={{ fontWeight: 500 }}
+							onClick={() => {
+								setSelectedStudent(null);
+							}}
+						>
+							Clear Selection
+						</Typography>
+					</Box>
+				)}
+			</Box>
 			<Box>
 				<ContributionTable
 					color="primary"

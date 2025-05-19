@@ -12,6 +12,7 @@ import { commitsTheme } from "../components/AnalysisThemes";
 import AllContributorsCommitChart from "../components/AllContributorsCommitChart";
 import { RepoData } from "@/services/github";
 import AnalysisTabLayout from "../components/layout/AnalysisTabLayout.tsx";
+import { useStudentStore } from "@/store/useStudentStore";
 
 interface CommitsTabProps {
 	data: RepoData;
@@ -103,6 +104,8 @@ function UserCommits({
 }
 
 function CommitsTab({ data }: CommitsTabProps) {
+	const { selectedStudent, studentOrder } = useStudentStore();
+
 	// Transform commits data for display
 	const commitsByUser = useMemo(() => {
 		type Commit = { message: string; id: string; commitDate: string };
@@ -112,10 +115,38 @@ function CommitsTab({ data }: CommitsTabProps) {
 			users[user] = commits;
 		});
 
-		return Object.entries(users).sort(
-			([, commitsA], [, commitsB]) => commitsB.length - commitsA.length
-		);
-	}, [data.commits]);
+		// Add empty arrays for students in studentOrder who don't have commits
+		studentOrder.forEach((student) => {
+			if (!users[student]) {
+				users[student] = [];
+			}
+		});
+
+		// Custom sort function based on studentOrder
+		return Object.entries(users).sort(([userA, commitsA], [userB, commitsB]) => {
+			// If a student is selected, prioritize them
+			if (selectedStudent) {
+				if (userA === selectedStudent) return -1;
+				if (userB === selectedStudent) return 1;
+			}
+			
+			// Get indices from student order
+			const indexA = studentOrder.indexOf(userA);
+			const indexB = studentOrder.indexOf(userB);
+			
+			// If both users are in the student order
+			if (indexA !== -1 && indexB !== -1) {
+				return indexA - indexB; // Sort by student order
+			}
+			
+			// If only one is in the student order, prioritize that one
+			if (indexA !== -1) return -1;
+			if (indexB !== -1) return 1;
+			
+			// For users not in the student order, sort by commit count
+			return commitsB.length - commitsA.length;
+		});
+	}, [data.commits, selectedStudent, studentOrder]);
 
 	return (
 		<AnalysisTabLayout

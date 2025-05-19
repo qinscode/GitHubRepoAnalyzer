@@ -5,6 +5,7 @@ import UserTabItem from "../components/UserTabItem";
 import TabDataTable from "../components/TabDataTable";
 import { issuesTheme } from "../components/AnalysisThemes";
 import AnalysisTabLayout from "../components/layout/AnalysisTabLayout";
+import { useStudentStore } from "@/store/useStudentStore";
 
 interface IssuesTabProps {
 	data: RepoData;
@@ -39,6 +40,8 @@ function UserIssues({
 }
 
 function IssuesTab({ data }: IssuesTabProps) {
+	const { selectedStudent, studentOrder } = useStudentStore();
+
 	const issuesByUser = useMemo(() => {
 		// Define IssueWithDate as an extension of Issue with a required date property
 		interface IssueWithDate extends Issue {
@@ -55,9 +58,38 @@ function IssuesTab({ data }: IssuesTabProps) {
 			}));
 		});
 
-		// Sort users by number of issues (descending)
-		return Object.entries(users).sort(([, a], [, b]) => b.length - a.length);
-	}, [data.issues]);
+		// Add empty arrays for students in studentOrder who don't have issues
+		studentOrder.forEach((student) => {
+			if (!users[student]) {
+				users[student] = [];
+			}
+		});
+
+		// Custom sort function based on studentOrder
+		return Object.entries(users).sort(([userA, issuesA], [userB, issuesB]) => {
+			// If a student is selected, prioritize them
+			if (selectedStudent) {
+				if (userA === selectedStudent) return -1;
+				if (userB === selectedStudent) return 1;
+			}
+			
+			// Get indices from student order
+			const indexA = studentOrder.indexOf(userA);
+			const indexB = studentOrder.indexOf(userB);
+			
+			// If both users are in the student order
+			if (indexA !== -1 && indexB !== -1) {
+				return indexA - indexB; // Sort by student order
+			}
+			
+			// If only one is in the student order, prioritize that one
+			if (indexA !== -1) return -1;
+			if (indexB !== -1) return 1;
+			
+			// For users not in the student order, sort by issue count
+			return issuesB.length - issuesA.length;
+		});
+	}, [data.issues, selectedStudent, studentOrder]);
 
 	return (
 		<AnalysisTabLayout

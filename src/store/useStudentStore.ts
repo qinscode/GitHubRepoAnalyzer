@@ -1,0 +1,35 @@
+import { create } from "zustand";
+
+interface StudentState {
+  selectedStudent: string | null;
+  setSelectedStudent: (student: string | null) => void;
+  studentOrder: string[];
+  setStudentOrder: (students: string[]) => void;
+  reorderStudents: (fromIndex: number, toIndex: number) => void;
+}
+
+export const useStudentStore = create<StudentState>((set) => ({
+  selectedStudent: null,
+  setSelectedStudent: (student) => set({ selectedStudent: student }),
+  studentOrder: ["Student 1", "Student 2", "Student 3", "Student 4"],
+  setStudentOrder: (studentOrder) => set({ studentOrder }),
+  reorderStudents: (fromIndex, toIndex) => 
+    set((state) => {
+      // Return unchanged state if indices are invalid
+      if (
+        fromIndex < 0 || 
+        toIndex < 0 || 
+        fromIndex >= state.studentOrder.length || 
+        toIndex >= state.studentOrder.length
+      ) {
+        return state;
+      }
+      
+      // Create a new array and reorder
+      const newOrder = [...state.studentOrder];
+      const [removed] = newOrder.splice(fromIndex, 1);
+      newOrder.splice(toIndex, 0, removed as string);
+      
+      return { studentOrder: newOrder };
+    }),
+})); 
