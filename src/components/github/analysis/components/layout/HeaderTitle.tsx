@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import type { ThemeConfig } from "../AnalysisThemes";
 
 interface HeaderTitleProps {

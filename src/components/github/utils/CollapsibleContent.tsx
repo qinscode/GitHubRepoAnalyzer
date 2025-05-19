@@ -1,4 +1,4 @@
-import React, { useState, type FC, type ReactElement, useEffect } from "react";
+import { useState, useEffect, FC } from "react";
 import { Button, Typography, alpha } from "@mui/material";
 import { MoreHoriz as MoreIcon } from "@mui/icons-material";
 import { useCollapseStore } from "@/hooks/useCollapseStore";
@@ -17,7 +17,7 @@ const CollapsibleContent: FC<CollapsibleContentProps> = ({
 	text,
 	maxChars = 150,
 	color,
-}): ReactElement => {
+}) => {
 	const [expanded, setExpanded] = useState(false);
 	const { isAllExpanded } = useCollapseStore();
 	const shouldCollapse = text.length > maxChars;

@@ -10,7 +10,7 @@ import TabDataTable from "../components/TabDataTable";
 import CommitBarChart from "../components/CommitBarChart";
 import { commitsTheme } from "../components/AnalysisThemes";
 import AllContributorsCommitChart from "../components/AllContributorsCommitChart";
-import { RepoData } from "@/../services/github";
+import { RepoData } from "@/services/github";
 import AnalysisTabLayout from "../components/layout/AnalysisTabLayout.tsx";
 
 interface CommitsTabProps {
