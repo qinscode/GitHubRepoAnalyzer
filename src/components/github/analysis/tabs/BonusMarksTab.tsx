@@ -299,6 +299,7 @@ function BonusMarksTab({ data }: BonusMarksTabProps) {
 		<AnalysisTabLayout
 			creatorCount={contributors.length}
 			creatorLabel="Total"
+			showMoreSwitch={false}
 			theme={bonusMarksTheme}
 			title="Bonus Marks Analysis"
 			totalCount={contributors.length}

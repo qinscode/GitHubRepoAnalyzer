@@ -61,6 +61,7 @@ function IssuesTab({ data }: IssuesTabProps) {
 
 	return (
 		<AnalysisTabLayout
+			showMoreSwitch
 			creatorCount={Object.keys(data.issues).length}
 			creatorLabel="Created by"
 			description="This analysis shows issues created by repository contributors."
