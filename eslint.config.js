@@ -202,15 +202,17 @@ const ignoreConfig = {
 	],
 };
 
-const eslintConfig = typescriptEslint.config(
+const eslintConfig = [
 	ignoreConfig,
-	baseESLintConfig,
-	typescriptConfig,
-	eslintConfigPrettier,
-	reactConfig,
-	jsxA11yConfig,
-	unicornConfig
-);
+	...typescriptEslint.config(
+		baseESLintConfig,
+		typescriptConfig,
+		eslintConfigPrettier,
+		reactConfig,
+		jsxA11yConfig,
+		unicornConfig
+	),
+];
 
 eslintConfig.map((config) => {
 	config.files = ["src/**/*.ts", "src/**/*.tsx"];
