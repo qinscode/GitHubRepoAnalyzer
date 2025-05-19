@@ -74,7 +74,7 @@ function RepoResults({ data }: RepoResultsProps): JSX.Element {
 		issues: "#8B5CF6", // purple
 		prs: "#F59E0B", // amber
 		teamwork: "#EC4899", // pink
-		bonus: "#10B981", // emerald
+		bonus: "#06B6D4", // cyan (updated to match bonusMarksTheme)
 	};
 
 	// Tab icons with customized colors

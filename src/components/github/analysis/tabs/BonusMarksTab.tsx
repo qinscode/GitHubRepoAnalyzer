@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Box, Typography, Select, MenuItem, FormControl, Alert, Tooltip } from "@mui/material";
+import { Box, Typography, Select, MenuItem, FormControl, Alert, Tooltip, alpha } from "@mui/material";
 import { EmojiEvents as BonusIcon, Warning as WarningIcon } from "@mui/icons-material";
 import type { RepoData } from "../../types/types.ts";
 import AnalysisTabLayout from "../components/AnalysisTabLayout";
@@ -83,6 +83,63 @@ function BonusMarksTab({ data }: BonusMarksTabProps): JSX.Element {
       studentId: bonusMarks[user]?.studentId ?? null
     })), [contributors, bonusMarks]);
 
+  const selectStyles = {
+    fontFamily: "inherit",
+    fontSize: "0.95rem",
+    color: bonusMarksTheme.main,
+    backgroundColor: "#FFFFFF",
+    borderRadius: "8px",
+    "& .MuiOutlinedInput-notchedOutline": {
+      borderColor: alpha(bonusMarksTheme.main, 0.2),
+      borderWidth: "1px",
+      transition: "all 0.2s ease-in-out"
+    },
+    "&:hover .MuiOutlinedInput-notchedOutline": {
+      borderColor: bonusMarksTheme.main,
+      borderWidth: "1px"
+    },
+    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+      borderColor: bonusMarksTheme.main,
+      borderWidth: "1px"
+    },
+    "& .MuiSelect-select": {
+      padding: "8px 14px",
+      display: "flex",
+      alignItems: "center"
+    },
+    "& .MuiSelect-icon": {
+      color: bonusMarksTheme.main,
+      right: "12px"
+    }
+  };
+
+  const menuProps = {
+    PaperProps: {
+      sx: {
+        marginTop: "4px",
+        borderRadius: "8px",
+        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+        "& .MuiMenuItem-root": {
+          fontSize: "0.95rem",
+          fontFamily: "inherit",
+          padding: "8px 16px",
+          "&:hover": {
+            backgroundColor: alpha(bonusMarksTheme.light, 0.5)
+          },
+          "&.Mui-selected": {
+            backgroundColor: alpha(bonusMarksTheme.main, 0.1),
+            "&:hover": {
+              backgroundColor: alpha(bonusMarksTheme.main, 0.15)
+            }
+          },
+          "&.Mui-disabled": {
+            opacity: 0.5
+          }
+        }
+      }
+    }
+  };
+
   // Define table columns
   const columns: Array<Column> = [
     {
@@ -90,7 +147,14 @@ function BonusMarksTab({ data }: BonusMarksTabProps): JSX.Element {
       label: "Contributor",
       width: "30%",
       format: (value: string): JSX.Element => (
-        <Typography sx={{ fontWeight: 500, color: "rgba(55, 65, 81, 0.9)" }}>
+        <Typography 
+          sx={{ 
+            fontWeight: 500, 
+            color: "rgba(55, 65, 81, 0.9)",
+            fontFamily: "inherit",
+            fontSize: "0.95rem"
+          }}
+        >
           {value}
         </Typography>
       )
@@ -110,21 +174,17 @@ function BonusMarksTab({ data }: BonusMarksTabProps): JSX.Element {
               value={studentId ?? ""}
               onChange={(e) => handleStudentIdChange(currentRow.user, e.target.value)}
               displayEmpty
-              sx={{
-                color: bonusMarksTheme.main,
-                "& .MuiOutlinedInput-notchedOutline": {
-                  borderColor: bonusMarksTheme.light
-                },
-                "&:hover .MuiOutlinedInput-notchedOutline": {
-                  borderColor: bonusMarksTheme.main
-                },
-                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                  borderColor: bonusMarksTheme.main
-                }
-              }}
+              sx={selectStyles}
+              MenuProps={menuProps}
             >
-              <MenuItem value="">
-                <em>Select Student</em>
+              <MenuItem 
+                value=""
+                sx={{ 
+                  fontStyle: "italic",
+                  color: "text.secondary"
+                }}
+              >
+                Select Student
               </MenuItem>
               {["Student1", "Student2", "Student3", "Student4"].map((id) => (
                 <MenuItem 
@@ -165,21 +225,14 @@ function BonusMarksTab({ data }: BonusMarksTabProps): JSX.Element {
                 onChange={(e) => handleMarkChange(currentRow.user, e.target.value as number)}
                 disabled={isDisabled}
                 sx={{
-                  color: bonusMarksTheme.main,
-                  "& .MuiOutlinedInput-notchedOutline": {
-                    borderColor: bonusMarksTheme.light
-                  },
-                  "&:hover .MuiOutlinedInput-notchedOutline": {
-                    borderColor: bonusMarksTheme.main
-                  },
-                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                    borderColor: bonusMarksTheme.main
-                  },
+                  ...selectStyles,
                   ...(isDisabled && {
                     opacity: 0.7,
-                    cursor: "not-allowed"
+                    cursor: "not-allowed",
+                    backgroundColor: alpha("#FFFFFF", 0.5)
                   })
                 }}
+                MenuProps={menuProps}
               >
                 {[0, 1, 2, 3, 4].map((m) => (
                   <MenuItem 
@@ -208,15 +261,28 @@ function BonusMarksTab({ data }: BonusMarksTabProps): JSX.Element {
       title="Bonus Marks Analysis"
       totalCount={contributors.length}
       statsIcon={
-        <BonusIcon sx={{ color: bonusMarksTheme.main, fontSize: "1.1rem" }} />
+        <BonusIcon sx={{ 
+          color: bonusMarksTheme.main, 
+          fontSize: "1.1rem",
+          filter: "drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))"
+        }} />
       }
     >
       <Box sx={{ position: "relative", overflow: "auto" }}>
         {totalBonusMarks > 4 && (
           <Alert 
             severity="warning" 
-            icon={<WarningIcon />}
-            sx={{ mb: 2 }}
+            icon={<WarningIcon sx={{ color: bonusMarksTheme.textColor }} />}
+            sx={{ 
+              mb: 2,
+              borderRadius: "8px",
+              backgroundColor: alpha(bonusMarksTheme.light, 0.5),
+              "& .MuiAlert-message": {
+                color: bonusMarksTheme.textColor,
+                fontFamily: "inherit",
+                fontSize: "0.95rem"
+              }
+            }}
           >
             Total bonus marks cannot exceed 4. Current total: {totalBonusMarks}
           </Alert>
