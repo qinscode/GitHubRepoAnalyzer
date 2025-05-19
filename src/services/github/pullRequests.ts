@@ -23,6 +23,7 @@ export const fetchPullRequests = async (owner: string, repo: string, token: stri
           nodes {
             title
             body
+            url
             author {
               login
             }
@@ -73,7 +74,8 @@ export const fetchPullRequests = async (owner: string, repo: string, token: stri
         if (prsByUser[author].length < 50) {
           prsByUser[author].push({
             title: pr.title,
-            body: pr.body || ''
+            body: pr.body || '',
+            url: pr.url
           });
         }
         

@@ -37,6 +37,7 @@ export const fetchCommits = async (
                       login
                     }
                   }
+                  url
                 }
               }
             }
@@ -84,7 +85,8 @@ export const fetchCommits = async (
           commitsByUser[author].push({
             id: commit.oid,
             message: commit.message,
-            commitDate: commit.committedDate
+            commitDate: commit.committedDate,
+            url: commit.url
           });
         }
       });
