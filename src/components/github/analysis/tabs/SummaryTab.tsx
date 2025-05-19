@@ -12,8 +12,8 @@ import {
 	Avatar,
 	LinearProgress,
 } from "@mui/material";
-import { RepoData } from "../../../../services/github";
-import { ContributorStats } from "../../../../types";
+import { RepoData } from "@/../services/github";
+import { ContributorStats } from "@/../types";
 
 interface SummaryTabProps {
 	data: RepoData;

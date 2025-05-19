@@ -10,24 +10,24 @@ import {
 	Zoom,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import BatchResults from "../../../components/github/results/BatchResults.tsx";
-import "../../../styles/FormStyles.css";
+import BatchResults from "@/components/github/results/BatchResults.tsx";
+import "@/styles/FormStyles.css";
 
 // Custom hooks
 import {
 	useTokenManagement,
 	useRepoUrlsManagement,
 	useRepoAnalysis,
-} from "../../../hooks";
+} from "@/hooks";
 
 // Components
-import RepoUrlsInput from "../../../components/github/forms/RepoUrlsInput";
-import GitHubTokenInput from "../../../components/github/forms/GitHubTokenInput";
-import AnalysisOptions from "../../../components/github/forms/AnalysisOptions";
-import ErrorNotification from "../../../components/github/notifications/ErrorNotification";
-import SuccessNotification from "../../../components/github/notifications/SuccessNotification";
-import TokenNotification from "../../../components/github/notifications/TokenNotification";
-import ProgressTracker from "../../../components/github/progress/ProgressTracker";
+import RepoUrlsInput from "@/components/github/forms/RepoUrlsInput";
+import GitHubTokenInput from "@/components/github/forms/GitHubTokenInput";
+import AnalysisOptions from "@/components/github/forms/AnalysisOptions";
+import ErrorNotification from "@/components/github/notifications/ErrorNotification";
+import SuccessNotification from "@/components/github/notifications/SuccessNotification";
+import TokenNotification from "@/components/github/notifications/TokenNotification";
+import ProgressTracker from "@/components/github/progress/ProgressTracker";
 
 const RepoAnalysisForm = () => {
 	// Token management

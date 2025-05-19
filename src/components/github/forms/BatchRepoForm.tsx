@@ -12,16 +12,13 @@ import GitHubIcon from "@mui/icons-material/GitHub";
 import KeyIcon from "@mui/icons-material/Key";
 import ViewListIcon from "@mui/icons-material/ViewList";
 
-import {
-	fetchRepositoryData,
-	parseRepoUrl,
-} from "../../../services/github";
-import "../../../styles/FormStyles.css";
+import { fetchRepositoryData, parseRepoUrl } from "@/services/github";
+import "@/styles/FormStyles.css";
 import type {
 	RepoListItem,
 	RepoResult,
 	BatchRepoFormProps,
-} from "../../../types/github";
+} from "@/types/github";
 import RepoStatusList from "./RepoStatusList";
 import ProcessingProgress from "./ProcessingProgress";
 import AnalysisOptions from "./AnalysisOptions";
@@ -331,7 +328,9 @@ microsoft/typescript"
 
 						<AnalysisOptions
 							hideMergeCommits={hideMergeCommits}
-							onHideMergeCommitsChange={(checked) => { setHideMergeCommits(checked); }}
+							onHideMergeCommitsChange={(checked) => {
+								setHideMergeCommits(checked);
+							}}
 						/>
 
 						<ProcessingProgress

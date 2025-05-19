@@ -4,7 +4,7 @@ import {
 	BugReport as IssueIcon,
 	MergeType as PRIcon,
 } from "@mui/icons-material";
-import { RepoResult } from "../../../types/github";
+import { RepoResult } from "@/types/github";
 import { StatItem } from "./StatItem";
 
 // Color configuration

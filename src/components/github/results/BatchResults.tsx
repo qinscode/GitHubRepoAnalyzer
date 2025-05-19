@@ -1,7 +1,7 @@
 import { Box, Typography, Stack, Fade } from "@mui/material";
 import { useState, useEffect } from "react";
 
-import type { RepoResult } from "../../../types/github";
+import type { RepoResult } from "@/types/github";
 import { RepoCard } from "./RepoCard";
 
 // TypeScript declaration for Tauri globals

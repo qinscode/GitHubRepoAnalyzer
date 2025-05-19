@@ -198,7 +198,7 @@ const ignoreConfig = {
 		"coverage/**",
 		"node_modules/**",
 		".next/**",
-		"src-taur/**",
+		"src-tauri/**",
 	],
 };
 

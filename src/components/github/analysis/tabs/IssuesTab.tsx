@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { BugReport as IssueIcon } from "@mui/icons-material";
-import type { Issue, RepoData } from "../../../../services/github";
+import type { Issue, RepoData } from "@/../services/github";
 import UserTabItem from "../components/UserTabItem";
 import TabDataTable from "../components/TabDataTable";
 import { issuesTheme } from "../components/AnalysisThemes";

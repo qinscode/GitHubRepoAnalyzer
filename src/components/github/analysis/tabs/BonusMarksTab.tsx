@@ -16,7 +16,7 @@ import {
 import { bonusMarksTheme } from "../components/AnalysisThemes";
 import DataTable, { type Column } from "../../utils/DataTable";
 import AnalysisTabLayout from "../components/layout/AnalysisTabLayout.tsx";
-import { RepoData } from "../../../../services/github";
+import { RepoData } from "@/../services/github";
 
 interface BonusMarksTabProps {
 	data: RepoData;

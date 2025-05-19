@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { ThemeConfig } from "../AnalysisThemes";
-import { useCollapseStore } from "../../../../../hooks";
+import { useCollapseStore } from "@/hooks";
 import { AnimatedContainer } from "../containers";
 import { AnalysisHeader } from "./";
 import { HeaderControls } from "../controls";
