@@ -33,7 +33,7 @@ const ProgressTracker = ({
 	repoItems,
 	currentIndex,
 	progress,
-}: ProgressTrackerProps): JSX.Element | null => {
+}: ProgressTrackerProps) | null => {
 	if (!loading || repoItems.length === 0) return null;
 
 	const getStatusColor = (status: string): any => {
@@ -51,7 +51,7 @@ const ProgressTracker = ({
 		}
 	};
 
-	const getStatusIcon = (status: string): JSX.Element | null => {
+	const getStatusIcon = (status: string) | null => {
 		switch (status) {
 			case "pending":
 				return <HourglassTopIcon fontSize="small" />;

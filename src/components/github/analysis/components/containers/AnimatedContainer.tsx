@@ -1,5 +1,5 @@
 import { Box, Fade } from "@mui/material";
-import type { ReactNode } from "react";
+import React, { ReactNode } from "react";
 
 interface AnimatedContainerProps {
   children: ReactNode;
@@ -8,7 +8,7 @@ interface AnimatedContainerProps {
 /**
  * Container with fade-in animation
  */
-const AnimatedContainer = ({ children }: AnimatedContainerProps): JSX.Element => {
+const AnimatedContainer: React.FC<AnimatedContainerProps> = ({ children }) => {
   return (
     <Fade in timeout={500}>
       <Box

@@ -38,7 +38,7 @@ interface AllContributorsCommitChartProps {
 const AllContributorsCommitChart = ({
 	contributorStats,
 	primaryColor,
-}: AllContributorsCommitChartProps): JSX.Element => {
+}: AllContributorsCommitChartProps) => {
 	// Helper function to format date from Unix timestamp (seconds)
 	const formatWeekDate = (timestamp: number): string => {
 		const date = new Date(timestamp * 1000); // Convert from seconds to milliseconds

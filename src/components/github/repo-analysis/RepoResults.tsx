@@ -1,12 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import {
-	Box,
-	Paper,
-	Fade,
-	Grow,
-	useTheme,
-	useMediaQuery,
-} from "@mui/material";
+import { Box, Paper, Fade, Grow, useTheme, useMediaQuery } from "@mui/material";
 import type { RepoResultsProps } from "@/types/github";
 import TabPanel from "./TabPanel";
 import SummaryTab from "@components/github/analysis/tabs/SummaryTab";
@@ -18,7 +11,7 @@ import BonusMarksTab from "@components/github/analysis/tabs/BonusMarksTab";
 import RepoTabBar from "./RepoTabBar";
 import RepoResultsContainer from "./RepoResultsContainer";
 
-function RepoResults({ data }: RepoResultsProps): JSX.Element {
+function RepoResults({ data }: RepoResultsProps) {
 	const [tabValue, setTabValue] = useState(0);
 	const [tabTransition, setTabTransition] = useState(false);
 	const theme = useTheme();
@@ -82,10 +75,10 @@ function RepoResults({ data }: RepoResultsProps): JSX.Element {
 						position: "relative",
 					}}
 				>
-					<RepoTabBar 
-						counts={counts} 
-						handleTabChange={handleTabChange} 
-						isMobile={isMobile} 
+					<RepoTabBar
+						counts={counts}
+						handleTabChange={handleTabChange}
+						isMobile={isMobile}
 						tabValue={tabValue}
 					/>
 				</Paper>

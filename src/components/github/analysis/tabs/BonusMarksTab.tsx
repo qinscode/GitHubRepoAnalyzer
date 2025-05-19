@@ -29,7 +29,7 @@ interface BonusMark {
 	studentId: string | null;
 }
 
-function BonusMarksTab({ data }: BonusMarksTabProps): JSX.Element {
+function BonusMarksTab({ data }: BonusMarksTabProps) {
 	// Get all unique contributors from commits, issues, and PRs
 	const contributors = useMemo(() => {
 		const uniqueContributors = new Set<string>();
@@ -181,7 +181,7 @@ function BonusMarksTab({ data }: BonusMarksTabProps): JSX.Element {
 			id: "user",
 			label: "Contributor",
 			width: "30%",
-			format: (value: string): JSX.Element => (
+			format: (value: string) => (
 				<Typography
 					sx={{
 						fontWeight: 500,
@@ -198,7 +198,7 @@ function BonusMarksTab({ data }: BonusMarksTabProps): JSX.Element {
 			id: "studentId",
 			label: "Student ID",
 			width: "35%",
-			format: (value: any): JSX.Element => {
+			format: (value: any) => {
 				const { studentId, user: currentUser } = value;
 
 				return (
@@ -241,7 +241,7 @@ function BonusMarksTab({ data }: BonusMarksTabProps): JSX.Element {
 			id: "mark",
 			label: "Bonus Mark",
 			width: "35%",
-			format: (value: any): JSX.Element => {
+			format: (value: any) => {
 				const { mark, user: currentUser } = value;
 
 				// Calculate what the new total would be if this mark was changed

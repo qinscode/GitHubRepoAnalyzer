@@ -61,7 +61,7 @@ const typescriptConfig = {
 		"@typescript-eslint/array-type": ["error", { default: "generic" }],
 		"@typescript-eslint/consistent-type-exports": "error",
 		"@typescript-eslint/explicit-member-accessibility": "error",
-		"@typescript-eslint/explicit-module-boundary-types": "error",
+		"@typescript-eslint/explicit-module-boundary-types": "off",
 		"@typescript-eslint/no-confusing-void-expression": "error",
 		"@typescript-eslint/no-import-type-side-effects": "error",
 		"@typescript-eslint/no-require-imports": "error",

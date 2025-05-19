@@ -46,7 +46,7 @@ function UserCommits({
 	index: number;
 	user: string;
 	contributorStats?: Array<any>;
-}): JSX.Element {
+}) {
 	// Format date from ISO string to DD/MM/YYYY HH:MM format
 	const formattedCommits = commits.map((commit) => ({
 		...commit,
@@ -102,7 +102,7 @@ function UserCommits({
 	);
 }
 
-function CommitsTab({ data }: CommitsTabProps): JSX.Element {
+function CommitsTab({ data }: CommitsTabProps) {
 	// Transform commits data for display
 	const commitsByUser = useMemo(() => {
 		type Commit = { message: string; id: string; commitDate: string };

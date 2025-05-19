@@ -31,7 +31,7 @@ const AnalysisTabLayout = ({
 	creatorLabel,
 	children,
 	theme,
-}: AnalysisTabLayoutProps): JSX.Element => {
+}: AnalysisTabLayoutProps) => {
 	const hasContent = Boolean(description || headerTitle);
 	const { isAllExpanded, toggleAll } = useCollapseStore();
 

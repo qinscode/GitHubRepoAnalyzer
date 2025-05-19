@@ -18,7 +18,7 @@ function UserIssues({
 	user: string;
 	issues: Array<Issue>;
 	index: number;
-}): JSX.Element {
+}) {
 	return (
 		<UserTabItem
 			chipLabel="issues"
@@ -38,7 +38,7 @@ function UserIssues({
 	);
 }
 
-function IssuesTab({ data }: IssuesTabProps): JSX.Element {
+function IssuesTab({ data }: IssuesTabProps) {
 	const issuesByUser = useMemo(() => {
 		type IssueWithDate = Issue;
 		const users: Record<string, Array<IssueWithDate>> = {};

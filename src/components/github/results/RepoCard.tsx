@@ -22,7 +22,7 @@ interface RepoCardProps {
 	index: number;
 }
 
-export const RepoCard = ({ result }: RepoCardProps): JSX.Element => {
+export const RepoCard = ({ result }: RepoCardProps) => {
 	const [expandedRepo, setExpandedRepo] = useState<string | null>(null);
 	const theme = useTheme();
 

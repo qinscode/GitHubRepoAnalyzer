@@ -18,7 +18,7 @@ const HeaderControls = ({
   isAllExpanded,
   toggleAll,
   theme,
-}: HeaderControlsProps): JSX.Element | null => {
+}: HeaderControlsProps) | null => {
   if (!headerTitle) {
     return (
       <Box

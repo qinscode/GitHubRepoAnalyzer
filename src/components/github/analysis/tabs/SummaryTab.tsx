@@ -25,11 +25,11 @@ interface SummaryTabProps {
 // 	label,
 // 	color,
 // }: {
-// 	icon: JSX.Element;
+// 	icon;
 // 	value: number;
 // 	label: string;
 // 	color: string;
-// }): JSX.Element {
+// }) {
 // 	return (
 // 		<Box className="flex-1 basis-40 min-w-0">
 // 			<Card
@@ -111,7 +111,7 @@ function ContributionTable({
 	title: string;
 	data: Array<ContributorStats>;
 	color: "primary" | "secondary" | "info";
-}): JSX.Element {
+}) {
 	const colorMap = {
 		primary: {
 			main: "#3B82F6",
@@ -338,7 +338,7 @@ function ContributionTable({
 	);
 }
 
-function SummaryTab({ data }: SummaryTabProps): JSX.Element {
+function SummaryTab({ data }: SummaryTabProps) {
 	// Calculate statistics data
 	const { commitsByUser, issuesByUser, prsByUser } = useMemo(() => {
 		const totalCommits = Object.values(data.commits).reduce(

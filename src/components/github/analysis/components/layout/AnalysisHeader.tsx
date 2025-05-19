@@ -17,7 +17,7 @@ const AnalysisHeader = ({
   description,
   headerTitle,
   theme,
-}: AnalysisHeaderProps): JSX.Element | null => {
+}: AnalysisHeaderProps) | null => {
   const hasContent = Boolean(description || headerTitle);
   if (!hasContent) return null;
 

@@ -23,7 +23,7 @@ const RepoUrlsInput = ({
 	onRepoUrlsSave,
 	onRepoUrlsDelete,
 	hasSavedUrls,
-}: RepoUrlsInputProps): JSX.Element => {
+}: RepoUrlsInputProps) => {
 	return (
 		<Box className="mb-5 relative">
 			<Typography className="form-subtitle">GitHub Repository URLs</Typography>

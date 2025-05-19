@@ -29,7 +29,7 @@ import SuccessNotification from "../../../components/github/notifications/Succes
 import TokenNotification from "../../../components/github/notifications/TokenNotification";
 import ProgressTracker from "../../../components/github/progress/ProgressTracker";
 
-const RepoAnalysisForm = (): JSX.Element => {
+const RepoAnalysisForm = () => {
 	// Token management
 	const {
 		token,
@@ -166,4 +166,4 @@ const RepoAnalysisForm = (): JSX.Element => {
 	);
 };
 
-export default RepoAnalysisForm; 
+export default RepoAnalysisForm;

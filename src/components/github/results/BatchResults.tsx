@@ -20,7 +20,7 @@ interface BatchResultsProps {
 }
 
 // Main component
-function BatchResults({ results }: BatchResultsProps): JSX.Element {
+function BatchResults({ results }: BatchResultsProps) {
 	const [mounted, setMounted] = useState(false);
 
 	useEffect(() => {
