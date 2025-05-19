@@ -90,7 +90,7 @@ const TabDataTable = <
 		baseColumns.push({
 			id: "url",
 			label: "Link",
-			width: "10%",
+			width: "14%",
 			format: (value: string) =>
 				value ? (
 					<Link
