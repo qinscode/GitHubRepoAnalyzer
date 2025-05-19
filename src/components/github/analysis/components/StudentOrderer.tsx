@@ -104,9 +104,9 @@ const StudentOrderer: React.FC<StudentOrdererProps> = ({ onReorder }) => {
 				<Typography
 					variant="h6"
 					sx={{
-						fontWeight: 600,
+						fontWeight: 400,
 						fontSize: "1.25rem",
-						color: "#374151",
+						color: "#3B82F6",
 						letterSpacing: "0.01em",
 					}}
 				>
@@ -126,13 +126,15 @@ const StudentOrderer: React.FC<StudentOrdererProps> = ({ onReorder }) => {
 			<Typography
 				variant="body2"
 				sx={{
+					fontWeight: 600,
 					color: "text.secondary",
 					mb: 3,
 					ml: 0.5,
 					fontSize: "0.9rem",
+					fontStyle: "italic",
 				}}
 			>
-				Drag cards to change display order. All data will follow this sequence.
+				Drag cards to change display order. All data will follow this order.
 			</Typography>
 
 			<DndContext

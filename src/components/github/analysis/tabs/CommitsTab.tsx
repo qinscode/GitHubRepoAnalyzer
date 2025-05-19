@@ -123,23 +123,25 @@ function CommitsTab({ data }: CommitsTabProps) {
 		});
 
 		// Custom sort function based on studentOrder
-		return Object.entries(users).sort(([userA, commitsA], [userB, commitsB]) => {
-			// Get indices from student order
-			const indexA = studentOrder.indexOf(userA);
-			const indexB = studentOrder.indexOf(userB);
-			
-			// If both users are in the student order
-			if (indexA !== -1 && indexB !== -1) {
-				return indexA - indexB; // Sort by student order
+		return Object.entries(users).sort(
+			([userA, commitsA], [userB, commitsB]) => {
+				// Get indices from student order
+				const indexA = studentOrder.indexOf(userA);
+				const indexB = studentOrder.indexOf(userB);
+
+				// If both users are in the student order
+				if (indexA !== -1 && indexB !== -1) {
+					return indexA - indexB; // Sort by student order
+				}
+
+				// If only one is in the student order, prioritize that one
+				if (indexA !== -1) return -1;
+				if (indexB !== -1) return 1;
+
+				// For users not in the student order, sort by commit count
+				return commitsB.length - commitsA.length;
 			}
-			
-			// If only one is in the student order, prioritize that one
-			if (indexA !== -1) return -1;
-			if (indexB !== -1) return 1;
-			
-			// For users not in the student order, sort by commit count
-			return commitsB.length - commitsA.length;
-		});
+		);
 	}, [data.commits, studentOrder]);
 
 	return (
@@ -186,10 +188,6 @@ function CommitsTab({ data }: CommitsTabProps) {
 								Contributor Commit Timeline
 							</Typography>
 						</Box>
-						<Typography sx={{ color: "text.secondary", mb: 2 }} variant="body2">
-							This chart shows the commit activity of all contributors over
-							time, allowing for visual comparison of contribution patterns.
-						</Typography>
 						<AllContributorsCommitChart
 							contributorStats={data.contributorStats}
 							primaryColor={commitsTheme.main}
