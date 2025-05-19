@@ -6,7 +6,6 @@ import {
 	MenuItem,
 	FormControl,
 	Alert,
-	Tooltip,
 	alpha,
 } from "@mui/material";
 import {
@@ -255,41 +254,32 @@ function BonusMarksTab({ data }: BonusMarksTabProps) {
 				};
 
 				return (
-					<Tooltip
-						placement="top"
-						title={
-							wouldExceedLimit(4)
-								? `Cannot exceed total bonus marks limit of 4. Current total: ${totalBonusMarks}`
-								: ""
-						}
-					>
-						<FormControl size="small" sx={{ minWidth: 120 }}>
-							<Select
-								MenuProps={menuProps}
-								value={mark}
-								sx={{
-									...selectStyles,
-									...(wouldExceedLimit(4) && {
-										opacity: 0.7,
-										cursor: "not-allowed",
-										backgroundColor: alpha("#FFFFFF", 0.5),
-									}),
-								}}
-								onChange={(event_) => {
-									const newMark = Number(event_.target.value);
-									if (!wouldExceedLimit(newMark)) {
-										handleMarkChange(currentUser, newMark);
-									}
-								}}
-							>
-								{[0, 1, 2, 3, 4].map((m) => (
-									<MenuItem key={m} disabled={wouldExceedLimit(m)} value={m}>
-										{m}
-									</MenuItem>
-								))}
-							</Select>
-						</FormControl>
-					</Tooltip>
+					<FormControl size="small" sx={{ minWidth: 120 }}>
+						<Select
+							MenuProps={menuProps}
+							value={mark}
+							sx={{
+								...selectStyles,
+								...(wouldExceedLimit(4) && {
+									opacity: 0.7,
+									cursor: "not-allowed",
+									backgroundColor: alpha("#FFFFFF", 0.5),
+								}),
+							}}
+							onChange={(event_) => {
+								const newMark = Number(event_.target.value);
+								if (!wouldExceedLimit(newMark)) {
+									handleMarkChange(currentUser, newMark);
+								}
+							}}
+						>
+							{[0, 1, 2, 3, 4].map((m) => (
+								<MenuItem key={m} disabled={wouldExceedLimit(m)} value={m}>
+									{m}
+								</MenuItem>
+							))}
+						</Select>
+					</FormControl>
 				);
 			},
 		},
