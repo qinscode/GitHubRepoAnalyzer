@@ -123,12 +123,12 @@ function CommitsTab({ data }: CommitsTabProps): JSX.Element {
 			creatorLabel="From"
 			description="This analysis shows commit activity by contributor, with detailed commit messages and weekly statistics."
 			headerTitle="Commits by Contributor"
-			statsIcon={
-				<CommitIcon sx={{ color: commitsTheme.main, fontSize: "1.1rem" }} />
-			}
 			theme={commitsTheme}
 			title="Commit Activity Analysis"
 			totalCount={Object.values(data.commits).flat().length}
+			statsIcon={
+				<CommitIcon sx={{ color: commitsTheme.main, fontSize: "1.1rem" }} />
+			}
 		>
 			{/* Timeline chart showing all contributors' commits over time */}
 			{data.contributorStats && data.contributorStats.length > 0 && (
