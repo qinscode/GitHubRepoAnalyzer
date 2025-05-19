@@ -1,3 +1,4 @@
+import React from "react";
 import {
 	Zoom,
 	Box,
@@ -33,7 +34,7 @@ const ProgressTracker = ({
 	repoItems,
 	currentIndex,
 	progress,
-}: ProgressTrackerProps) | null => {
+}: ProgressTrackerProps) => {
 	if (!loading || repoItems.length === 0) return null;
 
 	const getStatusColor = (status: string): any => {
@@ -51,7 +52,7 @@ const ProgressTracker = ({
 		}
 	};
 
-	const getStatusIcon = (status: string) | null => {
+	const getStatusIcon = (status: string): React.ReactNode => {
 		switch (status) {
 			case "pending":
 				return <HourglassTopIcon fontSize="small" />;
