@@ -34,12 +34,12 @@ export default function Root(): React.ReactElement {
 		<ThemeProvider theme={theme}>
 			<CssBaseline />
 			<div className="relative min-h-screen flex flex-col">
-				{/* Gradient background with soft blur effect */}
+				{/* Light static background instead of heavy blur effect */}
 				<div 
 					className="absolute inset-0 -z-10"
 					style={{
-						background: "radial-gradient(ellipse at 50% 30%, rgba(199, 210, 254, 0.5) 0%, rgba(243, 232, 255, 0.8) 100%)",
-						filter: "blur(60px)",
+						background: "linear-gradient(135deg, #f5f7ff 0%, #f0f1fe 40%, #f8f1ff 100%)",
+						opacity: 0.8,
 					}}
 				/>
 				<main className="flex-grow px-4">

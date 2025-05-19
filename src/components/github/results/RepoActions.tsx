@@ -6,6 +6,7 @@ import {
 	Tooltip,
 	alpha,
 	useTheme,
+	useMediaQuery,
 } from "@mui/material";
 import {
 	ContentCopy as CopyIcon,
@@ -29,6 +30,7 @@ export const RepoActions = ({
 	onToggleDetails,
 }: RepoActionsProps) => {
 	const theme = useTheme();
+	const isMediumDown = useMediaQuery(theme.breakpoints.down("md"));
 	const { copiedUrl, copyRepoUrl, openInGitHub } = useRepoActions();
 
 	return (
@@ -102,10 +104,28 @@ export const RepoActions = ({
 						borderRadius: "8px",
 						textTransform: "none",
 						fontWeight: 600,
-						fontSize: "0.85rem",
-						minWidth: "115px",
+						fontSize: {
+							xs: "0.8rem",
+							sm: "0.82rem",
+							md: "0.85rem",
+						},
+						minWidth: {
+							xs: "80px",
+							sm: "100px",
+							md: "120px",
+							lg: "130px",
+						},
 						height: 32,
 						boxShadow: "none",
+						padding: {
+							xs: "6px 8px",
+							sm: "6px 10px",
+							md: "6px 12px",
+						},
+						letterSpacing: "0.01em",
+						whiteSpace: "nowrap",
+						overflow: "hidden",
+						textOverflow: "ellipsis",
 						...(expandedRepo === result.repoUrl
 							? {
 									background: "linear-gradient(45deg, #3B82F6, #4F46E5)",
@@ -126,12 +146,25 @@ export const RepoActions = ({
 									}
 								: {}),
 						},
+						"& .MuiButton-endIcon": {
+							marginLeft: {
+								xs: "4px",
+								sm: "6px",
+								md: "8px",
+							},
+						},
 					}}
 					onClick={() => {
 						onToggleDetails(result.repoUrl);
 					}}
 				>
-					{expandedRepo === result.repoUrl ? "Hide Details" : "View Details"}
+					{expandedRepo === result.repoUrl
+						? isMediumDown
+							? "Hide"
+							: "Hide Details"
+						: isMediumDown
+							? "View"
+							: "View Details"}
 				</Button>
 			</Stack>
 		</Box>

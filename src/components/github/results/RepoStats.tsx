@@ -1,4 +1,4 @@
-import { Box, Stack } from "@mui/material";
+import { Box, Stack, useTheme, useMediaQuery } from "@mui/material";
 import {
 	Commit as CommitIcon,
 	BugReport as IssueIcon,
@@ -31,37 +31,60 @@ interface RepoStatsProps {
 }
 
 export const RepoStats = ({ result }: RepoStatsProps) => {
+	const theme = useTheme();
+	const isMediumDown = useMediaQuery(theme.breakpoints.down("md"));
+	const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+	const isLargeScreen = useMediaQuery(theme.breakpoints.up("lg"));
+
+	// Adjust icon size based on screen size
+	const getIconSize = () => {
+		if (isSmallScreen) return "1rem";
+		if (isMediumDown) return "1.1rem";
+		return "1.2rem";
+	};
+
 	return (
 		<Box
 			sx={{
 				width: { xs: "100%", sm: "40%" },
-				mb: { xs: 2, sm: 0 },
+				mb: { xs: 1, sm: 0 },
+				mt: { xs: 0.5, sm: 0 },
+				px: { xs: 0.5, sm: 0 },
 			}}
 		>
 			<Stack
 				direction="row"
 				justifyContent={{ xs: "space-between", sm: "flex-start" }}
-				spacing={{ xs: 2, md: 3 }}
+				spacing={{ xs: 0.5, sm: 1.5, md: 2.5 }}
 				sx={{
-					pl: { xs: 1, sm: 0 },
-					pr: { xs: 1, sm: 0 },
+					py: { xs: 0.5, sm: 0.75, md: 1 },
+					px: { xs: 0, sm: 0 },
 				}}
 			>
 				<StatItem
 					color={statColors.commits.main}
-					icon={<CommitIcon sx={{ fontSize: "1.2rem" }} />}
+					icon={<CommitIcon sx={{ fontSize: getIconSize() }} />}
+					isLargeScreen={isLargeScreen}
+					isMediumDown={isMediumDown}
+					isSmallScreen={isSmallScreen}
 					label="Commits"
 					value={result.commits}
 				/>
 				<StatItem
 					color={statColors.issues.main}
-					icon={<IssueIcon sx={{ fontSize: "1.2rem" }} />}
+					icon={<IssueIcon sx={{ fontSize: getIconSize() }} />}
+					isLargeScreen={isLargeScreen}
+					isMediumDown={isMediumDown}
+					isSmallScreen={isSmallScreen}
 					label="Issues"
 					value={result.issues}
 				/>
 				<StatItem
 					color={statColors.prs.main}
-					icon={<PRIcon sx={{ fontSize: "1.2rem" }} />}
+					icon={<PRIcon sx={{ fontSize: getIconSize() }} />}
+					isLargeScreen={isLargeScreen}
+					isMediumDown={isMediumDown}
+					isSmallScreen={isSmallScreen}
 					label="PRs"
 					value={result.prs}
 				/>
