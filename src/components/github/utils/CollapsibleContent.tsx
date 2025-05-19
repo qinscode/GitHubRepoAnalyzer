@@ -1,6 +1,7 @@
-import { useState, type FC, type ReactElement } from 'react';
+import { useState, type FC, type ReactElement, useEffect } from 'react';
 import { Button, Typography, alpha } from '@mui/material';
 import { MoreHoriz as MoreIcon } from '@mui/icons-material';
+import { useCollapseStore } from '../analysis/store/useCollapseStore';
 
 interface CollapsibleContentProps {
   text: string;
@@ -18,7 +19,15 @@ const CollapsibleContent: FC<CollapsibleContentProps> = ({
   color,
 }): ReactElement => {
   const [expanded, setExpanded] = useState(false);
+  const { isAllExpanded } = useCollapseStore();
   const shouldCollapse = text.length > maxChars;
+
+  // Update local expanded state when global state changes
+  useEffect(() => {
+    if (shouldCollapse) {
+      setExpanded(isAllExpanded);
+    }
+  }, [isAllExpanded, shouldCollapse]);
 
   const toggleExpanded = (): void => {
     setExpanded(!expanded);

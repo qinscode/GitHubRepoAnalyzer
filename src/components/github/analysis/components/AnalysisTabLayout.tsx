@@ -1,6 +1,15 @@
 import type { ReactNode } from "react";
-import { Box, Typography, Fade, Tooltip } from "@mui/material";
+import {
+	Box,
+	Typography,
+	Fade,
+	Tooltip,
+	Switch,
+	FormControlLabel,
+	alpha,
+} from "@mui/material";
 import type { ThemeConfig } from "./AnalysisThemes";
+import { useCollapseStore } from "../store/useCollapseStore";
 
 interface AnalysisTabLayoutProps {
 	title: string;
@@ -29,6 +38,7 @@ const AnalysisTabLayout = ({
 	theme,
 }: AnalysisTabLayoutProps): JSX.Element => {
 	const hasContent = Boolean(description || headerTitle);
+	const { isAllExpanded, toggleAll } = useCollapseStore();
 
 	return (
 		<Fade in timeout={500}>
@@ -107,13 +117,19 @@ const AnalysisTabLayout = ({
 				)}
 
 				{headerTitle && (
-					<Box sx={{ mb: 2 }}>
+					<Box
+						sx={{
+							mb: 2,
+							display: "flex",
+							justifyContent: "space-between",
+							alignItems: "center",
+						}}
+					>
 						<Typography
 							sx={{
 								fontSize: "1.15rem",
 								fontWeight: 600,
 								color: theme.textColor,
-								mb: 2.5,
 								position: "relative",
 								paddingLeft: "16px",
 								display: "inline-block",
@@ -149,6 +165,79 @@ const AnalysisTabLayout = ({
 						>
 							{headerTitle}
 						</Typography>
+
+						<FormControlLabel
+							control={
+								<Switch
+									checked={isAllExpanded}
+									sx={{
+										"& .MuiSwitch-switchBase.Mui-checked": {
+											color: theme.main,
+											"&:hover": {
+												backgroundColor: alpha(theme.main, 0.08),
+											},
+										},
+										"& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
+											backgroundColor: theme.main,
+										},
+									}}
+									onChange={toggleAll}
+								/>
+							}
+							label={
+								<Typography
+									sx={{
+										fontSize: "0.875rem",
+										color: theme.textColor,
+									}}
+								>
+									{isAllExpanded
+										? "Show Less Description"
+										: "Show More Description"}
+								</Typography>
+							}
+						/>
+					</Box>
+				)}
+
+				{!headerTitle && (
+					<Box
+						sx={{
+							display: "flex",
+							justifyContent: "flex-end",
+							mb: 2,
+							px: 1,
+						}}
+					>
+						<FormControlLabel
+							control={
+								<Switch
+									checked={isAllExpanded}
+									sx={{
+										"& .MuiSwitch-switchBase.Mui-checked": {
+											color: theme.main,
+											"&:hover": {
+												backgroundColor: alpha(theme.main, 0.08),
+											},
+										},
+										"& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
+											backgroundColor: theme.main,
+										},
+									}}
+									onChange={toggleAll}
+								/>
+							}
+							label={
+								<Typography
+									sx={{
+										fontSize: "0.875rem",
+										color: theme.textColor,
+									}}
+								>
+									{isAllExpanded ? "Collapse All" : "Expand All"}
+								</Typography>
+							}
+						/>
 					</Box>
 				)}
 
