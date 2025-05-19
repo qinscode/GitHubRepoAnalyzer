@@ -33,7 +33,7 @@ export const GitHub = (): React.ReactElement => {
 						letterSpacing: "-0.5px",
 					}}
 				>
-					GitHub Repository Analyzer v0.2.7
+					GitHub Repository Analyzer v0.3
 				</Typography>
 			</Box>
 
