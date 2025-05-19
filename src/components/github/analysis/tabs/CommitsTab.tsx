@@ -2,10 +2,12 @@ import { useMemo } from "react";
 import {
   Box,
   Typography,
+  Paper,
 } from "@mui/material";
 import {
   Commit as CommitIcon,
   BarChart as BarChartIcon,
+  Timeline as TimelineIcon,
 } from "@mui/icons-material";
 import type { RepoData } from "../../types/types.ts";
 import UserTabItem from "../components/UserTabItem";
@@ -13,6 +15,7 @@ import AnalysisTabLayout from "../components/AnalysisTabLayout";
 import TabDataTable from "../components/TabDataTable";
 import CommitBarChart from "../components/CommitBarChart";
 import { commitsTheme } from "../components/AnalysisThemes";
+import AllContributorsCommitChart from "../components/AllContributorsCommitChart";
 
 interface CommitsTabProps {
   data: RepoData;
@@ -122,6 +125,40 @@ function CommitsTab({ data }: CommitsTabProps): JSX.Element {
       title="Commit Activity Analysis"
       totalCount={Object.values(data.commits).flat().length}
     >
+      {/* Timeline chart showing all contributors' commits over time */}
+      {data.contributorStats && data.contributorStats.length > 0 && (
+        <Paper 
+          elevation={0} 
+          sx={{ 
+            mb: 4, 
+            overflow: 'hidden',
+            border: '1px solid rgba(0,0,0,0.07)',
+            borderRadius: 2,
+          }}
+        >
+          <Box sx={{ 
+            px: 3, 
+            pt: 3, 
+            borderBottom: '1px solid rgba(0,0,0,0.04)',
+            background: 'rgba(249, 250, 251, 0.5)'
+          }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+              <TimelineIcon sx={{ color: commitsTheme.main, mr: 1, fontSize: '1.2rem' }} />
+              <Typography sx={{ color: 'rgba(55, 65, 81, 0.9)', fontWeight: 600 }} variant="h6">
+                Contributor Commit Timeline
+              </Typography>
+            </Box>
+            <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2 }}>
+              This chart shows the commit activity of all contributors over time, allowing for visual comparison of contribution patterns.
+            </Typography>
+            <AllContributorsCommitChart 
+              contributorStats={data.contributorStats}
+              primaryColor={commitsTheme.main}
+            />
+          </Box>
+        </Paper>
+      )}
+
       {commitsByUser.length === 0 ? (
         <div style={{ padding: "12px", textAlign: "center", color: "#666" }}>
           No commit data available for this repository.
