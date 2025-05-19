@@ -1,10 +1,10 @@
 import React from "react";
-import { isProduction } from "../../../common/utils";
+import { isProduction } from "../utils";
 
-export const TanStackTableDevelopmentTools = isProduction
+export const TanStackTableDevTools = isProduction
 	? (): null => null
 	: React.lazy(() =>
 			import("@tanstack/react-table-devtools").then((result) => ({
 				default: result.ReactTableDevtools,
 			}))
-	  );
+	  ); 

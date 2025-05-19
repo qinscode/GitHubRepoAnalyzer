@@ -1,9 +1,10 @@
 import { useMemo } from "react";
 import { MergeType as PRIcon } from "@mui/icons-material";
-import type { RepoData } from "../../types/types.ts";
+
 import type { PullRequest } from "../../../../services/github";
 import UserTabItem from "../components/UserTabItem";
-import AnalysisTabLayout from "../components/AnalysisTabLayout";
+import AnalysisTabLayout from "../components/layout/AnalysisTabLayout.tsx";
+import { RepoData } from "../../../../services/github";
 import TabDataTable from "../components/TabDataTable";
 import { pullRequestsTheme } from "../components/AnalysisThemes";
 

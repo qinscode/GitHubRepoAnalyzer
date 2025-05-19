@@ -3,7 +3,7 @@ import { Box, Typography, Chip, CircularProgress } from "@mui/material";
 import HourglassTopIcon from "@mui/icons-material/HourglassTop";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ErrorIcon from "@mui/icons-material/Error";
-import type { RepoStatusItemProps, RepoStatus } from "../types/batchRepoTypes";
+import type { RepoStatusItemProps, RepoStatus } from "../../../types/github";
 
 const RepoStatusItem: React.FC<RepoStatusItemProps> = ({ extractRepoName, item }) => {
   const getStatusColor = (status: RepoStatus): string => {

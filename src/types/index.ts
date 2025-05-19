@@ -1,3 +1,4 @@
+// Common types
 export type FunctionComponent = React.ReactElement | null;
 
 type HeroIconSVGProps = React.PropsWithoutRef<React.SVGProps<SVGSVGElement>> &
@@ -7,3 +8,6 @@ type IconProps = HeroIconSVGProps & {
 	titleId?: string;
 };
 export type Heroicon = React.FC<IconProps>;
+
+// GitHub types
+export * from './github'; 

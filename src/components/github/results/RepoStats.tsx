@@ -1,6 +1,6 @@
 import { Box, Stack } from "@mui/material";
 import { Commit as CommitIcon, BugReport as IssueIcon, MergeType as PRIcon } from "@mui/icons-material";
-import { RepoResult } from "../types/batchRepoTypes";
+import { RepoResult } from "../../../types/github";
 import { StatItem } from "./StatItem";
 
 // Color configuration

@@ -19,7 +19,7 @@ import {
 	Assessment as SummaryIcon,
 	EmojiEvents as BonusIcon,
 } from "@mui/icons-material";
-import type { RepoResultsProps } from "../types/types.ts";
+import type { RepoResultsProps } from "../../../types/github";
 import TabPanel from "./TabPanel";
 import SummaryTab from "../analysis/tabs/SummaryTab.tsx";
 import CommitsTab from "../analysis/tabs/CommitsTab.tsx";

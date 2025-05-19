@@ -14,4 +14,4 @@ export const useCollapseStore = create<CollapseState>((set) => ({
 	setExpanded: (expanded: boolean) => {
 		set({ isAllExpanded: expanded });
 	},
-}));
+})); 

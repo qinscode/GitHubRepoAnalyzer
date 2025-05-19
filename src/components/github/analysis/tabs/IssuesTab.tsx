@@ -1,11 +1,10 @@
 import { useMemo } from "react";
 import { BugReport as IssueIcon } from "@mui/icons-material";
-import type { RepoData } from "../../types/types.ts";
-import type { Issue } from "../../../../services/github";
+import type { Issue, RepoData } from "../../../../services/github";
 import UserTabItem from "../components/UserTabItem";
-import AnalysisTabLayout from "../components/AnalysisTabLayout";
 import TabDataTable from "../components/TabDataTable";
 import { issuesTheme } from "../components/AnalysisThemes";
+import AnalysisTabLayout from "../components/layout/AnalysisTabLayout";
 
 interface IssuesTabProps {
 	data: RepoData;
@@ -47,6 +46,7 @@ function IssuesTab({ data }: IssuesTabProps): JSX.Element {
 		// Group issues by user
 		Object.entries(data.issues).forEach(([user, issues]) => {
 			// Add default date if missing
+			// @ts-ignore
 			users[user] = issues.map((issue) => ({
 				...issue,
 				date: issue.date || "18/05/2025 14:30", // Default date

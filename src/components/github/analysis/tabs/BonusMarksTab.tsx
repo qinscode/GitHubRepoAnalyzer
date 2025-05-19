@@ -13,10 +13,10 @@ import {
 	EmojiEvents as BonusIcon,
 	Warning as WarningIcon,
 } from "@mui/icons-material";
-import type { RepoData } from "../../types/types.ts";
-import AnalysisTabLayout from "../components/AnalysisTabLayout";
 import { bonusMarksTheme } from "../components/AnalysisThemes";
 import DataTable, { type Column } from "../../utils/DataTable";
+import AnalysisTabLayout from "../components/layout/AnalysisTabLayout.tsx";
+import { RepoData } from "../../../../services/github";
 
 interface BonusMarksTabProps {
 	data: RepoData;
@@ -226,8 +226,7 @@ function BonusMarksTab({ data }: BonusMarksTabProps): JSX.Element {
 									key={id}
 									value={id}
 									disabled={Object.values(bonusMarks).some(
-										(mark) =>
-											mark.studentId === id && mark.user !== currentUser
+										(mark) => mark.studentId === id && mark.user !== currentUser
 									)}
 								>
 									{id}

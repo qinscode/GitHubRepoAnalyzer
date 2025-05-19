@@ -21,7 +21,7 @@ import type {
 	RepoListItem,
 	RepoResult,
 	BatchRepoFormProps,
-} from "../types/batchRepoTypes";
+} from "../../../types/github";
 import RepoStatusList from "./RepoStatusList";
 import ProcessingProgress from "./ProcessingProgress";
 import AnalysisOptions from "./AnalysisOptions";

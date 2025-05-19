@@ -6,7 +6,7 @@ import {
   KeyboardArrowDown as ExpandIcon,
   KeyboardArrowUp as CollapseIcon,
 } from "@mui/icons-material";
-import { RepoResult } from "../types/batchRepoTypes";
+import { RepoResult } from "../../../types/github";
 import { useRepoActions } from "../../../hooks/useRepoActions";
 
 interface RepoActionsProps {

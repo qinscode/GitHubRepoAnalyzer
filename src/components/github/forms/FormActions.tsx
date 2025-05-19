@@ -9,7 +9,7 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ErrorIcon from "@mui/icons-material/Error";
-import type { FormActionsProps } from "../types/batchRepoTypes";
+import type { FormActionsProps } from "../../../types/github";
 
 const FormActions: React.FC<FormActionsProps> = ({
   error,

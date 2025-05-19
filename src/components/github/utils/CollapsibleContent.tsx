@@ -1,7 +1,7 @@
-import { useState, type FC, type ReactElement, useEffect } from 'react';
+import React, { useState, type FC, type ReactElement, useEffect } from 'react';
 import { Button, Typography, alpha } from '@mui/material';
 import { MoreHoriz as MoreIcon } from '@mui/icons-material';
-import { useCollapseStore } from '../analysis/store/useCollapseStore';
+import { useCollapseStore } from '../../../hooks/useCollapseStore';
 
 interface CollapsibleContentProps {
   text: string;

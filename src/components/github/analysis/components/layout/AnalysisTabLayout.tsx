@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { ThemeConfig } from "../AnalysisThemes";
-import { useCollapseStore } from "../../store/useCollapseStore";
+import { useCollapseStore } from "../../../../../hooks";
 import { AnimatedContainer } from "../containers";
 import { AnalysisHeader } from "./";
 import { HeaderControls } from "../controls";
@@ -38,29 +38,29 @@ const AnalysisTabLayout = ({
 	return (
 		<AnimatedContainer>
 			<AnalysisHeader
-				title={title}
 				description={description}
 				headerTitle={headerTitle}
 				theme={theme}
+				title={title}
 			/>
-			
+
 			<HeaderControls
 				headerTitle={headerTitle}
 				isAllExpanded={isAllExpanded}
-				toggleAll={toggleAll}
 				theme={theme}
+				toggleAll={toggleAll}
 			/>
 
 			{children}
-			
+
 			{hasContent && (
 				<StatsFooter
-					title={title}
-					totalCount={totalCount}
 					creatorCount={creatorCount}
 					creatorLabel={creatorLabel}
 					statsIcon={statsIcon}
 					theme={theme}
+					title={title}
+					totalCount={totalCount}
 				/>
 			)}
 		</AnimatedContainer>

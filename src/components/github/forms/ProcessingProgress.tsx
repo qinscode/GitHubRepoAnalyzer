@@ -1,6 +1,6 @@
 import type React from "react";
 import { Box, Typography, LinearProgress } from "@mui/material";
-import type { ProcessingProgressProps } from "../types/batchRepoTypes";
+import type { ProcessingProgressProps } from "../../../types/github";
 
 const ProcessingProgress: React.FC<ProcessingProgressProps> = ({
   currentIndex,

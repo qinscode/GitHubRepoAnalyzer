@@ -12,7 +12,7 @@ import {
 	useTheme,
 } from "@mui/material";
 import { GitHub as GitHubIcon } from "@mui/icons-material";
-import { RepoResult } from "../types/batchRepoTypes";
+import { RepoResult } from "../../../types/github";
 import { RepoStats } from "./RepoStats";
 import { RepoActions } from "./RepoActions";
 import RepoResults from "../repo-analysis/RepoResults";

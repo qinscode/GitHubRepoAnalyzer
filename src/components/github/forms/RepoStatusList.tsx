@@ -1,6 +1,6 @@
 import type React from "react";
 import { Box, Typography, Stack } from "@mui/material";
-import type { RepoStatusListProps } from "../types/batchRepoTypes";
+import type { RepoStatusListProps } from "../../../types/github";
 import RepoStatusItem from "./RepoStatusItem";
 
 const RepoStatusList: React.FC<RepoStatusListProps> = ({ 
