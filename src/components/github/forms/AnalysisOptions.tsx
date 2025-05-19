@@ -1,17 +1,20 @@
-import type React from "react";
 import {
   Box,
   Typography,
   FormControlLabel,
-  Switch
+  Switch,
 } from "@mui/material";
 import PlaylistAddCheckIcon from "@mui/icons-material/PlaylistAddCheck";
-import type { AnalysisOptionsProps } from "../types/batchRepoTypes";
 
-const AnalysisOptions: React.FC<AnalysisOptionsProps> = ({
+interface AnalysisOptionsProps {
+  hideMergeCommits: boolean;
+  onHideMergeCommitsChange: (checked: boolean) => void;
+}
+
+const AnalysisOptions = ({
   hideMergeCommits,
-  setHideMergeCommits
-}) => {
+  onHideMergeCommitsChange,
+}: AnalysisOptionsProps) => {
   return (
     <Box
       sx={{
@@ -19,7 +22,7 @@ const AnalysisOptions: React.FC<AnalysisOptionsProps> = ({
         justifyContent: "flex-start",
         alignItems: "center",
         mt: 2,
-        mb: 2,
+        mb: 0.5,
         p: 1.5,
         bgcolor: "rgba(59, 130, 246, 0.05)",
         borderRadius: "8px",
@@ -53,9 +56,7 @@ const AnalysisOptions: React.FC<AnalysisOptionsProps> = ({
               checked={hideMergeCommits}
               color="primary"
               size="small"
-              onChange={(event) => {
-                setHideMergeCommits(event.target.checked);
-              }}
+              onChange={(event) => onHideMergeCommitsChange(event.target.checked)}
             />
           }
           label={
