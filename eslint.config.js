@@ -60,7 +60,6 @@ const typescriptConfig = {
 		"@typescript-eslint/adjacent-overload-signatures": "error",
 		"@typescript-eslint/array-type": ["error", { default: "generic" }],
 		"@typescript-eslint/consistent-type-exports": "error",
-		"@typescript-eslint/consistent-type-imports": "error",
 		"@typescript-eslint/explicit-function-return-type": "error",
 		"@typescript-eslint/explicit-member-accessibility": "error",
 		"@typescript-eslint/explicit-module-boundary-types": "error",
@@ -72,7 +71,7 @@ const typescriptConfig = {
 		"@typescript-eslint/prefer-readonly": "error",
 		"@typescript-eslint/no-unsafe-argument": "off",
 		"@typescript-eslint/ban-ts-comment": "off",
-
+		"@typescript-eslint/consistent-type-imports": "off",
 		"no-return-await": "off",
 		"no-await-in-loop": "off",
 		"no-duplicate-import": "off",
