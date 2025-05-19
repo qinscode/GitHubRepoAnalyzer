@@ -75,7 +75,7 @@ function BonusMarksTab({ data }: BonusMarksTabProps): JSX.Element {
 	const handleMarkChange = (user: string, value: number): void => {
 		const currentMark = bonusMarks[user]?.mark ?? 0;
 		const newTotal = totalBonusMarks - currentMark + value;
-		
+
 		// Only allow the change if the new total would be <= 4
 		if (newTotal <= 4) {
 			setBonusMarks((previous) => ({
@@ -204,8 +204,8 @@ function BonusMarksTab({ data }: BonusMarksTabProps): JSX.Element {
 							MenuProps={menuProps}
 							sx={selectStyles}
 							value={studentId ?? ""}
-							onChange={(e) => {
-								handleStudentIdChange(currentRow.user, e.target.value);
+							onChange={(event_) => {
+								handleStudentIdChange(currentRow.user, event_.target.value);
 							}}
 						>
 							<MenuItem
@@ -274,19 +274,15 @@ function BonusMarksTab({ data }: BonusMarksTabProps): JSX.Element {
 										backgroundColor: alpha("#FFFFFF", 0.5),
 									}),
 								}}
-								onChange={(e) => {
-									const newMark = Number(e.target.value);
+								onChange={(event_) => {
+									const newMark = Number(event_.target.value);
 									if (!wouldExceedLimit(newMark)) {
 										handleMarkChange(currentRow.user, newMark);
 									}
 								}}
 							>
 								{[0, 1, 2, 3, 4].map((m) => (
-									<MenuItem
-										key={m}
-										disabled={wouldExceedLimit(m)}
-										value={m}
-									>
+									<MenuItem key={m} disabled={wouldExceedLimit(m)} value={m}>
 										{m}
 									</MenuItem>
 								))}
@@ -338,7 +334,7 @@ function BonusMarksTab({ data }: BonusMarksTabProps): JSX.Element {
 					columns={columns}
 					data={tableData}
 					emptyMessage="No contributors available for this repository."
-					getRowKey={(row): string => row.id}
+					getRowKey={(row): string => row.id as string}
 					lightColor={bonusMarksTheme.light}
 					lighterColor={bonusMarksTheme.lighter}
 					primaryColor={bonusMarksTheme.main}
