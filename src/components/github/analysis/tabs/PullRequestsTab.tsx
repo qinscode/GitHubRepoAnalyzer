@@ -6,6 +6,7 @@ import UserTabItem from "../components/UserTabItem";
 import AnalysisTabLayout from "../components/layout/AnalysisTabLayout.tsx";
 import TabDataTable from "../components/TabDataTable";
 import { pullRequestsTheme } from "../components/AnalysisThemes";
+import { useStudentStore } from "@/store/useStudentStore";
 
 interface PullRequestsTabProps {
 	data: RepoData;
@@ -40,6 +41,8 @@ function UserPullRequests({
 }
 
 function PullRequestsTab({ data }: PullRequestsTabProps) {
+	const { studentOrder } = useStudentStore();
+
 	const prsByUser = useMemo(() => {
 		const users: Record<string, Array<PullRequest>> = {};
 
@@ -51,8 +54,32 @@ function PullRequestsTab({ data }: PullRequestsTabProps) {
 			}));
 		});
 
-		return Object.entries(users).sort(([, a], [, b]) => b.length - a.length);
-	}, [data.prs]);
+		// Add empty arrays for students in studentOrder who don't have PRs
+		studentOrder.forEach((student) => {
+			if (!users[student]) {
+				users[student] = [];
+			}
+		});
+
+		// Custom sort function based on studentOrder
+		return Object.entries(users).sort(([userA, prsA], [userB, prsB]) => {
+			// Get indices from student order
+			const indexA = studentOrder.indexOf(userA);
+			const indexB = studentOrder.indexOf(userB);
+			
+			// If both users are in the student order
+			if (indexA !== -1 && indexB !== -1) {
+				return indexA - indexB; // Sort by student order
+			}
+			
+			// If only one is in the student order, prioritize that one
+			if (indexA !== -1) return -1;
+			if (indexB !== -1) return 1;
+			
+			// For users not in the student order, sort by PR count
+			return prsB.length - prsA.length;
+		});
+	}, [data.prs, studentOrder]);
 
 	return (
 		<AnalysisTabLayout
