@@ -40,7 +40,7 @@ function UserIssues({
 }
 
 function IssuesTab({ data }: IssuesTabProps) {
-	const { selectedStudent, studentOrder } = useStudentStore();
+	const { studentOrder } = useStudentStore();
 
 	const issuesByUser = useMemo(() => {
 		// Define IssueWithDate as an extension of Issue with a required date property
@@ -67,12 +67,6 @@ function IssuesTab({ data }: IssuesTabProps) {
 
 		// Custom sort function based on studentOrder
 		return Object.entries(users).sort(([userA, issuesA], [userB, issuesB]) => {
-			// If a student is selected, prioritize them
-			if (selectedStudent) {
-				if (userA === selectedStudent) return -1;
-				if (userB === selectedStudent) return 1;
-			}
-			
 			// Get indices from student order
 			const indexA = studentOrder.indexOf(userA);
 			const indexB = studentOrder.indexOf(userB);
@@ -89,7 +83,7 @@ function IssuesTab({ data }: IssuesTabProps) {
 			// For users not in the student order, sort by issue count
 			return issuesB.length - issuesA.length;
 		});
-	}, [data.issues, selectedStudent, studentOrder]);
+	}, [data.issues, studentOrder]);
 
 	return (
 		<AnalysisTabLayout

@@ -41,7 +41,7 @@ function UserPullRequests({
 }
 
 function PullRequestsTab({ data }: PullRequestsTabProps) {
-	const { selectedStudent, studentOrder } = useStudentStore();
+	const { studentOrder } = useStudentStore();
 
 	const prsByUser = useMemo(() => {
 		const users: Record<string, Array<PullRequest>> = {};
@@ -63,12 +63,6 @@ function PullRequestsTab({ data }: PullRequestsTabProps) {
 
 		// Custom sort function based on studentOrder
 		return Object.entries(users).sort(([userA, prsA], [userB, prsB]) => {
-			// If a student is selected, prioritize them
-			if (selectedStudent) {
-				if (userA === selectedStudent) return -1;
-				if (userB === selectedStudent) return 1;
-			}
-			
 			// Get indices from student order
 			const indexA = studentOrder.indexOf(userA);
 			const indexB = studentOrder.indexOf(userB);
@@ -85,7 +79,7 @@ function PullRequestsTab({ data }: PullRequestsTabProps) {
 			// For users not in the student order, sort by PR count
 			return prsB.length - prsA.length;
 		});
-	}, [data.prs, selectedStudent, studentOrder]);
+	}, [data.prs, studentOrder]);
 
 	return (
 		<AnalysisTabLayout
