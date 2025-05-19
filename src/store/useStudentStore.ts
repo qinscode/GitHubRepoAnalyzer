@@ -1,16 +1,16 @@
 import { create } from "zustand";
 
 interface StudentState {
-  studentOrder: string[];
-  setStudentOrder: (students: string[]) => void;
+  studentOrder: Array<string>;
+  setStudentOrder: (students: Array<string>) => void;
   reorderStudents: (fromIndex: number, toIndex: number) => void;
 }
 
 export const useStudentStore = create<StudentState>((set) => ({
   studentOrder: ["Student 1", "Student 2", "Student 3", "Student 4"],
-  setStudentOrder: (studentOrder) => set({ studentOrder }),
+  setStudentOrder: (studentOrder) => { set({ studentOrder }); },
   reorderStudents: (fromIndex, toIndex) => 
-    set((state) => {
+    { set((state) => {
       // Return unchanged state if indices are invalid
       if (
         fromIndex < 0 || 
@@ -27,5 +27,5 @@ export const useStudentStore = create<StudentState>((set) => ({
       newOrder.splice(toIndex, 0, removed as string);
       
       return { studentOrder: newOrder };
-    }),
+    }); },
 })); 
