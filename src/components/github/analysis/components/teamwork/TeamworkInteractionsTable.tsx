@@ -1,6 +1,17 @@
 import { useMemo } from "react";
-import { Box, Typography, Avatar, Chip, Card, Grow, alpha } from "@mui/material";
-import { ChatBubble as CommentIcon, RateReview as ReviewIcon } from "@mui/icons-material";
+import {
+	Box,
+	Typography,
+	Avatar,
+	Chip,
+	Card,
+	Grow,
+	alpha,
+} from "@mui/material";
+import {
+	ChatBubble as CommentIcon,
+	RateReview as ReviewIcon,
+} from "@mui/icons-material";
 import { useStudentStore } from "@/store/useStudentStore";
 import { TeamworkColors } from "./TeamworkTheme";
 import SectionTitle from "./SectionTitle";
@@ -11,18 +22,12 @@ interface TeamworkInteractionsTableProps {
 		prReviews: Record<string, number>;
 	};
 }
-
-interface InteractionStat {
-	user: string;
-	issueComments: number;
-	prReviews: number;
-	total: number;
-}
-
 /**
  * Displays a comprehensive table of all teamwork interactions by user
  */
-const TeamworkInteractionsTable: React.FC<TeamworkInteractionsTableProps> = ({ data }) => {
+const TeamworkInteractionsTable: React.FC<TeamworkInteractionsTableProps> = ({
+	data,
+}) => {
 	const { studentOrder } = useStudentStore();
 
 	// Create a combined stats array with all interactions
@@ -339,7 +344,10 @@ const TeamworkInteractionsTable: React.FC<TeamworkInteractionsTableProps> = ({ d
 											width: 48,
 											height: 48,
 											borderRadius: "12px",
-											backgroundColor: alpha(TeamworkColors.secondaryText, 0.08),
+											backgroundColor: alpha(
+												TeamworkColors.secondaryText,
+												0.08
+											),
 											mb: 0.5,
 										}}
 									>
@@ -405,7 +413,8 @@ const TeamworkInteractionsTable: React.FC<TeamworkInteractionsTableProps> = ({ d
 													: stats.total > 5
 														? `linear-gradient(90deg, ${alpha(TeamworkColors.main, 0.7)} 0%, ${alpha("#D946EF", 0.7)} 100%)`
 														: "rgba(236, 72, 153, 0.15)",
-											color: stats.total > 5 ? "white" : TeamworkColors.primaryText,
+											color:
+												stats.total > 5 ? "white" : TeamworkColors.primaryText,
 											fontWeight: 700,
 											minWidth: "48px",
 											height: "32px",
@@ -445,4 +454,4 @@ const TeamworkInteractionsTable: React.FC<TeamworkInteractionsTableProps> = ({ d
 	);
 };
 
-export default TeamworkInteractionsTable; 
+export default TeamworkInteractionsTable;
