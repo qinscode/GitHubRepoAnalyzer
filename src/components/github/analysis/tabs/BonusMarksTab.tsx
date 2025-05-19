@@ -105,8 +105,14 @@ function BonusMarksTab({ data }: BonusMarksTabProps): JSX.Element {
 			contributors.map((user) => ({
 				id: user,
 				user,
-				mark: bonusMarks[user]?.mark ?? 1,
-				studentId: bonusMarks[user]?.studentId ?? null,
+				mark: {
+					mark: bonusMarks[user]?.mark ?? 0,
+					user,
+				},
+				studentId: {
+					studentId: bonusMarks[user]?.studentId ?? null,
+					user,
+				},
 			})),
 		[contributors, bonusMarks]
 	);
@@ -192,10 +198,8 @@ function BonusMarksTab({ data }: BonusMarksTabProps): JSX.Element {
 			id: "studentId",
 			label: "Student ID",
 			width: "35%",
-			format: (value: unknown): JSX.Element => {
-				const studentId = value as string | null;
-				const currentRow = tableData.find((row) => row.studentId === studentId);
-				if (!currentRow) return <></>;
+			format: (value: any): JSX.Element => {
+				const { studentId, user: currentUser } = value;
 
 				return (
 					<FormControl size="small" sx={{ minWidth: 120 }}>
@@ -205,7 +209,7 @@ function BonusMarksTab({ data }: BonusMarksTabProps): JSX.Element {
 							sx={selectStyles}
 							value={studentId ?? ""}
 							onChange={(event_) => {
-								handleStudentIdChange(currentRow.user, event_.target.value);
+								handleStudentIdChange(currentUser, event_.target.value);
 							}}
 						>
 							<MenuItem
@@ -223,7 +227,7 @@ function BonusMarksTab({ data }: BonusMarksTabProps): JSX.Element {
 									value={id}
 									disabled={Object.values(bonusMarks).some(
 										(mark) =>
-											mark.studentId === id && mark.user !== currentRow.user
+											mark.studentId === id && mark.user !== currentUser
 									)}
 								>
 									{id}
@@ -238,10 +242,8 @@ function BonusMarksTab({ data }: BonusMarksTabProps): JSX.Element {
 			id: "mark",
 			label: "Bonus Mark",
 			width: "35%",
-			format: (value: unknown): JSX.Element => {
-				const mark = value as number;
-				const currentRow = tableData.find((row) => row.mark === mark);
-				if (!currentRow) return <></>;
+			format: (value: any): JSX.Element => {
+				const { mark, user: currentUser } = value;
 
 				// Calculate what the new total would be if this mark was changed
 				const calculateNewTotal = (newMark: number) => {
@@ -277,7 +279,7 @@ function BonusMarksTab({ data }: BonusMarksTabProps): JSX.Element {
 								onChange={(event_) => {
 									const newMark = Number(event_.target.value);
 									if (!wouldExceedLimit(newMark)) {
-										handleMarkChange(currentRow.user, newMark);
+										handleMarkChange(currentUser, newMark);
 									}
 								}}
 							>
