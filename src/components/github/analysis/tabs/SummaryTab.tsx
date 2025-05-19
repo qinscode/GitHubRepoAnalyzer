@@ -3,7 +3,7 @@ import { Box } from "@mui/material";
 import { RepoData } from "@/services/github/types";
 import { useStudentStore } from "@/store/useStudentStore";
 import ContributionTable from "../components/ContributionTable";
-import StudentSelector from "../components/StudentSelector";
+import StudentOrderer from "../components/StudentOrderer";
 import { calculateContributionStats } from "../utils/contributionUtils";
 
 interface SummaryTabProps {
@@ -11,7 +11,7 @@ interface SummaryTabProps {
 }
 
 const SummaryTab: React.FC<SummaryTabProps> = ({ data }) => {
-	const { selectedStudent, studentOrder, setStudentOrder } = useStudentStore();
+	const { studentOrder, setStudentOrder } = useStudentStore();
 	
 	// Use a ref to track if we've already initialized the student order
 	const initializedRef = useRef(false);
@@ -48,12 +48,12 @@ const SummaryTab: React.FC<SummaryTabProps> = ({ data }) => {
 
 	// Calculate statistics data
 	const { commitsByUser, issuesByUser, prsByUser } = useMemo(() => {
-		return calculateContributionStats(data, selectedStudent, studentOrder);
-	}, [data, selectedStudent, studentOrder]);
+		return calculateContributionStats(data, studentOrder);
+	}, [data, studentOrder]);
 
 	return (
 		<Box className="flex flex-col gap-8">
-			<StudentSelector />
+			<StudentOrderer />
 			<Box>
 				<ContributionTable
 					color="primary"

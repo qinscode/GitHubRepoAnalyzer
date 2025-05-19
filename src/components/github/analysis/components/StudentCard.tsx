@@ -4,15 +4,11 @@ import { CSS } from "@dnd-kit/utilities";
 
 interface StudentCardProps {
 	student: string;
-	isSelected: boolean;
-	onSelect: () => void;
 	id: string;
 }
 
 const StudentCard = ({
 	student,
-	isSelected,
-	onSelect,
 	id,
 }: StudentCardProps) => {
 	const {
@@ -42,29 +38,19 @@ const StudentCard = ({
 			}}
 		>
 			<Box
-				className={`p-4 rounded-xl cursor-pointer transition-all duration-200 ${
-					isSelected
-						? "bg-blue-500 text-white shadow-lg"
-						: "bg-white hover:bg-blue-50"
-				}`}
+				className="p-4 rounded-xl transition-all duration-200 bg-white hover:bg-blue-50"
 				sx={{
-					border: "1px solid",
-					borderColor: isSelected ? "transparent" : "rgba(0,0,0,0.1)",
-					boxShadow: isSelected
-						? "0 10px 15px -3px rgba(59, 130, 246, 0.3), 0 4px 6px -2px rgba(59, 130, 246, 0.1)"
-						: "0 1px 3px rgba(0,0,0,0.05)",
+					border: "1px solid rgba(0,0,0,0.1)",
+					boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
 				}}
-				onClick={onSelect}
 				{...listeners}
 			>
 				<Box className="flex items-center">
 					<Avatar
-						className={`w-10 h-10 mr-3 text-[1rem]`}
+						className="w-10 h-10 mr-3 text-[1rem]"
 						sx={{
-							background: isSelected
-								? "rgba(255,255,255,0.2)"
-								: "linear-gradient(90deg, #3B82F6 0%, #60A5FA 100%)",
-							color: isSelected ? "white" : "white",
+							background: "linear-gradient(90deg, #3B82F6 0%, #60A5FA 100%)",
+							color: "white",
 							fontWeight: 500,
 							boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
 						}}

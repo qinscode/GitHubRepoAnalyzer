@@ -1,16 +1,12 @@
 import { create } from "zustand";
 
 interface StudentState {
-  selectedStudent: string | null;
-  setSelectedStudent: (student: string | null) => void;
   studentOrder: string[];
   setStudentOrder: (students: string[]) => void;
   reorderStudents: (fromIndex: number, toIndex: number) => void;
 }
 
 export const useStudentStore = create<StudentState>((set) => ({
-  selectedStudent: null,
-  setSelectedStudent: (student) => set({ selectedStudent: student }),
   studentOrder: ["Student 1", "Student 2", "Student 3", "Student 4"],
   setStudentOrder: (studentOrder) => set({ studentOrder }),
   reorderStudents: (fromIndex, toIndex) => 

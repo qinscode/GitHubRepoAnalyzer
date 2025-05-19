@@ -2,20 +2,13 @@ import { ContributorStats } from "@/types/github";
 import { RepoData } from "@/services/github/types";
 
 /**
- * Sorts contributors based on student order and selection
+ * Sorts contributors based on student order
  */
 export const sortByStudentOrder = (
 	a: ContributorStats,
 	b: ContributorStats,
-	selectedStudent: string | null,
-	studentOrder: string[]
+	studentOrder: Array<string>
 ): number => {
-	// If a student is selected, prioritize them
-	if (selectedStudent) {
-		if (a.user === selectedStudent) return -1;
-		if (b.user === selectedStudent) return 1;
-	}
-
 	// Get indices from student order
 	const aIndex = studentOrder.indexOf(a.user);
 	const bIndex = studentOrder.indexOf(b.user);
@@ -39,8 +32,7 @@ export const sortByStudentOrder = (
 export const processContributions = (
 	dataObject: Record<string, Array<any>>,
 	totalCount: number,
-	selectedStudent: string | null,
-	studentOrder: string[]
+	studentOrder: Array<string>
 ): Array<ContributorStats> => {
 	// First, create stats for all users in the data
 	const stats = Object.entries(dataObject).map(([user, items]) => ({
@@ -61,7 +53,7 @@ export const processContributions = (
 	});
 
 	// Sort the combined results
-	return stats.sort((a, b) => sortByStudentOrder(a, b, selectedStudent, studentOrder));
+	return stats.sort((a, b) => sortByStudentOrder(a, b, studentOrder));
 };
 
 /**
@@ -69,8 +61,7 @@ export const processContributions = (
  */
 export const calculateContributionStats = (
 	data: RepoData,
-	selectedStudent: string | null,
-	studentOrder: string[]
+	studentOrder: Array<string>
 ) => {
 	const totalCommits = Object.values(data.commits).reduce(
 		(sum, commits) => sum + commits.length,
@@ -96,9 +87,17 @@ export const calculateContributionStats = (
 	]).size;
 
 	// Calculate contribution percentage for each user
-	const commitsByUser = processContributions(data.commits, totalCommits, selectedStudent, studentOrder);
-	const issuesByUser = processContributions(data.issues, totalIssues, selectedStudent, studentOrder);
-	const prsByUser = processContributions(data.prs, totalPRs, selectedStudent, studentOrder);
+	const commitsByUser = processContributions(
+		data.commits,
+		totalCommits,
+		studentOrder
+	);
+	const issuesByUser = processContributions(
+		data.issues,
+		totalIssues,
+		studentOrder
+	);
+	const prsByUser = processContributions(data.prs, totalPRs, studentOrder);
 
 	return {
 		totalCommits,
@@ -109,4 +108,4 @@ export const calculateContributionStats = (
 		issuesByUser,
 		prsByUser,
 	};
-}; 
+};

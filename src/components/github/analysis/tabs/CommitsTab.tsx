@@ -104,7 +104,7 @@ function UserCommits({
 }
 
 function CommitsTab({ data }: CommitsTabProps) {
-	const { selectedStudent, studentOrder } = useStudentStore();
+	const { studentOrder } = useStudentStore();
 
 	// Transform commits data for display
 	const commitsByUser = useMemo(() => {
@@ -124,12 +124,6 @@ function CommitsTab({ data }: CommitsTabProps) {
 
 		// Custom sort function based on studentOrder
 		return Object.entries(users).sort(([userA, commitsA], [userB, commitsB]) => {
-			// If a student is selected, prioritize them
-			if (selectedStudent) {
-				if (userA === selectedStudent) return -1;
-				if (userB === selectedStudent) return 1;
-			}
-			
 			// Get indices from student order
 			const indexA = studentOrder.indexOf(userA);
 			const indexB = studentOrder.indexOf(userB);
@@ -146,7 +140,7 @@ function CommitsTab({ data }: CommitsTabProps) {
 			// For users not in the student order, sort by commit count
 			return commitsB.length - commitsA.length;
 		});
-	}, [data.commits, selectedStudent, studentOrder]);
+	}, [data.commits, studentOrder]);
 
 	return (
 		<AnalysisTabLayout
