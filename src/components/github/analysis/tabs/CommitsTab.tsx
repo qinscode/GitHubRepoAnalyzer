@@ -123,6 +123,7 @@ function CommitsTab({ data }: CommitsTabProps) {
 			creatorLabel="From"
 			description="Due to GitHub API limitations, commit data only shows the last 50 commits per user."
 			headerTitle="Commits by Contributor"
+			showMoreSwitch={false}
 			theme={commitsTheme}
 			title="Commit Activity Analysis"
 			totalCount={Object.values(data.commits).flat().length}

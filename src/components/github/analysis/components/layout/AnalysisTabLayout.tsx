@@ -16,6 +16,7 @@ interface AnalysisTabLayoutProps {
 	creatorLabel: string;
 	children: ReactNode;
 	theme: ThemeConfig;
+	showMoreSwitch?: boolean;
 }
 
 /**
@@ -31,6 +32,7 @@ const AnalysisTabLayout = ({
 	creatorLabel,
 	children,
 	theme,
+	showMoreSwitch = true,
 }: AnalysisTabLayoutProps) => {
 	const hasContent = Boolean(description || headerTitle);
 	const { isAllExpanded, toggleAll } = useCollapseStore();
@@ -44,12 +46,14 @@ const AnalysisTabLayout = ({
 				title={title}
 			/>
 
-			<HeaderControls
-				headerTitle={headerTitle}
-				isAllExpanded={isAllExpanded}
-				theme={theme}
-				toggleAll={toggleAll}
-			/>
+			{showMoreSwitch && (
+				<HeaderControls
+					headerTitle={headerTitle}
+					isAllExpanded={isAllExpanded}
+					theme={theme}
+					toggleAll={toggleAll}
+				/>
+			)}
 
 			{children}
 

@@ -1,4 +1,4 @@
-import { Tabs, Tab, Typography, Box, alpha } from "@mui/material";
+import { Tabs, Tab, Typography, Box, alpha, useMediaQuery, useTheme } from "@mui/material";
 import {
 	Commit as CommitIcon,
 	BugReport as IssueIcon,
@@ -25,6 +25,10 @@ function RepoTabBar({
 	counts,
 	isMobile,
 }: RepoTabBarProps) {
+	const theme = useTheme();
+	const isMediumScreen = useMediaQuery(theme.breakpoints.down('md'));
+	const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg'));
+	
 	// Theme colors
 	const colors = {
 		summary: "#3B82F6", // blue
@@ -61,37 +65,44 @@ function RepoTabBar({
 			sx={{
 				display: "flex",
 				alignItems: "center",
-				gap: 1.5,
+				gap: isLargeScreen ? 1.5 : 0.5,
 				flexWrap: "nowrap",
 			}}
 		>
 			<Typography
 				sx={{
-					fontSize: "0.95rem",
+					fontSize: {
+						xs: "0.8rem",
+						sm: "0.85rem", 
+						md: "0.9rem",
+						lg: "0.95rem",
+					},
 					whiteSpace: "nowrap",
 				}}
 			>
 				{label}
 			</Typography>
-			<Box
-				sx={{
-					backgroundColor: alpha(color, 0.1),
-					color: color,
-					border: `1px solid ${alpha(color, 0.2)}`,
-					borderRadius: "12px",
-					fontSize: "0.75rem",
-					fontWeight: "bold",
-					padding: "1px 8px",
-					display: "inline-flex",
-					alignItems: "center",
-					justifyContent: "center",
-					minWidth: "28px",
-					height: "22px",
-					whiteSpace: "nowrap",
-				}}
-			>
-				{count}
-			</Box>
+			{!isMediumScreen && (
+				<Box
+					sx={{
+						backgroundColor: alpha(color, 0.1),
+						color: color,
+						border: `1px solid ${alpha(color, 0.2)}`,
+						borderRadius: "12px",
+						fontSize: isLargeScreen ? "0.75rem" : "0.7rem",
+						fontWeight: "bold",
+						padding: isLargeScreen ? "1px 8px" : "1px 6px",
+						display: "inline-flex",
+						alignItems: "center",
+						justifyContent: "center",
+						minWidth: isLargeScreen ? "28px" : "24px",
+						height: isLargeScreen ? "22px" : "20px",
+						whiteSpace: "nowrap",
+					}}
+				>
+					{count}
+				</Box>
+			)}
 		</Box>
 	);
 
@@ -151,12 +162,23 @@ function RepoTabBar({
 		// Icon and label styling
 		"& .MuiTab-iconWrapper": {
 			transition: "transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
-			marginRight: "8px",
+			marginRight: {
+				xs: "4px",
+				sm: "6px",
+				md: "8px",
+			}
 		},
 		"&:hover .MuiTab-iconWrapper": {
 			transform: "translateY(-2px) scale(1.1)",
 		},
 	});
+
+	// Helper function to get compact label based on screen size
+	const getCompactLabel = (fullLabel: string, shortLabel: string) => {
+		if (isMobile) return shortLabel;
+		if (isMediumScreen) return shortLabel;
+		return fullLabel;
+	};
 
 	return (
 		<Box
@@ -187,9 +209,9 @@ function RepoTabBar({
 		>
 			<Tabs
 				aria-label="repo analysis tabs"
-				scrollButtons={isMobile ? "auto" : false}
+				scrollButtons="auto"
 				value={tabValue}
-				variant={isMobile ? "scrollable" : "fullWidth"}
+				variant={!isLargeScreen ? "scrollable" : "fullWidth"}
 				TabIndicatorProps={{
 					sx: {
 						background: `linear-gradient(90deg, ${
@@ -224,24 +246,57 @@ function RepoTabBar({
 					},
 				}}
 				sx={{
-					minHeight: "60px",
+					minHeight: {
+						xs: "50px",
+						sm: "55px",
+						md: "58px",
+						lg: "60px",
+					},
 					borderBottom: "1px solid rgba(0,0,0,0.04)",
 					"& .MuiTab-root": {
 						textTransform: "none",
-						fontSize: "0.95rem",
+						fontSize: {
+							xs: "0.8rem",
+							sm: "0.85rem",
+							md: "0.9rem",
+							lg: "0.95rem",
+						},
 						fontWeight: 500,
-						minHeight: "60px",
+						minHeight: {
+							xs: "50px",
+							sm: "55px",
+							md: "58px",
+							lg: "60px",
+						},
 						color: "rgba(75, 85, 99, 0.7)",
 						transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
 						zIndex: 1,
 						minWidth: {
-							xs: "120px", // Increased min width on mobile
-							sm: "0",
+							xs: "90px",
+							sm: "100px",
+							md: "110px",
+							lg: "0",
 						},
 						padding: {
-							xs: "0 10px",
-							sm: "0 16px",
+							xs: "0 6px",
+							sm: "0 8px",
+							md: "0 10px",
+							lg: "0 16px",
 						},
+					},
+					"& .MuiTab-iconWrapper": {
+						fontSize: {
+							xs: "1rem",
+							sm: "1.1rem",
+							md: "1.15rem",
+							lg: "1.25rem",
+						},
+						marginRight: {
+							xs: "4px",
+							sm: "5px",
+							md: "6px",
+							lg: "8px",
+						}
 					},
 					"& .Mui-selected": {
 						color:
@@ -264,7 +319,7 @@ function RepoTabBar({
 				<Tab
 					icon={tabIcons.summary}
 					iconPosition="start"
-					label="Summary"
+					label={getCompactLabel("Summary", "Summary")}
 					sx={getTabSx(0)}
 				/>
 				<Tab
@@ -275,7 +330,7 @@ function RepoTabBar({
 						<TabLabelWithCount
 							color={colors.commits}
 							count={counts.commits}
-							label="Commits"
+							label={getCompactLabel("Commits", "Commits")}
 						/>
 					}
 				/>
@@ -287,7 +342,7 @@ function RepoTabBar({
 						<TabLabelWithCount
 							color={colors.issues}
 							count={counts.issues}
-							label="Issues"
+							label={getCompactLabel("Issues", "Issues")}
 						/>
 					}
 				/>
@@ -299,20 +354,20 @@ function RepoTabBar({
 						<TabLabelWithCount
 							color={colors.prs}
 							count={counts.prs}
-							label={isMobile ? "PRs" : "Pull Requests"}
+							label={getCompactLabel("Pull Requests", "PRs")}
 						/>
 					}
 				/>
 				<Tab
 					icon={tabIcons.teamwork}
 					iconPosition="start"
-					label="Teamwork"
+					label={getCompactLabel("Teamwork", "Team")}
 					sx={getTabSx(4)}
 				/>
 				<Tab
 					icon={tabIcons.bonus}
 					iconPosition="start"
-					label="Bonus Marks"
+					label={getCompactLabel("Bonus Marks", "Bonus")}
 					sx={getTabSx(5)}
 				/>
 			</Tabs>

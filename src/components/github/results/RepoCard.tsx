@@ -34,7 +34,7 @@ export const RepoCard = ({ result }: RepoCardProps) => {
 		<Card
 			elevation={1}
 			sx={{
-				borderRadius: "12px",
+				borderRadius: { xs: "8px", sm: "10px", md: "12px" },
 				overflow: "hidden",
 				background:
 					"linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(249, 250, 251, 0.95))",
@@ -59,29 +59,37 @@ export const RepoCard = ({ result }: RepoCardProps) => {
 					top: 0,
 					left: 0,
 					right: 0,
-					height: "3px",
+					height: { xs: "2px", sm: "2px", md: "3px" },
 					background: "linear-gradient(90deg, #3B82F6, #4F46E5)",
 					opacity: expandedRepo === result.repoUrl ? 1 : 0,
 					transition: "opacity 0.3s ease",
 				},
+				mb: { xs: 1.5, sm: 2, md: 2.5 },
 			}}
 		>
-			<CardContent sx={{ p: 2.5 }}>
+			<CardContent
+				sx={{
+					p: { xs: 1.5, sm: 2, md: 2.5 },
+					"&:last-child": { pb: { xs: 1.5, sm: 2, md: 2.5 } },
+				}}
+			>
 				<Stack
 					alignItems={{ xs: "flex-start", sm: "center" }}
 					direction={{ xs: "column", sm: "row" }}
-					spacing={2}
+					spacing={{ xs: 1, sm: 1.5, md: 2 }}
 				>
 					{/* Repository Info */}
-					<Box sx={{ width: { xs: "100%", sm: "30%" }, mb: { xs: 1, sm: 0 } }}>
+					<Box
+						sx={{ width: { xs: "100%", sm: "30%" }, mb: { xs: 0.5, sm: 0 } }}
+					>
 						<Box sx={{ display: "flex", alignItems: "center" }}>
 							<Avatar
 								sx={{
-									width: 42,
-									height: 42,
-									mr: 1.5,
+									width: { xs: 32, sm: 36, md: 42 },
+									height: { xs: 32, sm: 36, md: 42 },
+									mr: { xs: 1, sm: 1.25, md: 1.5 },
 									background: "linear-gradient(135deg, #3b82f6, #6366f1)",
-									fontSize: "1rem",
+									fontSize: { xs: "0.8rem", sm: "0.9rem", md: "1rem" },
 									fontWeight: "bold",
 									boxShadow: "0 3px 5px rgba(59, 130, 246, 0.25)",
 									transition: "all 0.3s ease",
@@ -100,26 +108,31 @@ export const RepoCard = ({ result }: RepoCardProps) => {
 										fontWeight: 700,
 										color: "text.primary",
 										lineHeight: 1.3,
-										fontSize: "1rem",
+										fontSize: { xs: "0.85rem", sm: "0.9rem", md: "1rem" },
 										whiteSpace: "nowrap",
 										overflow: "hidden",
 										textOverflow: "ellipsis",
-										maxWidth: { xs: "200px", sm: "160px", md: "220px" },
+										maxWidth: { xs: "180px", sm: "150px", md: "220px" },
 									}}
 								>
 									{result.repoName.split("/")[1] || result.repoName}
 								</Typography>
 								<Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-									<GitHubIcon sx={{ fontSize: 14, color: "text.secondary" }} />
+									<GitHubIcon
+										sx={{
+											fontSize: { xs: 12, sm: 13, md: 14 },
+											color: "text.secondary",
+										}}
+									/>
 									<Typography
 										variant="body2"
 										sx={{
 											color: "text.secondary",
-											fontSize: "0.8rem",
+											fontSize: { xs: "0.7rem", sm: "0.75rem", md: "0.8rem" },
 											whiteSpace: "nowrap",
 											overflow: "hidden",
 											textOverflow: "ellipsis",
-											maxWidth: { xs: "190px", sm: "150px", md: "210px" },
+											maxWidth: { xs: "170px", sm: "140px", md: "210px" },
 										}}
 									>
 										{result.repoName}
@@ -146,15 +159,19 @@ export const RepoCard = ({ result }: RepoCardProps) => {
 					in={expandedRepo === result.repoUrl}
 					timeout="auto"
 				>
-					<Divider sx={{ my: 2, opacity: 0.6 }} />
+					<Divider sx={{ my: { xs: 1.5, sm: 1.75, md: 2 }, opacity: 0.6 }} />
 					<Box
 						sx={{
 							backgroundColor: alpha(theme.palette.primary.main, 0.02),
 							backgroundImage:
 								"radial-gradient(circle at 25px 25px, rgba(59, 130, 246, 0.04) 2%, transparent 12%), radial-gradient(circle at 75px 75px, rgba(79, 70, 229, 0.03) 2%, transparent 12%)",
-							backgroundSize: "100px 100px",
-							borderRadius: "8px",
-							p: 2,
+							backgroundSize: {
+								xs: "70px 70px",
+								sm: "85px 85px",
+								md: "100px 100px",
+							},
+							borderRadius: { xs: "6px", sm: "7px", md: "8px" },
+							p: { xs: 1.25, sm: 1.5, md: 2 },
 						}}
 					>
 						<RepoResults data={result.data} />

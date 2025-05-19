@@ -33,7 +33,15 @@ export default function Root(): React.ReactElement {
 	return (
 		<ThemeProvider theme={theme}>
 			<CssBaseline />
-			<div className=" flex flex-col">
+			<div className="relative min-h-screen flex flex-col">
+				{/* Light static background instead of heavy blur effect */}
+				<div 
+					className="absolute inset-0 -z-10"
+					style={{
+						background: "linear-gradient(135deg, #f5f7ff 0%, #f0f1fe 40%, #f8f1ff 100%)",
+						opacity: 0.8,
+					}}
+				/>
 				<main className="flex-grow px-4">
 					<Outlet />
 				</main>

@@ -1,5 +1,13 @@
-import { useState, useEffect, useMemo } from "react";
-import { Box, Paper, Fade, Grow, useTheme, useMediaQuery } from "@mui/material";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import {
+	Box,
+	Paper,
+	Fade,
+	Grow,
+	useTheme,
+	useMediaQuery,
+	Typography,
+} from "@mui/material";
 import type { RepoResultsProps } from "@/types/github";
 import TabPanel from "./TabPanel";
 import SummaryTab from "@components/github/analysis/tabs/SummaryTab";
@@ -46,9 +54,41 @@ function RepoResults({ data }: RepoResultsProps) {
 		}, 150);
 	};
 
+	const handleKeyNavigation = useCallback(
+		(event: KeyboardEvent) => {
+			if (event.key === "ArrowRight") {
+				// Move to next tab (with circular navigation)
+				const nextTab = tabValue < 5 ? tabValue + 1 : 0;
+				setTabTransition(false);
+				setTimeout(() => {
+					setTabValue(nextTab);
+					setTabTransition(true);
+				}, 150);
+			} else if (event.key === "ArrowLeft") {
+				// Move to previous tab (with circular navigation)
+				const previousTab = tabValue > 0 ? tabValue - 1 : 5;
+				setTabTransition(false);
+				setTimeout(() => {
+					setTabValue(previousTab);
+					setTabTransition(true);
+				}, 150);
+			}
+		},
+		[tabValue]
+	);
+
 	useEffect(() => {
 		setTabTransition(true);
 	}, []);
+
+	useEffect(() => {
+		// Add keyboard event listener when component mounts
+		window.addEventListener("keydown", handleKeyNavigation);
+		// Remove event listener when component unmounts
+		return () => {
+			window.removeEventListener("keydown", handleKeyNavigation);
+		};
+	}, [handleKeyNavigation]);
 
 	return (
 		<RepoResultsContainer>
@@ -83,7 +123,18 @@ function RepoResults({ data }: RepoResultsProps) {
 					/>
 				</Paper>
 			</Grow>
-
+			<Typography
+				color="grey.600"
+				variant="caption"
+				sx={{
+					display: "block",
+					textAlign: "left",
+					fontSize: "0.75rem",
+					fontStyle: "italic",
+				}}
+			>
+				Use left and right arrow keys to navigate between tabs
+			</Typography>
 			<Fade in={tabTransition} timeout={400}>
 				<Box
 					sx={{

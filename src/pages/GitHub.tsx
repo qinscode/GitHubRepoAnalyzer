@@ -3,7 +3,7 @@ import GitHubIcon from "@mui/icons-material/GitHub";
 import { RepoAnalysisForm } from "../features/github/analysis";
 import RepoTabs from "../components/github/analysis/tabs/RepoTabs.tsx";
 
-export const GitHub = (): React.ReactElement => {
+export const GitHub = () => {
 	return (
 		<Container className="!p-4 md:!p-8" maxWidth="xl">
 			<Box className="mb-10 text-center">
@@ -41,11 +41,29 @@ export const GitHub = (): React.ReactElement => {
 				className="max-w-8xl mx-auto"
 				sx={{
 					borderRadius: "16px",
-					boxShadow: "0 4px 20px rgba(0,0,0,0.03), 0 1px 3px rgba(0,0,0,0.05)",
+					boxShadow:
+						"0 10px 40px rgba(59, 130, 246, 0.13), 0 3px 12px rgba(59, 130, 246, 0.10)",
+
 					overflow: "hidden",
 					mb: 10,
-					backgroundColor: "white",
-					border: "1px solid rgba(0,0,0,0.03)",
+					background:
+						"linear-gradient(135deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.25) 100%)",
+					backdropFilter: "blur(22px)",
+					border: "1.5px solid rgba(255,255,255,0.7)",
+					"&:before": {
+						content: '""',
+						position: "absolute",
+						inset: 0,
+						background:
+							"linear-gradient(120deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.05) 100%)",
+						pointerEvents: "none",
+						zIndex: 1,
+					},
+					position: "relative",
+
+					borderColor: "rgba(255,255,255,0.9)",
+
+					transition: "all 0.3s ease-in-out",
 				}}
 			>
 				<RepoTabs />
