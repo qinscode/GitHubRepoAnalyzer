@@ -12,15 +12,15 @@ interface SummaryTabProps {
 
 const SummaryTab: React.FC<SummaryTabProps> = ({ data }) => {
 	const { studentOrder, setStudentOrder } = useStudentStore();
-	
+
 	// Use a ref to track if we've already initialized the student order
 	const initializedRef = useRef(false);
-	
+
 	// Update student order with actual contributors only once on initial load
 	useEffect(() => {
 		// Skip if we've already initialized
 		if (initializedRef.current) return;
-		
+
 		const actualContributors = Array.from(
 			new Set([
 				...Object.keys(data.commits),
@@ -28,7 +28,7 @@ const SummaryTab: React.FC<SummaryTabProps> = ({ data }) => {
 				...Object.keys(data.prs),
 			])
 		);
-		
+
 		// If we have actual contributors, update the generic student names
 		if (actualContributors.length > 0) {
 			const updatedOrder = [...studentOrder];
@@ -52,7 +52,7 @@ const SummaryTab: React.FC<SummaryTabProps> = ({ data }) => {
 	}, [data, studentOrder]);
 
 	return (
-		<Box className="flex flex-col gap-8">
+		<Box className="flex flex-col">
 			<StudentOrderer />
 			<Box>
 				<ContributionTable

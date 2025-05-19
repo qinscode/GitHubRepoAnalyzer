@@ -21,6 +21,7 @@ import {
 	RateReview as ReviewIcon,
 } from "@mui/icons-material";
 import { RepoData } from "@/services/github";
+import { useStudentStore } from "@/store/useStudentStore";
 
 interface TeamworkTabProps {
 	data: RepoData;
@@ -306,32 +307,61 @@ function TeamworkInteractionsTable({
 		prReviews: Record<string, number>;
 	};
 }) {
-	// Process teamwork data into array of stats objects
-	const teamworkStats = useMemo(() => {
-		// Handle case where data might be null or undefined
-		if (!data) {
-			return [];
-		}
+	const { studentOrder } = useStudentStore();
 
-		// Get unique users from both issueComments and prReviews
-		const users = Array.from(
-			new Set([
-				...Object.keys(data.issueComments || {}),
-				...Object.keys(data.prReviews || {}),
-			])
-		);
+	// Create a combined stats array with all interactions
+	const interactionStats = useMemo(() => {
+		const stats: Record<
+			string,
+			{ issueComments: number; prReviews: number; total: number }
+		> = {};
 
-		// Create stats objects for each user
-		return users
-			.map((user) => {
-				const issueComments = data.issueComments?.[user] || 0;
-				const prReviews = data.prReviews?.[user] || 0;
-				const total = issueComments + prReviews;
+		// Process issue comments
+		Object.entries(data.issueComments).forEach(([user, count]) => {
+			if (!stats[user]) {
+				stats[user] = { issueComments: 0, prReviews: 0, total: 0 };
+			}
+			stats[user].issueComments = count;
+			stats[user].total += count;
+		});
 
-				return { user, issueComments, prReviews, total };
-			})
-			.sort((a, b) => b.total - a.total);
-	}, [data]);
+		// Process PR reviews
+		Object.entries(data.prReviews).forEach(([user, count]) => {
+			if (!stats[user]) {
+				stats[user] = { issueComments: 0, prReviews: 0, total: 0 };
+			}
+			stats[user].prReviews = count;
+			stats[user].total += count;
+		});
+
+		// Add entries with zero counts for students in studentOrder who don't have interactions
+		studentOrder.forEach((student) => {
+			if (!stats[student]) {
+				stats[student] = { issueComments: 0, prReviews: 0, total: 0 };
+			}
+		});
+
+		// Convert to array and sort based on student order
+		return Object.entries(stats)
+			.map(([user, stats]) => ({ user, ...stats }))
+			.sort((a, b) => {
+				// Get indices from student order
+				const indexA = studentOrder.indexOf(a.user);
+				const indexB = studentOrder.indexOf(b.user);
+
+				// If both users are in the student order
+				if (indexA !== -1 && indexB !== -1) {
+					return indexA - indexB; // Sort by student order
+				}
+
+				// If only one is in the student order, prioritize that one
+				if (indexA !== -1) return -1;
+				if (indexB !== -1) return 1;
+
+				// For users not in the student order, sort by total interactions
+				return b.total - a.total;
+			});
+	}, [data.issueComments, data.prReviews, studentOrder]);
 
 	return (
 		<Fade in timeout={1000}>
@@ -402,7 +432,7 @@ function TeamworkInteractionsTable({
 					</Box>
 
 					{/* User data cards */}
-					{teamworkStats.map((stats, index) => (
+					{interactionStats.map((stats, index) => (
 						<Grow
 							key={stats.user}
 							in
@@ -704,15 +734,69 @@ function TeamworkInteractionsTable({
 function TeamworkTab({ data }: TeamworkTabProps) {
 	const { teamwork } = data || {};
 	const theme = useTheme();
+	const { studentOrder } = useStudentStore();
 
-	// Ensure data exists, use empty objects as defaults
-	const issueCommentsData = Object.entries(teamwork?.issueComments || {})
-		.sort((a, b) => b[1] - a[1])
-		.slice(0, 5);
+	// Process issue comments data with student order
+	const issueCommentsData = useMemo(() => {
+		const entries = Object.entries(teamwork?.issueComments || {}).map(
+			([user, count]) => ({ user, count })
+		);
 
-	const prReviewsData = Object.entries(teamwork?.prReviews || {})
-		.sort((a, b) => b[1] - a[1])
-		.slice(0, 5);
+		// Sort based on student order and then by count
+		const sorted = entries.sort((a, b) => {
+			// Get indices from student order
+			const indexA = studentOrder.indexOf(a.user);
+			const indexB = studentOrder.indexOf(b.user);
+
+			// If both users are in the student order
+			if (indexA !== -1 && indexB !== -1) {
+				return indexA - indexB; // Sort by student order
+			}
+
+			// If only one is in the student order, prioritize that one
+			if (indexA !== -1) return -1;
+			if (indexB !== -1) return 1;
+
+			// For users not in the student order, sort by count
+			return b.count - a.count;
+		});
+
+		// Convert back to [string, number] format and take top 5
+		return sorted
+			.slice(0, 5)
+			.map((entry) => [entry.user, entry.count] as [string, number]);
+	}, [teamwork?.issueComments, studentOrder]);
+
+	// Process PR reviews data with student order
+	const prReviewsData = useMemo(() => {
+		const entries = Object.entries(teamwork?.prReviews || {}).map(
+			([user, count]) => ({ user, count })
+		);
+
+		// Sort based on student order and then by count
+		const sorted = entries.sort((a, b) => {
+			// Get indices from student order
+			const indexA = studentOrder.indexOf(a.user);
+			const indexB = studentOrder.indexOf(b.user);
+
+			// If both users are in the student order
+			if (indexA !== -1 && indexB !== -1) {
+				return indexA - indexB; // Sort by student order
+			}
+
+			// If only one is in the student order, prioritize that one
+			if (indexA !== -1) return -1;
+			if (indexB !== -1) return 1;
+
+			// For users not in the student order, sort by count
+			return b.count - a.count;
+		});
+
+		// Convert back to [string, number] format and take top 5
+		return sorted
+			.slice(0, 5)
+			.map((entry) => [entry.user, entry.count] as [string, number]);
+	}, [teamwork?.prReviews, studentOrder]);
 
 	// Check if there is data to display
 	const hasData =

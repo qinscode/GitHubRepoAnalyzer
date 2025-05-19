@@ -7,6 +7,7 @@ import {
 	FormControl,
 	Alert,
 	alpha,
+	Chip,
 } from "@mui/material";
 import {
 	EmojiEvents as BonusIcon,
@@ -16,6 +17,7 @@ import { bonusMarksTheme } from "../components/AnalysisThemes";
 import DataTable, { type Column } from "../../utils/DataTable";
 import AnalysisTabLayout from "../components/layout/AnalysisTabLayout.tsx";
 import { RepoData } from "@/services/github";
+import { useStudentStore } from "@/store/useStudentStore";
 
 interface BonusMarksTabProps {
 	data: RepoData;
@@ -25,10 +27,11 @@ interface BonusMark {
 	id: string;
 	user: string;
 	mark: number;
-	studentId: string | null;
 }
 
 function BonusMarksTab({ data }: BonusMarksTabProps) {
+	const { studentOrder } = useStudentStore();
+
 	// Get all unique contributors from commits, issues, and PRs
 	const contributors = useMemo(() => {
 		const uniqueContributors = new Set<string>();
@@ -46,10 +49,26 @@ function BonusMarksTab({ data }: BonusMarksTabProps) {
 			uniqueContributors.add(contributor)
 		);
 
-		return Array.from(uniqueContributors);
-	}, [data]);
+		// Convert to array and sort by student order
+		return Array.from(uniqueContributors).sort((a, b) => {
+			const indexA = studentOrder.indexOf(a);
+			const indexB = studentOrder.indexOf(b);
 
-	// State to store bonus marks and student IDs for each contributor
+			// If both users are in the student order
+			if (indexA !== -1 && indexB !== -1) {
+				return indexA - indexB; // Sort by student order
+			}
+
+			// If only one is in the student order, prioritize that one
+			if (indexA !== -1) return -1;
+			if (indexB !== -1) return 1;
+
+			// For users not in the student order, sort alphabetically
+			return a.localeCompare(b);
+		});
+	}, [data, studentOrder]);
+
+	// State to store bonus marks for each contributor
 	const [bonusMarks, setBonusMarks] = useState<Record<string, BonusMark>>(
 		Object.fromEntries(
 			contributors.map((user) => [
@@ -58,7 +77,6 @@ function BonusMarksTab({ data }: BonusMarksTabProps) {
 					id: user,
 					user,
 					mark: 0,
-					studentId: null,
 				},
 			])
 		)
@@ -87,33 +105,22 @@ function BonusMarksTab({ data }: BonusMarksTabProps) {
 		}
 	};
 
-	// Handle student ID change
-	const handleStudentIdChange = (user: string, value: string): void => {
-		setBonusMarks((previous) => ({
-			...previous,
-			[user]: {
-				...previous[user],
-				studentId: value || null,
-			} as BonusMark,
-		}));
-	};
-
 	// Transform data for the table
 	const tableData = useMemo(
 		() =>
 			contributors.map((user) => ({
 				id: user,
 				user,
+				studentOrder: {
+					user,
+					orderIndex: studentOrder.indexOf(user),
+				},
 				mark: {
 					mark: bonusMarks[user]?.mark ?? 0,
 					user,
 				},
-				studentId: {
-					studentId: bonusMarks[user]?.studentId ?? null,
-					user,
-				},
 			})),
-		[contributors, bonusMarks]
+		[contributors, bonusMarks, studentOrder]
 	);
 
 	const selectStyles = {
@@ -194,45 +201,49 @@ function BonusMarksTab({ data }: BonusMarksTabProps) {
 			),
 		},
 		{
-			id: "studentId",
-			label: "Student ID",
+			id: "studentOrder",
+			label: "Student Order",
 			width: "35%",
 			format: (value: any) => {
-				const { studentId, user: currentUser } = value;
+				const { orderIndex } = value;
 
-				return (
-					<FormControl size="small" sx={{ minWidth: 120 }}>
-						<Select
-							displayEmpty
-							MenuProps={menuProps}
-							sx={selectStyles}
-							value={studentId ?? ""}
-							onChange={(event_) => {
-								handleStudentIdChange(currentUser, event_.target.value);
+				// If the user is in the student order, display their position (1-based)
+				if (orderIndex !== -1) {
+					return (
+						<Box
+							sx={{
+								display: "flex",
+								alignItems: "left",
+								justifyContent: "center",
 							}}
 						>
-							<MenuItem
-								value=""
+							<Chip
+								label={orderIndex + 1}
 								sx={{
-									fontStyle: "italic",
-									color: "text.secondary",
+									backgroundColor: alpha(bonusMarksTheme.main, 0.1),
+									color: bonusMarksTheme.main,
+									fontWeight: 600,
+									fontSize: "0.95rem",
+									minWidth: "32px",
+									height: "32px",
+									border: `1px solid ${alpha(bonusMarksTheme.main, 0.2)}`,
 								}}
-							>
-								Select Student
-							</MenuItem>
-							{["Student1", "Student2", "Student3", "Student4"].map((id) => (
-								<MenuItem
-									key={id}
-									value={id}
-									disabled={Object.values(bonusMarks).some(
-										(mark) => mark.studentId === id && mark.user !== currentUser
-									)}
-								>
-									{id}
-								</MenuItem>
-							))}
-						</Select>
-					</FormControl>
+							/>
+						</Box>
+					);
+				}
+
+				// If not in student order, show a dash
+				return (
+					<Typography
+						sx={{
+							color: "text.secondary",
+							fontStyle: "italic",
+							textAlign: "center",
+						}}
+					>
+						-
+					</Typography>
 				);
 			},
 		},
