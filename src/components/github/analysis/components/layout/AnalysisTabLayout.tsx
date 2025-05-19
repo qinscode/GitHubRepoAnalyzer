@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
-import type { ThemeConfig } from "./AnalysisThemes";
-import { useCollapseStore } from "../store/useCollapseStore";
-import AnimatedContainer from "./AnimatedContainer";
-import AnalysisHeader from "./AnalysisHeader";
-import HeaderControls from "./HeaderControls";
-import StatsFooter from "./StatsFooter";
+import type { ThemeConfig } from "../AnalysisThemes";
+import { useCollapseStore } from "../../store/useCollapseStore";
+import { AnimatedContainer } from "../containers";
+import { AnalysisHeader } from "./";
+import { HeaderControls } from "../controls";
+import { StatsFooter } from "../stats";
 
 interface AnalysisTabLayoutProps {
 	title: string;

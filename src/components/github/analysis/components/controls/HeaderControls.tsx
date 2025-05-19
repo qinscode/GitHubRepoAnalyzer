@@ -1,7 +1,7 @@
 import { Box } from "@mui/material";
-import type { ThemeConfig } from "./AnalysisThemes";
-import HeaderTitle from "./HeaderTitle";
-import ExpandSwitch from "./ExpandSwitch";
+import type { ThemeConfig } from "../AnalysisThemes";
+import { HeaderTitle } from "../layout";
+import { ExpandSwitch } from "./";
 
 interface HeaderControlsProps {
   headerTitle?: string;

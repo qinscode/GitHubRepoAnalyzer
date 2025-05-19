@@ -1,5 +1,5 @@
 import { alpha, FormControlLabel, Switch, Typography } from "@mui/material";
-import type { ThemeConfig } from "./AnalysisThemes";
+import type { ThemeConfig } from "../AnalysisThemes";
 
 interface ExpandSwitchProps {
   isExpanded: boolean;
