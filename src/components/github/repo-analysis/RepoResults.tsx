@@ -17,6 +17,7 @@ import {
 	MergeType as PRIcon,
 	Group as TeamIcon,
 	Assessment as SummaryIcon,
+	EmojiEvents as BonusIcon,
 } from "@mui/icons-material";
 import type { RepoResultsProps } from "../types/types.ts";
 import TabPanel from "./TabPanel";
@@ -25,6 +26,7 @@ import CommitsTab from "../analysis/tabs/CommitsTab.tsx";
 import IssuesTab from "../analysis/tabs/IssuesTab.tsx";
 import PullRequestsTab from "../analysis/tabs/PullRequestsTab.tsx";
 import TeamworkTab from "../analysis/tabs/TeamworkTab.tsx";
+import BonusMarksTab from "../analysis/tabs/BonusMarksTab.tsx";
 
 function RepoResults({ data }: RepoResultsProps): JSX.Element {
 	const [tabValue, setTabValue] = useState(0);
@@ -72,6 +74,7 @@ function RepoResults({ data }: RepoResultsProps): JSX.Element {
 		issues: "#8B5CF6", // purple
 		prs: "#F59E0B", // amber
 		teamwork: "#EC4899", // pink
+		bonus: "#10B981", // emerald
 	};
 
 	// Tab icons with customized colors
@@ -83,6 +86,7 @@ function RepoResults({ data }: RepoResultsProps): JSX.Element {
 		issues: <IssueIcon sx={{ fontSize: "1.25rem", color: colors.issues }} />,
 		prs: <PRIcon sx={{ fontSize: "1.25rem", color: colors.prs }} />,
 		teamwork: <TeamIcon sx={{ fontSize: "1.25rem", color: colors.teamwork }} />,
+		bonus: <BonusIcon sx={{ fontSize: "1.25rem", color: colors.bonus }} />,
 	};
 
 	// Custom tab label with count
@@ -156,7 +160,9 @@ function RepoResults({ data }: RepoResultsProps): JSX.Element {
 							? `linear-gradient(90deg, ${colors.issues}, ${alpha(colors.issues, 0.7)})`
 							: index === 3
 								? `linear-gradient(90deg, ${colors.prs}, ${alpha(colors.prs, 0.7)})`
-								: `linear-gradient(90deg, ${colors.teamwork}, ${alpha(colors.teamwork, 0.7)})`,
+								: index === 4
+									? `linear-gradient(90deg, ${colors.teamwork}, ${alpha(colors.teamwork, 0.7)})`
+									: `linear-gradient(90deg, ${colors.bonus}, ${alpha(colors.bonus, 0.7)})`,
 			opacity: 0.8,
 			zIndex: 1,
 		},
@@ -269,7 +275,9 @@ function RepoResults({ data }: RepoResultsProps): JSX.Element {
 											? `linear-gradient(90deg, ${colors.issues}, transparent)`
 											: tabValue === 3
 												? `linear-gradient(90deg, ${colors.prs}, transparent)`
-												: `linear-gradient(90deg, ${colors.teamwork}, transparent)`,
+												: tabValue === 4
+													? `linear-gradient(90deg, ${colors.teamwork}, transparent)`
+													: `linear-gradient(90deg, ${colors.bonus}, transparent)`,
 							opacity: 0.8,
 						},
 					}}
@@ -290,7 +298,9 @@ function RepoResults({ data }: RepoResultsProps): JSX.Element {
 												? colors.issues
 												: tabValue === 3
 													? colors.prs
-													: colors.teamwork
+													: tabValue === 4
+														? colors.teamwork
+														: colors.bonus
 								} 30%, ${alpha(
 									tabValue === 0
 										? colors.summary
@@ -300,7 +310,9 @@ function RepoResults({ data }: RepoResultsProps): JSX.Element {
 												? colors.issues
 												: tabValue === 3
 													? colors.prs
-													: colors.teamwork,
+													: tabValue === 4
+														? colors.teamwork
+														: colors.bonus,
 									0.7
 								)} 100%)`,
 								height: 3,
@@ -338,7 +350,9 @@ function RepoResults({ data }: RepoResultsProps): JSX.Element {
 												? colors.issues
 												: tabValue === 3
 													? colors.prs
-													: colors.teamwork,
+													: tabValue === 4
+														? colors.teamwork
+														: colors.bonus,
 								fontWeight: 600,
 							},
 						}}
@@ -392,6 +406,12 @@ function RepoResults({ data }: RepoResultsProps): JSX.Element {
 							label="Teamwork"
 							sx={getTabSx(4)}
 						/>
+						<Tab
+							icon={tabIcons.bonus}
+							iconPosition="start"
+							label="Bonus Marks"
+							sx={getTabSx(5)}
+						/>
 					</Tabs>
 				</Paper>
 			</Grow>
@@ -421,6 +441,10 @@ function RepoResults({ data }: RepoResultsProps): JSX.Element {
 
 					<TabPanel index={4} value={tabValue}>
 						<TeamworkTab data={data} />
+					</TabPanel>
+
+					<TabPanel index={5} value={tabValue}>
+						<BonusMarksTab data={data} />
 					</TabPanel>
 				</Box>
 			</Fade>

@@ -30,4 +30,12 @@ export const commitsTheme: ThemeConfig = {
   lighter: "rgba(16, 185, 129, 0.05)",
   gradient: "linear-gradient(90deg, #10B981 0%, #34D399 100%)",
   textColor: "#065F46"
+};
+
+export const bonusMarksTheme: ThemeConfig = {
+  main: "#06B6D4", // cyan
+  light: "rgba(6, 182, 212, 0.1)",
+  lighter: "rgba(6, 182, 212, 0.05)",
+  gradient: "linear-gradient(90deg, #06B6D4 0%, #22D3EE 100%)",
+  textColor: "#0E7490"
 }; 
