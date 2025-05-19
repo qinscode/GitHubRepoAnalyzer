@@ -5,13 +5,13 @@ import {
 	BarChart as BarChartIcon,
 	Timeline as TimelineIcon,
 } from "@mui/icons-material";
-import type { RepoData } from "../../types/types.ts";
 import UserTabItem from "../components/UserTabItem";
-import AnalysisTabLayout from "../components/AnalysisTabLayout";
 import TabDataTable from "../components/TabDataTable";
 import CommitBarChart from "../components/CommitBarChart";
 import { commitsTheme } from "../components/AnalysisThemes";
 import AllContributorsCommitChart from "../components/AllContributorsCommitChart";
+import { RepoData } from "@/services/github";
+import AnalysisTabLayout from "../components/layout/AnalysisTabLayout.tsx";
 
 interface CommitsTabProps {
 	data: RepoData;
@@ -46,7 +46,7 @@ function UserCommits({
 	index: number;
 	user: string;
 	contributorStats?: Array<any>;
-}): JSX.Element {
+}) {
 	// Format date from ISO string to DD/MM/YYYY HH:MM format
 	const formattedCommits = commits.map((commit) => ({
 		...commit,
@@ -102,7 +102,7 @@ function UserCommits({
 	);
 }
 
-function CommitsTab({ data }: CommitsTabProps): JSX.Element {
+function CommitsTab({ data }: CommitsTabProps) {
 	// Transform commits data for display
 	const commitsByUser = useMemo(() => {
 		type Commit = { message: string; id: string; commitDate: string };
@@ -121,7 +121,7 @@ function CommitsTab({ data }: CommitsTabProps): JSX.Element {
 		<AnalysisTabLayout
 			creatorCount={Object.keys(data.commits).length}
 			creatorLabel="From"
-			description="This analysis shows commit activity by contributor, with detailed commit messages and weekly statistics."
+			description="Due to GitHub API limitations, commit data only shows the last 50 commits per user."
 			headerTitle="Commits by Contributor"
 			theme={commitsTheme}
 			title="Commit Activity Analysis"

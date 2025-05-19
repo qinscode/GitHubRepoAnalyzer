@@ -1,4 +1,4 @@
-import type { RepoData } from "../../../services/github/types";
+import type { RepoData } from "@/services/github/types";
 import ModularRepoResults from "../repo-analysis/RepoResults.tsx";
 
 // Re-export component to maintain backward compatibility

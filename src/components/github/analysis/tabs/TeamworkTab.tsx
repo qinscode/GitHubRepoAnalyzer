@@ -20,7 +20,7 @@ import {
 	ChatBubble as CommentIcon,
 	RateReview as ReviewIcon,
 } from "@mui/icons-material";
-import type { RepoData } from "../../types/types.ts";
+import { RepoData } from "@/services/github";
 
 interface TeamworkTabProps {
 	data: RepoData;
@@ -37,7 +37,7 @@ const colors = {
 	gradientSecondary: "linear-gradient(90deg, #8B5CF6 0%, #A78BFA 100%)",
 };
 
-function SectionTitle({ title }: { title: string }): JSX.Element {
+function SectionTitle({ title }: { title: string }) {
 	return (
 		<Typography
 			sx={{
@@ -94,7 +94,7 @@ function TeamworkTable({
 	data: Array<[string, number]>;
 	valueLabel: string;
 	index: number;
-}): JSX.Element {
+}) {
 	const isIssuesTable = title.includes("Issues");
 	const lightColor = isIssuesTable ? colors.light : "rgba(139, 92, 246, 0.1)";
 	const lighterColor = isIssuesTable
@@ -305,7 +305,7 @@ function TeamworkInteractionsTable({
 		issueComments: Record<string, number>;
 		prReviews: Record<string, number>;
 	};
-}): JSX.Element {
+}) {
 	// Process teamwork data into array of stats objects
 	const teamworkStats = useMemo(() => {
 		// Handle case where data might be null or undefined
@@ -701,7 +701,7 @@ function TeamworkInteractionsTable({
 	);
 }
 
-function TeamworkTab({ data }: TeamworkTabProps): JSX.Element {
+function TeamworkTab({ data }: TeamworkTabProps) {
 	const { teamwork } = data || {};
 	const theme = useTheme();
 

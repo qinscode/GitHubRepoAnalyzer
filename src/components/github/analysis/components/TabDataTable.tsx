@@ -30,7 +30,7 @@ const TabDataTable = <
 	theme,
 	maxChars = 150,
 	emptyMessage,
-}: TabDataTableProps<T>): JSX.Element => {
+}: TabDataTableProps<T>) => {
 	// Format data for table presentation
 	const tableData = data.map((item, index) => ({
 		number: index + 1,
@@ -62,7 +62,7 @@ const TabDataTable = <
 			baseColumns.push({
 				id: "description",
 				label: "Description",
-				format: (value: string): JSX.Element =>
+				format: (value: string) =>
 					value ? (
 						<CollapsibleContent
 							color={theme.main}
@@ -91,7 +91,7 @@ const TabDataTable = <
 			id: "url",
 			label: "Link",
 			width: "10%",
-			format: (value: string): JSX.Element =>
+			format: (value: string) =>
 				value ? (
 					<Link
 						href={value}

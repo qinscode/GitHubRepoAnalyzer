@@ -9,7 +9,7 @@ interface AnalysisOptionsProps {
 const AnalysisOptions = ({
 	hideMergeCommits,
 	onHideMergeCommitsChange,
-}: AnalysisOptionsProps): JSX.Element => {
+}: AnalysisOptionsProps) => {
 	return (
 		<Box
 			sx={{

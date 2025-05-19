@@ -1,6 +1,6 @@
 import { Container, Box, Typography } from "@mui/material";
 import GitHubIcon from "@mui/icons-material/GitHub";
-import RepoAnalysisForm from "../components/github/RepoAnalysisForm";
+import { RepoAnalysisForm } from "../features/github/analysis";
 import RepoTabs from "../components/github/analysis/tabs/RepoTabs.tsx";
 
 export const GitHub = (): React.ReactElement => {
@@ -33,7 +33,7 @@ export const GitHub = (): React.ReactElement => {
 						letterSpacing: "-0.5px",
 					}}
 				>
-					GitHub Repository Analyzer v0.2.2
+					GitHub Repository Analyzer v0.2.7
 				</Typography>
 			</Box>
 

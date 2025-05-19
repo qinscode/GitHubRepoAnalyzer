@@ -24,7 +24,7 @@ router.subscribe("onBeforeLoad", () => {
 });
 
 // Wrap RouterProvider with QueryClientProvider
-export function RouterWithProviders(): JSX.Element {
+export function RouterWithProviders() {
 	return (
 		<QueryClientProvider client={queryClient}>
 			<RouterProvider router={router} />

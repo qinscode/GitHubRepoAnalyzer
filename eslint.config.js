@@ -61,7 +61,7 @@ const typescriptConfig = {
 		"@typescript-eslint/array-type": ["error", { default: "generic" }],
 		"@typescript-eslint/consistent-type-exports": "error",
 		"@typescript-eslint/explicit-member-accessibility": "error",
-		"@typescript-eslint/explicit-module-boundary-types": "error",
+		"@typescript-eslint/explicit-module-boundary-types": "off",
 		"@typescript-eslint/no-confusing-void-expression": "error",
 		"@typescript-eslint/no-import-type-side-effects": "error",
 		"@typescript-eslint/no-require-imports": "error",
@@ -198,19 +198,21 @@ const ignoreConfig = {
 		"coverage/**",
 		"node_modules/**",
 		".next/**",
-		"src-taur/**",
+		"src-tauri/**",
 	],
 };
 
-const eslintConfig = typescriptEslint.config(
+const eslintConfig = [
 	ignoreConfig,
-	baseESLintConfig,
-	typescriptConfig,
-	eslintConfigPrettier,
-	reactConfig,
-	jsxA11yConfig,
-	unicornConfig
-);
+	...typescriptEslint.config(
+		baseESLintConfig,
+		typescriptConfig,
+		eslintConfigPrettier,
+		reactConfig,
+		jsxA11yConfig,
+		unicornConfig
+	),
+];
 
 eslintConfig.map((config) => {
 	config.files = ["src/**/*.ts", "src/**/*.tsx"];

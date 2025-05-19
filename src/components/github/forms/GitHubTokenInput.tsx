@@ -24,7 +24,7 @@ const GitHubTokenInput = ({
 	onTokenSave,
 	onTokenDelete,
 	hasSavedToken,
-}: GitHubTokenInputProps): JSX.Element => {
+}: GitHubTokenInputProps) => {
 	return (
 		<Box className="mb-5">
 			<Typography className="form-subtitle">

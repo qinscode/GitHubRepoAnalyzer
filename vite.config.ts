@@ -1,8 +1,6 @@
 import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "node:path";
-import { normalizePath } from "vite";
-import { viteStaticCopy } from "vite-plugin-static-copy";
 import { defineConfig } from "vite";
 
 const host = process.env.TAURI_DEV_HOST;
@@ -30,6 +28,7 @@ export default defineConfig({
 		extensions: [".js", ".ts", ".jsx", ".tsx", ".json"],
 		alias: {
 			"@": path.resolve(__dirname, "./src"),
+			"@components": path.resolve(__dirname, "./src/components"),
 		},
 	},
 });

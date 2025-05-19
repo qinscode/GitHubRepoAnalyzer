@@ -12,106 +12,28 @@ import {
 	Avatar,
 	LinearProgress,
 } from "@mui/material";
-import type { RepoData, ContributorStats } from "../../types/types.ts";
+import { RepoData } from "@/services/github/types";
+import { ContributorStats } from "@/types/github";
 
 interface SummaryTabProps {
 	data: RepoData;
 }
 
-// function StatCard({
-// 	icon,
-// 	value,
-// 	label,
-// 	color,
-// }: {
-// 	icon: JSX.Element;
-// 	value: number;
-// 	label: string;
-// 	color: string;
-// }): JSX.Element {
-// 	return (
-// 		<Box className="flex-1 basis-40 min-w-0">
-// 			<Card
-// 				className={`h-full rounded-xl shadow-md hover:shadow-lg transition-all duration-300`}
-// 				sx={{
-// 					background: `linear-gradient(135deg, white 0%, rgb(249, 250, 251) 100%)`,
-// 					borderLeft: `4px solid ${color}`,
-// 					position: "relative",
-// 					overflow: "hidden",
-// 					transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-// 					"&:hover": {
-// 						transform: "translateY(-3px) scale(1.01)",
-// 						boxShadow: `0 10px 20px -10px ${color}40, 0 6px 10px -6px rgba(0,0,0,0.1)`,
-// 					},
-// 					"&::before": {
-// 						content: '""',
-// 						position: "absolute",
-// 						top: "-50%",
-// 						right: "-50%",
-// 						width: "100%",
-// 						height: "100%",
-// 						background: `radial-gradient(circle, ${color}10 0%, transparent 70%)`,
-// 						borderRadius: "50%",
-// 					},
-// 				}}
-// 			>
-// 				<CardContent className="text-center p-4 relative">
-// 					<Box
-// 						sx={{
-// 							position: "relative",
-// 							display: "inline-flex",
-// 							marginBottom: 1,
-// 							background: `linear-gradient(135deg, ${color}20, ${color}10)`,
-// 							borderRadius: "50%",
-// 							padding: "8px",
-// 						}}
-// 					>
-// 						{React.cloneElement(icon, {
-// 							sx: {
-// 								fontSize: "1.5rem",
-// 								color: color,
-// 							},
-// 						})}
-// 					</Box>
-// 					<Typography
-// 						className="font-bold"
-// 						variant="h5"
-// 						sx={{
-// 							background: `linear-gradient(to right, ${color}, #6366f1)`,
-// 							WebkitBackgroundClip: "text",
-// 							WebkitTextFillColor: "transparent",
-// 							marginBottom: 0.5,
-// 							letterSpacing: "-0.025em",
-// 						}}
-// 					>
-// 						{value}
-// 					</Typography>
-// 					<Typography
-// 						className="mt-1"
-// 						sx={{
-// 							color: "text.secondary",
-// 							fontSize: "0.85rem",
-// 							fontWeight: 500,
-// 						}}
-// 					>
-// 						{label}
-// 					</Typography>
-// 				</CardContent>
-// 			</Card>
-// 		</Box>
-// 	);
-// }
+interface ColorMap {
+	main: string;
+	light: string;
+	lighter: string;
+	gradient: string;
+}
 
-function ContributionTable({
-	title,
-	data,
-	color,
-}: {
+interface ContributionTableProps {
 	title: string;
 	data: Array<ContributorStats>;
 	color: "primary" | "secondary" | "info";
-}): JSX.Element {
-	const colorMap = {
+}
+
+const ContributionTable: React.FC<ContributionTableProps> = ({ title, data, color }) => {
+	const colorMap: Record<"primary" | "secondary" | "info", ColorMap> = {
 		primary: {
 			main: "#3B82F6",
 			light: "rgba(59, 130, 246, 0.1)",
@@ -335,9 +257,9 @@ function ContributionTable({
 			</TableContainer>
 		</>
 	);
-}
+};
 
-function SummaryTab({ data }: SummaryTabProps): JSX.Element {
+const SummaryTab: React.FC<SummaryTabProps> = ({ data }) => {
 	// Calculate statistics data
 	const { commitsByUser, issuesByUser, prsByUser } = useMemo(() => {
 		const totalCommits = Object.values(data.commits).reduce(
@@ -422,6 +344,6 @@ function SummaryTab({ data }: SummaryTabProps): JSX.Element {
 			</Box>
 		</Box>
 	);
-}
+};
 
 export default SummaryTab;

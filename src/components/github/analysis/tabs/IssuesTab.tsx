@@ -1,11 +1,10 @@
 import { useMemo } from "react";
 import { BugReport as IssueIcon } from "@mui/icons-material";
-import type { RepoData } from "../../types/types.ts";
-import type { Issue } from "../../../../services/github";
+import type { Issue, RepoData } from "@/services/github";
 import UserTabItem from "../components/UserTabItem";
-import AnalysisTabLayout from "../components/AnalysisTabLayout";
 import TabDataTable from "../components/TabDataTable";
 import { issuesTheme } from "../components/AnalysisThemes";
+import AnalysisTabLayout from "../components/layout/AnalysisTabLayout";
 
 interface IssuesTabProps {
 	data: RepoData;
@@ -19,7 +18,7 @@ function UserIssues({
 	user: string;
 	issues: Array<Issue>;
 	index: number;
-}): JSX.Element {
+}) {
 	return (
 		<UserTabItem
 			chipLabel="issues"
@@ -39,14 +38,17 @@ function UserIssues({
 	);
 }
 
-function IssuesTab({ data }: IssuesTabProps): JSX.Element {
+function IssuesTab({ data }: IssuesTabProps) {
 	const issuesByUser = useMemo(() => {
-		type IssueWithDate = Issue;
+		// Define IssueWithDate as an extension of Issue with a required date property
+		interface IssueWithDate extends Issue {
+			date: string;
+		}
 		const users: Record<string, Array<IssueWithDate>> = {};
 
 		// Group issues by user
 		Object.entries(data.issues).forEach(([user, issues]) => {
-			// Add default date if missing
+			// Add a default date if missing
 			users[user] = issues.map((issue) => ({
 				...issue,
 				date: issue.date || "18/05/2025 14:30", // Default date

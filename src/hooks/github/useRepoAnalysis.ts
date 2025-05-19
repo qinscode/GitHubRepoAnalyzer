@@ -1,105 +1,49 @@
-import { useState, useEffect } from "react";
-import {
-	Box,
-	Button,
-	CircularProgress,
-	Typography,
-	Card,
-	CardContent,
-	Grow,
-	Zoom,
-} from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
-import BatchResults from "./results/BatchResults.tsx";
+import { useState } from "react";
 import { fetchRepositoryData, parseRepoUrl } from "../../services/github";
-import "../../styles/FormStyles.css";
+import type { RepoListItem, RepoResult } from "../../types";
 
-// Components
-import RepoUrlsInput from "./forms/RepoUrlsInput";
-import GitHubTokenInput from "./forms/GitHubTokenInput";
-import AnalysisOptions from "./forms/AnalysisOptions";
-import ErrorNotification from "./notifications/ErrorNotification";
-import SuccessNotification from "./notifications/SuccessNotification";
-import TokenNotification from "./notifications/TokenNotification";
-import ProgressTracker from "./progress/ProgressTracker";
+export interface UseRepoAnalysisReturn {
+	loading: boolean;
+	error: string | null;
+	success: boolean;
+	repoItems: Array<RepoListItem>;
+	results: Array<RepoResult>;
+	currentIndex: number;
+	progress: number;
+	hideMergeCommits: boolean;
+	setHideMergeCommits: (value: boolean) => void;
+	handleRepoSubmit: (event: React.FormEvent) => Promise<void>;
+	handleCloseSnackbar: () => void;
+	handleErrorClose: () => void;
+	extractRepoName: (url: string) => string;
+}
 
-// Types
-import { RepoResult, RepoListItem } from "./types";
-
-const RepoAnalysisForm = (): JSX.Element => {
-	// Form state
-	const [token, setToken] = useState<string>("");
+export function useRepoAnalysis(
+	repoUrls: string,
+	token: string
+): UseRepoAnalysisReturn {
 	const [loading, setLoading] = useState<boolean>(false);
 	const [error, setError] = useState<string | null>(null);
 	const [success, setSuccess] = useState<boolean>(false);
-	const [tokenMessage, setTokenMessage] = useState<{
-		message: string;
-		severity: "success" | "error" | "info";
-	} | null>(null);
-
-	// Filtering options
-	const [hideMergeCommits, setHideMergeCommits] = useState<boolean>(true);
-
-	// Repository state
-	const [repoUrls, setRepoUrls] = useState<string>("");
-	const [results, setResults] = useState<Array<RepoResult>>([]);
 	const [repoItems, setRepoItems] = useState<Array<RepoListItem>>([]);
+	const [results, setResults] = useState<Array<RepoResult>>([]);
 	const [currentIndex, setCurrentIndex] = useState<number>(-1);
 	const [progress, setProgress] = useState<number>(0);
+	const [hideMergeCommits, setHideMergeCommits] = useState<boolean>(true);
 
-	// Get the GitHub token from localStorage first, then fallback to environment variables
-	useEffect(() => {
-		const savedToken = localStorage.getItem("githubToken");
-		if (savedToken) {
-			setToken(savedToken);
-		} else {
-			const presetToken = import.meta.env["VITE_GITHUB_API_TOKEN"];
-			if (presetToken) {
-				setToken(presetToken);
-			}
+	const extractRepoName = (url: string): string => {
+		const match = url.match(/github\.com\/([^/]+)\/([^/]+)/);
+		if (match) {
+			return `${match[1]}/${match[2]}`;
 		}
-	}, []);
 
-	// Check if there's a saved token in localStorage
-	const hasSavedToken = !!localStorage.getItem("githubToken");
-	// Check if there's a preset token in environment variables
-	const hasPresetToken = !!import.meta.env["VITE_GITHUB_API_TOKEN"];
-
-	// Save token to localStorage
-	const saveToken = (): void => {
-		if (token.trim()) {
-			localStorage.setItem("githubToken", token);
-			setTokenMessage({
-				message: "GitHub token saved to browser storage",
-				severity: "success",
-			});
-		} else {
-			setTokenMessage({
-				message: "Please enter a token to save",
-				severity: "error",
-			});
+		// Handle owner/repo format
+		const parts = url.split("/");
+		if (parts.length === 2) {
+			return url;
 		}
-	};
 
-	// Delete token from localStorage
-	const deleteToken = (): void => {
-		localStorage.removeItem("githubToken");
-		setTokenMessage({
-			message: "GitHub token removed from browser storage",
-			severity: "success",
-		});
-
-		// Fallback to environment variable token if available
-		const presetToken = import.meta.env["VITE_GITHUB_API_TOKEN"];
-		if (presetToken) {
-			setToken(presetToken);
-		} else {
-			setToken("");
-		}
-	};
-
-	const handleTokenMessageClose = (): void => {
-		setTokenMessage(null);
+		return url;
 	};
 
 	const handleRepoSubmit = async (event: React.FormEvent): Promise<void> => {
@@ -306,108 +250,19 @@ const RepoAnalysisForm = (): JSX.Element => {
 		setError("");
 	};
 
-	const handleTokenChange = (newToken: string): void => {
-		setToken(newToken);
+	return {
+		loading,
+		error,
+		success,
+		repoItems,
+		results,
+		currentIndex,
+		progress,
+		hideMergeCommits,
+		setHideMergeCommits,
+		handleRepoSubmit,
+		handleCloseSnackbar,
+		handleErrorClose,
+		extractRepoName,
 	};
-
-	const handleRepoUrlsChange = (newUrls: string): void => {
-		setRepoUrls(newUrls);
-	};
-
-	const handleHideMergeCommitsChange = (checked: boolean): void => {
-		setHideMergeCommits(checked);
-	};
-
-	return (
-		<Box className="form-container">
-			<Grow in timeout={800}>
-				<Card className="form-card">
-					<CardContent className="p-6">
-						<form onSubmit={handleRepoSubmit}>
-							<Typography className="form-title">
-								Repository Analysis
-							</Typography>
-
-							{/* Repository URLs Input */}
-							<RepoUrlsInput
-								repoUrls={repoUrls}
-								onRepoUrlsChange={handleRepoUrlsChange}
-							/>
-
-							{/* GitHub Token Input */}
-							<GitHubTokenInput
-								hasPresetToken={hasPresetToken}
-								hasSavedToken={hasSavedToken}
-								token={token}
-								onTokenChange={handleTokenChange}
-								onTokenDelete={deleteToken}
-								onTokenSave={saveToken}
-							/>
-
-							{/* Analysis Options */}
-							<AnalysisOptions
-								hideMergeCommits={hideMergeCommits}
-								onHideMergeCommitsChange={handleHideMergeCommitsChange}
-							/>
-
-							{/* Error Notification */}
-							<ErrorNotification error={error} onClose={handleErrorClose} />
-
-							<Box className="flex justify-end mt-8">
-								<Button
-									className="submit-button"
-									color="primary"
-									disabled={loading}
-									type="submit"
-									variant="contained"
-									startIcon={
-										loading ? (
-											<div className="process-indicator">
-												<CircularProgress size={20} sx={{ color: "white" }} />
-											</div>
-										) : (
-											<SearchIcon sx={{ fontSize: "1.2rem" }} />
-										)
-									}
-								>
-									{loading ? "Analyzing..." : "Analyze Repositories"}
-								</Button>
-							</Box>
-						</form>
-					</CardContent>
-				</Card>
-			</Grow>
-
-			{/* Progress Section */}
-			<ProgressTracker
-				currentIndex={currentIndex}
-				loading={loading}
-				progress={progress}
-				repoItems={repoItems}
-			/>
-
-			{/* Results Section */}
-			{results.length > 0 && (
-				<Zoom in={results.length > 0} timeout={500}>
-					<Box className="mt-8">
-						<Typography className="form-title mb-4">
-							Repository Analysis Results
-						</Typography>
-						<BatchResults results={results} />
-					</Box>
-				</Zoom>
-			)}
-
-			{/* Success Notification */}
-			<SuccessNotification open={success} onClose={handleCloseSnackbar} />
-
-			{/* Token Management Notification */}
-			<TokenNotification
-				tokenMessage={tokenMessage}
-				onClose={handleTokenMessageClose}
-			/>
-		</Box>
-	);
-};
-
-export default RepoAnalysisForm;
+}

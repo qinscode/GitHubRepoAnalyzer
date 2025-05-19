@@ -1,7 +1,7 @@
 import { Box, Typography, Stack, Fade } from "@mui/material";
 import { useState, useEffect } from "react";
 
-import type { RepoResult } from "../types/batchRepoTypes";
+import type { RepoResult } from "@/types/github";
 import { RepoCard } from "./RepoCard";
 
 // TypeScript declaration for Tauri globals
@@ -20,7 +20,7 @@ interface BatchResultsProps {
 }
 
 // Main component
-function BatchResults({ results }: BatchResultsProps): JSX.Element {
+function BatchResults({ results }: BatchResultsProps) {
 	const [mounted, setMounted] = useState(false);
 
 	useEffect(() => {
