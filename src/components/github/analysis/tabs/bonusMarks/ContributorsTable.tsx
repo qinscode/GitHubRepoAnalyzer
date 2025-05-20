@@ -1,11 +1,11 @@
-import { Typography } from "@mui/material";
+import { useState } from "react";
 import { bonusMarksTheme } from "../../components/AnalysisThemes";
 import DataTable, { type Column } from "../../../utils/DataTable";
 import { ContributorsTableProps } from "./types";
 import StudentOrderChip from "./StudentOrderChip";
 import BonusMarkSelect from "./BonusMarkSelect";
-import DragHandle from "./DragHandle";
-import { useState, useEffect } from "react";
+import ContributorCell from "./ContributorCell";
+import DraggableRow from "./DraggableRow";
 import {
 	DndContext,
 	closestCenter,
@@ -14,9 +14,9 @@ import {
 	useSensor,
 	useSensors,
 	DragEndEvent,
+	DragStartEvent,
 } from "@dnd-kit/core";
 import {
-	arrayMove,
 	SortableContext,
 	sortableKeyboardCoordinates,
 	verticalListSortingStrategy,
@@ -32,20 +32,16 @@ const ContributorsTable = ({
 	selectStyles,
 	onReorder,
 }: ContributorsTableProps) => {
-	// State to track the current order of contributors
-	const [sortableContributors, setSortableContributors] =
-		useState<Array<string>>(contributors);
+	const [activeId, setActiveId] = useState<string | null>(null);
 
-	// Update sortable contributors when the contributors prop changes
-	useEffect(() => {
-		setSortableContributors(contributors);
-	}, [contributors]);
-
-	// Set up sensors for drag and drop
+	// Set up DnD sensors with relaxed constraints
 	const sensors = useSensors(
 		useSensor(PointerSensor, {
+			// Lower activation constraint for easier dragging
 			activationConstraint: {
-				distance: 5,
+				distance: 1,
+				tolerance: 5,
+				delay: 0,
 			},
 		}),
 		useSensor(KeyboardSensor, {
@@ -53,32 +49,29 @@ const ContributorsTable = ({
 		})
 	);
 
-	// Handle drag end event
+	// Handle drag end
 	const handleDragEnd = (event: DragEndEvent) => {
 		const { active, over } = event;
 
-		if (over && active.id !== over.id) {
-			setSortableContributors((items) => {
-				const oldIndex = items.indexOf(active.id as string);
-				const newIndex = items.indexOf(over.id as string);
+		setActiveId(null);
 
-				const newOrder = arrayMove(items, oldIndex, newIndex);
-
-				// Call the onReorder callback if provided
-				if (onReorder) {
-					onReorder(newOrder);
-				}
-
-				return newOrder;
-			});
+		if (over && active.id !== over.id && onReorder) {
+			const activeId = String(active.id);
+			const overId = String(over.id);
+			onReorder(activeId, overId);
 		}
 	};
 
+	// Handle drag start
+	const handleDragStart = (event: DragStartEvent) => {
+		const id = String(event.active.id);
+		setActiveId(id);
+	};
+
 	// Transform data for the table
-	const tableData = sortableContributors.map((user) => ({
+	const tableData = contributors.map((user) => ({
 		id: user,
 		user,
-		dragHandle: user,
 		studentOrder: {
 			user,
 			orderIndex: studentOrder.indexOf(user),
@@ -92,32 +85,17 @@ const ContributorsTable = ({
 	// Define table columns
 	const columns: Array<Column> = [
 		{
-			id: "dragHandle",
-			label: "",
-			width: "10%",
-			format: (value: any) => <DragHandle id={value} />,
-		},
-		{
 			id: "user",
 			label: "Contributor",
-			width: "25%",
+			width: "30%",
 			format: (value: string) => (
-				<Typography
-					sx={{
-						fontWeight: 500,
-						color: "rgba(55, 65, 81, 0.9)",
-						fontFamily: "inherit",
-						fontSize: "0.95rem",
-					}}
-				>
-					{value}
-				</Typography>
+				<ContributorCell isDragging={value === activeId} value={value} />
 			),
 		},
 		{
 			id: "studentOrder",
 			label: "Student Order",
-			width: "30%",
+			width: "35%",
 			align: "center",
 			format: (value: any) => {
 				const { orderIndex } = value;
@@ -144,14 +122,38 @@ const ContributorsTable = ({
 		},
 	];
 
+	// Custom row renderer for DataTable
+	const renderRow = (row: any, columns: Array<Column>) => {
+		return (
+			<DraggableRow key={row.id} id={row.id}>
+				{columns.map((column) => {
+					const value = row[column.id];
+					return (
+						<td
+							key={column.id}
+							style={{
+								textAlign: column.align || "left",
+								padding: "12px 16px",
+								borderBottom: "1px solid rgba(224, 224, 224, 0.5)",
+							}}
+						>
+							{column.format ? column.format(value) : value}
+						</td>
+					);
+				})}
+			</DraggableRow>
+		);
+	};
+
 	return (
 		<DndContext
 			collisionDetection={closestCenter}
 			sensors={sensors}
 			onDragEnd={handleDragEnd}
+			onDragStart={handleDragStart}
 		>
 			<SortableContext
-				items={sortableContributors}
+				items={contributors}
 				strategy={verticalListSortingStrategy}
 			>
 				<DataTable
@@ -162,6 +164,7 @@ const ContributorsTable = ({
 					lightColor={bonusMarksTheme.light}
 					lighterColor={bonusMarksTheme.lighter}
 					primaryColor={bonusMarksTheme.main}
+					renderRow={renderRow}
 				/>
 			</SortableContext>
 		</DndContext>
