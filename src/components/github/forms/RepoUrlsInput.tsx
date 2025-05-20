@@ -3,27 +3,46 @@ import {
 	TextField,
 	Typography,
 	InputAdornment,
-	Button,
+	Switch,
+	FormControlLabel,
 } from "@mui/material";
 import GitHubIcon from "@mui/icons-material/GitHub";
-import SaveIcon from "@mui/icons-material/Save";
-import DeleteIcon from "@mui/icons-material/Delete";
+import { useEffect } from "react";
 
 interface RepoUrlsInputProps {
 	repoUrls: string;
 	onRepoUrlsChange: (repoUrls: string) => void;
-	onRepoUrlsSave: () => void;
-	onRepoUrlsDelete: () => void;
+	autoSave: boolean;
+	onAutoSaveChange: (autoSave: boolean) => void;
 	hasSavedUrls: boolean;
 }
 
 const RepoUrlsInput = ({
 	repoUrls,
 	onRepoUrlsChange,
-	onRepoUrlsSave,
-	onRepoUrlsDelete,
+	autoSave,
+	onAutoSaveChange,
 	hasSavedUrls,
 }: RepoUrlsInputProps) => {
+	// Effect for auto-saving when autoSave is enabled
+	useEffect(() => {
+		if (autoSave && repoUrls) {
+			// Save URLs to local storage when autoSave is enabled and repoUrls changes
+			localStorage.setItem('githubRepoUrls', repoUrls);
+		}
+	}, [repoUrls, autoSave]);
+
+	// Handle autoSave toggle
+	const handleAutoSaveChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		const newAutoSaveValue = event.target.checked;
+		onAutoSaveChange(newAutoSaveValue);
+		
+		// If turning on autoSave, immediately save current URLs
+		if (newAutoSaveValue && repoUrls) {
+			localStorage.setItem('githubRepoUrls', repoUrls);
+		}
+	};
+
 	return (
 		<Box className="mb-5 relative">
 			<Typography className="form-subtitle">GitHub Repository URLs</Typography>
@@ -56,29 +75,17 @@ const RepoUrlsInput = ({
 				{hasSavedUrls && "URLs loaded from browser storage"}
 			</Typography>
 
-			<Box sx={{ display: "flex", gap: 3, mt: 2 }}>
-				<Button
-					className="submit-button"
-					color="primary"
-					size="small"
-					startIcon={<SaveIcon />}
-					variant="contained"
-					onClick={onRepoUrlsSave}
-				>
-					Save URLs
-				</Button>
-				{hasSavedUrls && (
-					<Button
-						className="submit-button"
-						color="error"
-						size="small"
-						startIcon={<DeleteIcon />}
-						variant="contained"
-						onClick={onRepoUrlsDelete}
-					>
-						Delete URLs
-					</Button>
-				)}
+			<Box sx={{ mt: 2 }}>
+				<FormControlLabel
+					control={
+						<Switch
+							checked={autoSave}
+							onChange={handleAutoSaveChange}
+							color="primary"
+						/>
+					}
+					label="Auto-save URLs"
+				/>
 			</Box>
 		</Box>
 	);
