@@ -16,6 +16,7 @@ import { RepoResult } from "@/types/github";
 import { RepoStats } from "./RepoStats";
 import { RepoActions } from "./RepoActions";
 import RepoResults from "../repo-analysis/RepoResults";
+import "./RepoCard.css";
 
 interface RepoCardProps {
 	result: RepoResult;
@@ -30,29 +31,25 @@ export const RepoCard = ({ result }: RepoCardProps) => {
 		setExpandedRepo(expandedRepo === repoUrl ? null : repoUrl);
 	};
 
+	const isExpanded = expandedRepo === result.repoUrl;
+
 	return (
 		<Card
-			elevation={1}
+			className={`repo-card ${isExpanded ? "repo-card-expanded" : ""}`}
+			elevation={0}
 			sx={{
-				borderRadius: { xs: "8px", sm: "10px", md: "12px" },
+				borderRadius: { xs: "16px", sm: "18px", md: "20px" },
 				overflow: "hidden",
 				background:
 					"linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(249, 250, 251, 0.95))",
 				backdropFilter: "blur(10px)",
 				transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-				borderLeft: "1px solid rgba(59, 130, 246, 0.2)",
-				borderTop: "1px solid rgba(255, 255, 255, 0.7)",
-				boxShadow:
-					expandedRepo === result.repoUrl
-						? "0 15px 20px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
-						: "0 2px 5px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.02)",
-				"&:hover": {
-					transform:
-						expandedRepo === result.repoUrl ? "none" : "translateY(-3px)",
-					boxShadow:
-						"0 10px 15px -5px rgba(59, 130, 246, 0.08), 0 5px 10px -5px rgba(59, 130, 246, 0.05)",
-				},
+				border: "1px solid rgba(255, 255, 255, 0.7)",
 				position: "relative",
+				mb: { xs: 1.5, sm: 2, md: 2.5 },
+				"&:hover": {
+					transform: isExpanded ? "none" : "translateY(-5px)",
+				},
 				"&::before": {
 					content: '""',
 					position: "absolute",
@@ -61,10 +58,9 @@ export const RepoCard = ({ result }: RepoCardProps) => {
 					right: 0,
 					height: { xs: "2px", sm: "2px", md: "3px" },
 					background: "linear-gradient(90deg, #3B82F6, #4F46E5)",
-					opacity: expandedRepo === result.repoUrl ? 1 : 0,
+					opacity: isExpanded ? 1 : 0,
 					transition: "opacity 0.3s ease",
 				},
-				mb: { xs: 1.5, sm: 2, md: 2.5 },
 			}}
 		>
 			<CardContent
