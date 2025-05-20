@@ -12,7 +12,7 @@
     "url": "https://github.com/qinscode/GitHubRepoAnalyzer.git"
   },
   "license": "MIT",
-  "version": "1.0.0",
+  "version": "0.4.0",
   "type": "module",
   "scripts": {
     "setup": "git init && npx husky init && npx playwright install && shx rm .husky/pre-commit",
