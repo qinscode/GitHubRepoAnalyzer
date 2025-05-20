@@ -35,16 +35,16 @@ export interface ContributorItem {
 }
 
 export interface ContributorsTableProps {
-	contributors: string[];
+	contributors: Array<string>;
 	bonusMarks: Record<string, BonusMark>;
 	totalBonusMarks: number;
 	handleMarkChange: (user: string, value: number) => void;
-	studentOrder: string[];
+	studentOrder: Array<string>;
 	menuProps: any;
 	selectStyles: any;
-	onReorder?: (newOrder: string[]) => void;
+	onReorder?: (newOrder: Array<string>) => void;
 }
 
 export interface DragHandleProps {
 	id: string;
-} 
+}

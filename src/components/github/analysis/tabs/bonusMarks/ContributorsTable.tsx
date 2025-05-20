@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import { bonusMarksTheme } from "../../components/AnalysisThemes";
 import DataTable, { type Column } from "../../../utils/DataTable";
 import { ContributorsTableProps } from "./types";
@@ -34,7 +34,7 @@ const ContributorsTable = ({
 }: ContributorsTableProps) => {
 	// State to track the current order of contributors
 	const [sortableContributors, setSortableContributors] =
-		useState<string[]>(contributors);
+		useState<Array<string>>(contributors);
 
 	// Update sortable contributors when the contributors prop changes
 	useEffect(() => {
@@ -133,11 +133,11 @@ const ContributorsTable = ({
 				return (
 					<BonusMarkSelect
 						mark={mark}
-						user={currentUser}
-						totalBonusMarks={totalBonusMarks}
-						onMarkChange={handleMarkChange}
 						menuProps={menuProps}
 						selectStyles={selectStyles}
+						totalBonusMarks={totalBonusMarks}
+						user={currentUser}
+						onMarkChange={handleMarkChange}
 					/>
 				);
 			},
@@ -146,8 +146,8 @@ const ContributorsTable = ({
 
 	return (
 		<DndContext
-			sensors={sensors}
 			collisionDetection={closestCenter}
+			sensors={sensors}
 			onDragEnd={handleDragEnd}
 		>
 			<SortableContext
