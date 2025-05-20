@@ -28,7 +28,7 @@ const RepoUrlsInput = ({
 	useEffect(() => {
 		if (autoSave && repoUrls) {
 			// Save URLs to local storage when autoSave is enabled and repoUrls changes
-			localStorage.setItem('githubRepoUrls', repoUrls);
+			localStorage.setItem("githubRepoUrls", repoUrls);
 		}
 	}, [repoUrls, autoSave]);
 
@@ -36,10 +36,10 @@ const RepoUrlsInput = ({
 	const handleAutoSaveChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const newAutoSaveValue = event.target.checked;
 		onAutoSaveChange(newAutoSaveValue);
-		
+
 		// If turning on autoSave, immediately save current URLs
 		if (newAutoSaveValue && repoUrls) {
-			localStorage.setItem('githubRepoUrls', repoUrls);
+			localStorage.setItem("githubRepoUrls", repoUrls);
 		}
 	};
 
@@ -77,14 +77,14 @@ const RepoUrlsInput = ({
 
 			<Box sx={{ mt: 2 }}>
 				<FormControlLabel
+					label="Auto-save URLs"
 					control={
 						<Switch
 							checked={autoSave}
-							onChange={handleAutoSaveChange}
 							color="primary"
+							onChange={handleAutoSaveChange}
 						/>
 					}
-					label="Auto-save URLs"
 				/>
 			</Box>
 		</Box>
