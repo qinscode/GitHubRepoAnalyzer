@@ -1,60 +1,62 @@
-import { useMemo, useEffect, useRef } from "react";
+import { useMemo, useEffect, useRef, useContext } from "react";
 import { Box } from "@mui/material";
 import { RepoData } from "@/services/github/types";
-import { useStudentStore } from "@/store/useStudentStore";
 import ContributionTable from "../components/ContributionTable";
 import StudentOrderer from "../components/StudentOrderer";
 import { calculateContributionStats } from "../utils/contributionUtils";
+import { RepoContext } from "../../repo-analysis/RepoResults";
 
 interface SummaryTabProps {
 	data: RepoData;
 }
 
 const SummaryTab: React.FC<SummaryTabProps> = ({ data }) => {
-	const { studentOrder, setStudentOrder } = useStudentStore();
+	// 使用RepoContext替代全局state
+	const { repoStudents, setRepoStudents } = useContext(RepoContext);
+	
+	// 跟踪当前数据源的引用，用于检测数据变化
+	const dataRef = useRef<RepoData | null>(null);
 
-	// Use a ref to track if we've already initialized the student order
-	const initializedRef = useRef(false);
-
-	// Update student order with actual contributors only once on initial load
-	// and only if studentOrder is empty
+	// 初始化学生顺序，确保在数据变化时重新处理
 	useEffect(() => {
-		// Skip if we've already initialized or if studentOrder already has items
-		if (initializedRef.current || studentOrder.length > 0) {
-			return;
-		}
-
-		const actualContributors = Array.from(
-			new Set([
-				...Object.keys(data.commits),
-				...Object.keys(data.issues),
-				...Object.keys(data.prs),
-			])
-		);
-
-		// If we have actual contributors, update the student order with only actual contributors
-		if (actualContributors.length > 0) {
-			// Only include actual contributors, up to maximum of 7
-			const updatedOrder = actualContributors.slice(0, 7);
-			setStudentOrder(updatedOrder);
-		} else {
-			// If no contributors, set empty array
-			setStudentOrder([]);
-		}
+		// 检查数据是否已变化
+		const isNewData = dataRef.current !== data;
 		
-		// Mark as initialized
-		initializedRef.current = true;
-	}, [data, setStudentOrder, studentOrder.length]); // Added studentOrder.length to dependencies
+		// 更新数据引用
+		dataRef.current = data;
+		
+		// 如果是新数据或学生列表为空，则重新获取贡献者列表
+		if (isNewData || repoStudents.length === 0) {
+			// 获取贡献者列表
+			const actualContributors = Array.from(
+				new Set([
+					...Object.keys(data.commits),
+					...Object.keys(data.issues),
+					...Object.keys(data.prs),
+				])
+			);
 
-	// Calculate statistics data
+			// 如果有贡献者，更新学生顺序
+			if (actualContributors.length > 0) {
+				// 最多只包含7个贡献者
+				const updatedOrder = actualContributors.slice(0, 7);
+				setRepoStudents(updatedOrder);
+			} else {
+				// 如果没有贡献者，设置为空数组
+				setRepoStudents([]);
+			}
+		}
+	}, [data, setRepoStudents, repoStudents.length]);
+
+	// 计算统计数据
 	const { commitsByUser, issuesByUser, prsByUser } = useMemo(() => {
-		return calculateContributionStats(data, studentOrder);
-	}, [data, studentOrder]);
+		return calculateContributionStats(data, repoStudents);
+	}, [data, repoStudents]);
 
-	// Only show StudentOrderer if there are actual students
+	// 只有在有学生时才显示StudentOrderer
 	return (
 		<Box className="flex flex-col">
-			{studentOrder.length > 0 && <StudentOrderer />}
+			{repoStudents.length > 0 && <StudentOrderer />}
 			<Box>
 				<ContributionTable
 					color="primary"

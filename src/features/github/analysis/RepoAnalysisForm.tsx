@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
 	Box,
 	Button,
@@ -70,6 +70,16 @@ const RepoAnalysisForm = () => {
 
 	// Combine token messages from both hooks
 	const combinedTokenMessage = tokenMessage || localTokenMessage;
+	
+	// 使用ref跟踪分析按钮点击次数，用于生成唯一key
+	const analysisCountRef = useRef(0);
+	
+	// 每次提交表单时增加计数
+	useEffect(() => {
+		if (loading) {
+			analysisCountRef.current += 1;
+		}
+	}, [loading]);
 
 	return (
 		<Box className="form-container">
@@ -147,7 +157,11 @@ const RepoAnalysisForm = () => {
 						<Typography className="form-title mb-4">
 							Repository Analysis Results
 						</Typography>
-						<BatchResults results={results} />
+						{/* 为BatchResults添加key，强制在新分析时重新渲染，确保上下文隔离 */}
+						<BatchResults 
+							key={`batch-results-${analysisCountRef.current}`} 
+							results={results} 
+						/>
 					</Box>
 				</Zoom>
 			)}

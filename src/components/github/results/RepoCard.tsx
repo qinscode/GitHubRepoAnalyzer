@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
 	Box,
 	Card,
@@ -26,12 +26,23 @@ interface RepoCardProps {
 export const RepoCard = ({ result }: RepoCardProps) => {
 	const [expandedRepo, setExpandedRepo] = useState<string | null>(null);
 	const theme = useTheme();
+	// 不再需要跟踪上一个展开状态
+	const lastExpandedRef = useRef<boolean>(false);
 
 	const handleToggleDetails = (repoUrl: string): void => {
+		// 简单地切换展开状态
 		setExpandedRepo(expandedRepo === repoUrl ? null : repoUrl);
 	};
 
 	const isExpanded = expandedRepo === result.repoUrl;
+	
+	// 每个仓库现在都有自己的上下文，不需要重置全局状态
+	useEffect(() => {
+		// 更新展开状态引用
+		if (isExpanded !== lastExpandedRef.current) {
+			lastExpandedRef.current = isExpanded;
+		}
+	}, [isExpanded]);
 
 	return (
 		<Card
