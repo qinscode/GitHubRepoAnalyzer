@@ -29,7 +29,6 @@ export const GitHub = () => {
 							"0 2px 10px rgba(79,70,229,0.4), 0 0 20px rgba(59,130,246,0.12)",
 						letterSpacing: "-0.5px",
 						marginBottom: "0.5rem",
-
 					}}
 				>
 					GitHub Repository Analyzer
@@ -44,7 +43,7 @@ export const GitHub = () => {
 						marginBottom: "1rem",
 					}}
 				>
-					v0.4.0
+					v0.4.5
 				</Typography>
 			</Box>
 
