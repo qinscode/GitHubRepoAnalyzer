@@ -1,5 +1,4 @@
 import { Container, Box, Typography } from "@mui/material";
-import GitHubIcon from "@mui/icons-material/GitHub";
 import { RepoAnalysisForm } from "../features/github/analysis";
 import RepoTabs from "../components/github/analysis/tabs/RepoTabs.tsx";
 
@@ -8,17 +7,14 @@ export const GitHub = () => {
 		<Container className="!p-4 md:!p-8" maxWidth="xl">
 			<Box className="mb-6 text-center">
 				<Box className="inline-flex items-center justify-center p-3 mb-4 rounded-full bg-gradient-to-br from-blue-500/5 to-indigo-500/10">
-					<GitHubIcon
-						sx={{
-							color: "white",
-							fontSize: "1.4rem",
-							background: "linear-gradient(135deg, #3B82F6, #4F46E5)",
+					<img
+						alt="Logo"
+						src="/icon.png"
+						style={{
+							width: 150,
+							height: 150,
 							borderRadius: "50%",
-							width: 40,
-							height: 40,
-							padding: "8px",
 							boxShadow: "0 4px 6px -1px rgba(59, 130, 246, 0.2)",
-							display: "inline-block",
 						}}
 					/>
 				</Box>
@@ -29,9 +25,25 @@ export const GitHub = () => {
 					sx={{
 						fontWeight: "700 !important",
 						fontSize: { xs: "2.5rem", md: "3.25rem" },
-						textShadow: "0 1px 1px rgba(0,0,0,0.03)",
+						textShadow:
+							"0 2px 10px rgba(79,70,229,0.4), 0 0 20px rgba(59,130,246,0.12)",
 						letterSpacing: "-0.5px",
 						marginBottom: "0.5rem",
+						animation: "pulse 2s infinite ease-in-out",
+						"@keyframes pulse": {
+							"0%": {
+								textShadow:
+									"0 2px 10px rgba(79,70,229,0.4), 0 0 20px rgba(59,130,246,0.2)",
+							},
+							"50%": {
+								textShadow:
+									"0 2px 20px rgba(79,70,229,0.6), 0 0 30px rgba(59,130,246,0.4)",
+							},
+							"100%": {
+								textShadow:
+									"0 2px 10px rgba(79,70,229,0.4), 0 0 20px rgba(59,130,246,0.2)",
+							},
+						},
 					}}
 				>
 					GitHub Repository Analyzer
