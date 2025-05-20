@@ -27,6 +27,7 @@ export interface DataTableProps {
 	lightColor: string;
 	lighterColor: string;
 	primaryColor: string;
+	renderRow?: (row: any, columns: Array<Column>) => React.ReactNode;
 }
 
 /**
@@ -41,6 +42,7 @@ const DataTable: React.FC<DataTableProps> = ({
 	lightColor,
 	lighterColor,
 	primaryColor,
+	renderRow,
 }) => {
 	if (!data.length) {
 		return (
@@ -94,56 +96,60 @@ const DataTable: React.FC<DataTableProps> = ({
 					</TableRow>
 				</TableHead>
 				<TableBody>
-					{data.map((row, rowIndex) => (
-						<TableRow
-							key={getRowKey(row, rowIndex)}
-							sx={{
-								transition: "background-color 0.2s ease",
-								"&:hover": {
-									backgroundColor: `${alpha(primaryColor, 0.04)}`,
-								},
-								animation: `fadeIn 0.5s ease-out forwards ${rowIndex * 0.03}s`,
-								opacity: 0,
-								"@keyframes fadeIn": {
-									"0%": { opacity: 0, transform: "translateY(5px)" },
-									"100%": { opacity: 1, transform: "translateY(0)" },
-								},
-								"&:nth-of-type(odd)": {
-									backgroundColor: `${alpha(primaryColor, 0.02)}`,
-								},
-								"&:last-child td": {
-									borderBottom: 0,
-								},
-							}}
-						>
-							{columns.map((column) => {
-								const value = row[column.id];
-								return (
-									<TableCell
-										key={column.id}
-										align={column.align || "left"}
-										sx={{
-											fontFamily: "monospace",
-											fontSize: "0.85rem",
-											borderBottom: "1px solid rgba(0,0,0,0.04)",
-											py: 1.25,
-											...(column.id === "number"
-												? {
-														fontWeight: 500,
-														color: primaryColor,
-													}
-												: {
-														whiteSpace: "pre-wrap",
-														wordBreak: "break-word",
-													}),
-										}}
-									>
-										{column.format ? column.format(value) : value}
-									</TableCell>
-								);
-							})}
-						</TableRow>
-					))}
+					{data.map((row, rowIndex) => 
+						renderRow ? (
+							renderRow(row, columns)
+						) : (
+							<TableRow
+								key={getRowKey(row, rowIndex)}
+								sx={{
+									transition: "background-color 0.2s ease",
+									"&:hover": {
+										backgroundColor: `${alpha(primaryColor, 0.04)}`,
+									},
+									animation: `fadeIn 0.5s ease-out forwards ${rowIndex * 0.03}s`,
+									opacity: 0,
+									"@keyframes fadeIn": {
+										"0%": { opacity: 0, transform: "translateY(5px)" },
+										"100%": { opacity: 1, transform: "translateY(0)" },
+									},
+									"&:nth-of-type(odd)": {
+										backgroundColor: `${alpha(primaryColor, 0.02)}`,
+									},
+									"&:last-child td": {
+										borderBottom: 0,
+									},
+								}}
+							>
+								{columns.map((column) => {
+									const value = row[column.id];
+									return (
+										<TableCell
+											key={column.id}
+											align={column.align || "left"}
+											sx={{
+												fontFamily: "monospace",
+												fontSize: "0.85rem",
+												borderBottom: "1px solid rgba(0,0,0,0.04)",
+												py: 1.25,
+												...(column.id === "number"
+													? {
+															fontWeight: 500,
+															color: primaryColor,
+														}
+													: {
+															whiteSpace: "pre-wrap",
+															wordBreak: "break-word",
+														}),
+											}}
+										>
+											{column.format ? column.format(value) : value}
+										</TableCell>
+									);
+								})}
+							</TableRow>
+						)
+					)}
 				</TableBody>
 			</Table>
 		</TableContainer>

@@ -1,47 +1,80 @@
-# GitHub Repository Analyzer
+<p align="center">
+  <img src="https://raw.githubusercontent.com/qinscode/GitHubRepoAnalyzer/main/public/icon.png" alt="GitHub Repository Analyzer Logo" width="180" height="180">
+</p>
 
-A desktop application built with React and Tauri to analyze GitHub repositories individually or in batch to gain valuable insights.
+<h1 align="center">GitHub Repository Analyzer</h1>
 
-## Features
+<p align="center">
+  <a href="https://github.com/qinscode/GitHubRepoAnalyzer/releases/latest">
+    <img src="https://img.shields.io/github/v/release/qinscode/GitHubRepoAnalyzer?include_prereleases&style=flat-square" alt="GitHub Release">
+  </a>
+  <a href="https://github.com/qinscode/GitHubRepoAnalyzer/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/qinscode/GitHubRepoAnalyzer?style=flat-square" alt="License">
+  </a>
+  <a href="https://github.com/qinscode/GitHubRepoAnalyzer/stargazers">
+    <img src="https://img.shields.io/github/stars/qinscode/GitHubRepoAnalyzer?style=flat-square" alt="GitHub Stars">
+  </a>
+  <a href="https://github.com/qinscode/GitHubRepoAnalyzer/issues">
+    <img src="https://img.shields.io/github/issues/qinscode/GitHubRepoAnalyzer?style=flat-square" alt="GitHub Issues">
+  </a>
+  <a href="https://github.com/qinscode/GitHubRepoAnalyzer/network/members">
+    <img src="https://img.shields.io/github/forks/qinscode/GitHubRepoAnalyzer?style=flat-square" alt="GitHub Forks">
+  </a>
+  <br>
+  <a href="https://react.dev/">
+    <img src="https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react" alt="React">
+  </a>
+  <a href="https://tauri.app/">
+    <img src="https://img.shields.io/badge/Tauri-2.0-FFC131?style=flat-square&logo=tauri" alt="Tauri">
+  </a>
+  <a href="https://www.typescriptlang.org/">
+    <img src="https://img.shields.io/badge/TypeScript-5.5-3178C6?style=flat-square&logo=typescript" alt="TypeScript">
+  </a>
+  <a href="https://vitejs.dev/">
+    <img src="https://img.shields.io/badge/Vite-6.3-646CFF?style=flat-square&logo=vite" alt="Vite">
+  </a>
+</p>
 
-- Analyze individual GitHub repositories
-- Batch analysis of multiple repositories
-- Visualization of repository metrics
-- User-friendly interface with Material UI
+A powerful desktop application built with React and Tauri that provides comprehensive analysis of GitHub repositories, individually or in batch.
 
-## Tech Stack
+## 🚀 Features
+
+- **Single Repository Analysis**: Deep dive into metrics of individual GitHub repositories
+- **Batch Processing**: Analyze multiple repositories simultaneously
+- **Data Visualization**: Interactive charts and graphs for repository metrics
+- **Modern UI**: Clean, intuitive interface built with Material UI components
+
+## 🛠️ Tech Stack
 
 ### Frontend
-- React 18
-- TypeScript
-- Vite
-- TanStack Router for routing
-- TanStack React Query for data fetching
-- TanStack Table for data display
-- Material UI for components
-- Recharts for data visualization
-- Zustand for state management
-- React Hook Form for form handling
-- Zod for schema validation
-- Tailwind CSS for styling
+- **React 18** with TypeScript
+- **Vite** for fast development and optimized builds
+- **TanStack** ecosystem:
+  - Router for navigation
+  - React Query for data fetching
+  - Table for data display
+- **Material UI** for component library
+- **Recharts** for data visualization
+- **Zustand** for state management
+- **React Hook Form** with Zod validation
+- **Tailwind CSS** for styling
 
 ### Backend
-- Tauri (Rust-based framework)
-- Tauri API
-- Tauri Plugin Opener
+- **Tauri** (Rust-based desktop framework)
+- Tauri API and Plugin Opener
 
-## Development Setup
+## 🔧 Development Setup
 
 ### Prerequisites
 - Node.js (latest LTS version)
 - pnpm 10.11.0 or newer
-- Rust and Cargo (for Tauri)
+- Rust and Cargo (for Tauri development)
 
 ### Installation
 
 1. Clone the repository
 ```bash
-git clone <repository-url>
+git clone https://github.com/qinscode/GitHubRepoAnalyzer.git
 cd github-repository-analyzer
 ```
 
@@ -57,7 +90,6 @@ pnpm setup
 
 ### Development
 
-Start the development server:
 ```bash
 pnpm dev           # Web-only development
 pnpm tauri:dev     # Tauri app development
@@ -65,48 +97,54 @@ pnpm tauri:dev     # Tauri app development
 
 ### Building
 
-Build the application:
 ```bash
 pnpm build         # Web build
 pnpm tauri:build   # Tauri app build
 ```
 
-## Scripts
+## 📜 Available Scripts
 
-- `pnpm dev` - Start Vite development server
-- `pnpm build` - Build the web application
-- `pnpm tauri:dev` - Start Tauri development
-- `pnpm tauri:build` - Build the Tauri application
-- `pnpm lint` - Run ESLint to check for issues
-- `pnpm lint:fix` - Fix linting issues automatically
-- `pnpm format` - Format code with Prettier
+| Command | Description |
+|---------|-------------|
+| `pnpm dev` | Start Vite development server |
+| `pnpm build` | Build the web application |
+| `pnpm tauri:dev` | Start Tauri development |
+| `pnpm tauri:build` | Build the Tauri application |
+| `pnpm lint` | Run ESLint to check for issues |
+| `pnpm lint:fix` | Fix linting issues automatically |
+| `pnpm format` | Format code with Prettier |
 
-## Project Structure
+## 📁 Project Structure
 
 - `src/` - React application source code
 - `src-tauri/` - Tauri backend code (Rust)
 - `public/` - Static assets
 
-## License
+## 📝 License
 
 MIT License - See [LICENSE](LICENSE) file for details.
 
-## macOS Installation Note
+## ⚠️ macOS Installation Note
 
-As this application is not signed with an Apple Developer Certificate, macOS users may encounter the following error when opening the app:
+Since this application is not signed with an Apple Developer Certificate, macOS users may encounter security warnings. If you see:
 
 ```
 "GH Analyzer.app" is damaged and can't be opened. You should move it to the Bin.
 ```
 
-To resolve this issue, open Terminal and run the following command:
+To resolve this issue:
 
+1. Open Terminal
+2. Run the following command:
 ```bash
 sudo xattr -rd com.apple.quarantine "/path/to/GH Analyzer.app"
 ```
 
-Replace `/path/to/GH Analyzer.app` with the actual path to the application. This command removes the macOS quarantine attribute that's blocking the app from running.
+Replace `/path/to/GH Analyzer.app` with the actual path to the application.
 
-For example,
+Example:
+```bash
+sudo xattr -rd com.apple.quarantine /Users/username/Downloads/GH\ Analyzer.app
+```
 
-`sudo xattr -rd com.apple.quarantine /Users/jack/Downloads/GH\ Analyzer.app`
+This removes the macOS quarantine attribute that blocks unsigned applications.

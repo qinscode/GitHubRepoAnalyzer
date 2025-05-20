@@ -133,7 +133,7 @@ function RepoResults({ data }: RepoResultsProps) {
 					fontStyle: "italic",
 				}}
 			>
-				Use left and right arrow keys to navigate between tabs
+				Tips: Use left and right arrow keys to navigate between tabs
 			</Typography>
 			<Fade in={tabTransition} timeout={400}>
 				<Box

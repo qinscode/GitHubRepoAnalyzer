@@ -17,9 +17,12 @@ const SummaryTab: React.FC<SummaryTabProps> = ({ data }) => {
 	const initializedRef = useRef(false);
 
 	// Update student order with actual contributors only once on initial load
+	// and only if studentOrder is empty
 	useEffect(() => {
-		// Skip if we've already initialized
-		if (initializedRef.current) return;
+		// Skip if we've already initialized or if studentOrder already has items
+		if (initializedRef.current || studentOrder.length > 0) {
+			return;
+		}
 
 		const actualContributors = Array.from(
 			new Set([
@@ -41,7 +44,7 @@ const SummaryTab: React.FC<SummaryTabProps> = ({ data }) => {
 		
 		// Mark as initialized
 		initializedRef.current = true;
-	}, [data, setStudentOrder]); // Removed studentOrder from dependencies to prevent loop
+	}, [data, setStudentOrder, studentOrder.length]); // Added studentOrder.length to dependencies
 
 	// Calculate statistics data
 	const { commitsByUser, issuesByUser, prsByUser } = useMemo(() => {

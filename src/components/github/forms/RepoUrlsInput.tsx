@@ -77,13 +77,22 @@ const RepoUrlsInput = ({
 
 			<Box sx={{ mt: 2 }}>
 				<FormControlLabel
-					label="Auto-save URLs"
 					control={
 						<Switch
 							checked={autoSave}
 							color="primary"
 							onChange={handleAutoSaveChange}
 						/>
+					}
+					label={
+						<Typography
+							color="text.secondary"
+							fontWeight={600}
+							sx={{ fontSize: "0.9rem" }}
+							variant="body1"
+						>
+							Auto-save URLs
+						</Typography>
 					}
 				/>
 			</Box>

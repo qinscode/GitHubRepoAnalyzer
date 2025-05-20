@@ -40,10 +40,10 @@ const ExpandSwitch = ({
 			}
 			label={
 				<Typography
-					sx={{
-						fontSize: "0.875rem",
-						color: theme.textColor,
-					}}
+					color="text.secondary"
+					fontWeight={600}
+					sx={{ fontSize: "0.9rem" }}
+					variant="body1"
 				>
 					{isExpanded ? showLessLabel : showMoreLabel}
 				</Typography>

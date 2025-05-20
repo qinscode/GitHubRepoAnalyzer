@@ -57,7 +57,12 @@ const AnalysisOptions = ({
 						/>
 					}
 					label={
-						<Typography sx={{ fontSize: "0.85rem" }} variant="body2">
+						<Typography
+							color="text.secondary"
+							fontWeight={600}
+							sx={{ fontSize: "0.9rem" }}
+							variant="body1"
+						>
 							Filter Merge Commits
 						</Typography>
 					}
