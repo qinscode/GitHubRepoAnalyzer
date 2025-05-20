@@ -74,7 +74,7 @@ const RepoAnalysisForm = () => {
 	return (
 		<Box className="form-container">
 			<Grow in timeout={800}>
-				<Card className="form-card">
+				<Card className="transparent-bg">
 					<CardContent className="p-6">
 						<form onSubmit={handleRepoSubmit}>
 							<Typography className="form-title">

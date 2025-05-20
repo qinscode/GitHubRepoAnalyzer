@@ -6,8 +6,5 @@
   html, body, #root {
     min-height: 100vh;
   }
-  
-  body {
-    background: radial-gradient(circle, rgba(79, 70, 229, 0.05) 0%, rgba(79, 70, 229, 0) 70%);
-  }
+
 }

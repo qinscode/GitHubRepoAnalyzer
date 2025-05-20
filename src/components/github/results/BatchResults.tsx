@@ -51,8 +51,6 @@ function BatchResults({ results }: BatchResultsProps) {
 					left: -150,
 					width: 300,
 					height: 300,
-					background:
-						"radial-gradient(circle, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0) 70%)",
 					borderRadius: "50%",
 					zIndex: -1,
 				},
@@ -63,8 +61,6 @@ function BatchResults({ results }: BatchResultsProps) {
 					right: -150,
 					width: 300,
 					height: 300,
-					background:
-						"radial-gradient(circle, rgba(79, 70, 229, 0.05) 0%, rgba(79, 70, 229, 0) 70%)",
 					borderRadius: "50%",
 					zIndex: -1,
 				},
