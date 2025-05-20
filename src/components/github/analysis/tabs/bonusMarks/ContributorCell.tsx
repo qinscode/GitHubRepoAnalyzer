@@ -4,17 +4,13 @@ import { ContributorCellProps } from "./types";
 import { bonusMarksTheme } from "../../components/AnalysisThemes";
 import { alpha } from "@mui/material/styles";
 
-const ContributorCell = ({ value, isDragging }: ContributorCellProps) => {
+const ContributorCell = ({ value, isDragging, dragAttributes, dragListeners }: ContributorCellProps) => {
   return (
     <Box
       sx={{
         display: "flex",
         alignItems: "center",
         gap: 1,
-        cursor: "grab",
-        "&:active": {
-          cursor: "grabbing",
-        },
         width: "100%",
         userSelect: "none",
       }}
@@ -26,6 +22,10 @@ const ContributorCell = ({ value, isDragging }: ContributorCellProps) => {
           justifyContent: "center",
           padding: "4px",
           borderRadius: "4px",
+          cursor: "grab",
+          "&:active": {
+            cursor: "grabbing",
+          },
           backgroundColor: isDragging 
             ? alpha(bonusMarksTheme.main, 0.1)
             : "transparent",
@@ -33,6 +33,8 @@ const ContributorCell = ({ value, isDragging }: ContributorCellProps) => {
             backgroundColor: alpha(bonusMarksTheme.main, 0.1),
           },
         }}
+        {...dragAttributes}
+        {...dragListeners}
       >
         <DragIcon
           sx={{

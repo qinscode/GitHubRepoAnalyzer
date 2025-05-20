@@ -88,8 +88,13 @@ const ContributorsTable = ({
 			id: "user",
 			label: "Contributor",
 			width: "30%",
-			format: (value: string) => (
-				<ContributorCell isDragging={value === activeId} value={value} />
+			format: (value: string, dragAttributes?: any, dragListeners?: any) => (
+				<ContributorCell 
+					isDragging={value === activeId} 
+					value={value} 
+					dragAttributes={dragAttributes}
+					dragListeners={dragListeners}
+				/>
 			),
 		},
 		{
@@ -126,7 +131,7 @@ const ContributorsTable = ({
 	const renderRow = (row: any, columns: Array<Column>) => {
 		return (
 			<DraggableRow key={row.id} id={row.id}>
-				{columns.map((column) => {
+				{columns.map((column, index) => {
 					const value = row[column.id];
 					return (
 						<td
@@ -137,7 +142,11 @@ const ContributorsTable = ({
 								borderBottom: "1px solid rgba(224, 224, 224, 0.5)",
 							}}
 						>
-							{column.format ? column.format(value) : value}
+							{column.format && index === 0 
+								? column.format(value, row.dragAttributes, row.dragListeners) 
+								: column.format 
+									? column.format(value) 
+									: value}
 						</td>
 					);
 				})}
