@@ -12,21 +12,19 @@ interface SummaryTabProps {
 
 const SummaryTab: React.FC<SummaryTabProps> = ({ data }) => {
 	// 使用RepoContext替代全局state
-	const { repoStudents, setRepoStudents } = useContext(RepoContext);
+	const { repoStudents, setRepoStudents, isInitialized, setIsInitialized } = useContext(RepoContext);
 	
 	// 跟踪当前数据源的引用，用于检测数据变化
 	const dataRef = useRef<RepoData | null>(null);
 
-	// 初始化学生顺序，确保在数据变化时重新处理
+	// 初始化学生顺序，但在已初始化时保留现有顺序
 	useEffect(() => {
-		// 检查数据是否已变化
-		const isNewData = dataRef.current !== data;
-		
-		// 更新数据引用
-		dataRef.current = data;
-		
-		// 如果是新数据或学生列表为空，则重新获取贡献者列表
-		if (isNewData || repoStudents.length === 0) {
+		// 只有在未初始化状态或初次加载数据时才进行初始化
+		if (!isInitialized) {
+			// 检查数据是否变化
+			const dataChanged = dataRef.current !== data;
+			dataRef.current = data;
+			
 			// 获取贡献者列表
 			const actualContributors = Array.from(
 				new Set([
@@ -36,17 +34,30 @@ const SummaryTab: React.FC<SummaryTabProps> = ({ data }) => {
 				])
 			);
 
-			// 如果有贡献者，更新学生顺序
-			if (actualContributors.length > 0) {
+			// 只有在有新贡献者或学生列表为空时才更新
+			if (actualContributors.length > 0 && (repoStudents.length === 0 || dataChanged)) {
 				// 最多只包含7个贡献者
 				const updatedOrder = actualContributors.slice(0, 7);
-				setRepoStudents(updatedOrder);
-			} else {
-				// 如果没有贡献者，设置为空数组
+				
+				// 如果有排序的学生数据，保留相同的学生，只添加新学生
+				if (repoStudents.length > 0 && !dataChanged) {
+					// 保留现有顺序，只添加新学生
+					const existingStudents = new Set(repoStudents);
+					const newStudents = updatedOrder.filter(student => !existingStudents.has(student));
+					setRepoStudents([...repoStudents, ...newStudents]);
+				} else {
+					// 全新初始化
+					setRepoStudents(updatedOrder);
+				}
+			} else if (actualContributors.length === 0 && repoStudents.length === 0) {
+				// 如果没有贡献者且学生列表为空，设置为空数组
 				setRepoStudents([]);
 			}
+			
+			// 标记为已初始化
+			setIsInitialized(true);
 		}
-	}, [data, setRepoStudents, repoStudents.length]);
+	}, [data, repoStudents, setRepoStudents, isInitialized, setIsInitialized]);
 
 	// 计算统计数据
 	const { commitsByUser, issuesByUser, prsByUser } = useMemo(() => {

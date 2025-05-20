@@ -68,8 +68,26 @@ const ContributorsTable = ({
 		setActiveId(id);
 	};
 
+	// 根据studentOrder排序贡献者
+	const sortedContributors = [...contributors].sort((a, b) => {
+		const indexA = studentOrder.indexOf(a);
+		const indexB = studentOrder.indexOf(b);
+		
+		// 如果两者都在学生顺序中
+		if (indexA !== -1 && indexB !== -1) {
+			return indexA - indexB; // 按学生顺序排序
+		}
+		
+		// 如果只有一个在学生顺序中，优先显示该学生
+		if (indexA !== -1) return -1;
+		if (indexB !== -1) return 1;
+		
+		// 对于不在学生顺序中的用户，按字母顺序排序
+		return a.localeCompare(b);
+	});
+
 	// Transform data for the table
-	const tableData = contributors.map((user) => ({
+	const tableData = sortedContributors.map((user) => ({
 		id: user,
 		user,
 		studentOrder: {
@@ -173,7 +191,7 @@ const ContributorsTable = ({
 			onDragStart={handleDragStart}
 		>
 			<SortableContext
-				items={contributors}
+				items={sortedContributors}
 				strategy={verticalListSortingStrategy}
 			>
 				<DataTable

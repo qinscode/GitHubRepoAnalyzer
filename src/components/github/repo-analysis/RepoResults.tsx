@@ -24,10 +24,14 @@ export const RepoContext = createContext<{
 	repoStudents: string[];
 	setRepoStudents: (students: string[]) => void;
 	reorderRepoStudents: (fromIndex: number, toIndex: number) => void;
+	isInitialized: boolean;
+	setIsInitialized: (value: boolean) => void;
 }>({
 	repoStudents: [],
 	setRepoStudents: () => {},
 	reorderRepoStudents: () => {},
+	isInitialized: false,
+	setIsInitialized: () => {},
 });
 
 function RepoResults({ data }: RepoResultsProps) {
@@ -38,6 +42,8 @@ function RepoResults({ data }: RepoResultsProps) {
 	
 	// 为每个仓库创建独立的学生顺序状态
 	const [repoStudents, setRepoStudents] = useState<string[]>([]);
+	// 跟踪是否已完成初始化
+	const [isInitialized, setIsInitialized] = useState(false);
 
 	// 重新排序学生的函数
 	const reorderRepoStudents = useCallback((fromIndex: number, toIndex: number) => {
@@ -67,8 +73,10 @@ function RepoResults({ data }: RepoResultsProps) {
 	const repoContextValue = useMemo(() => ({
 		repoStudents,
 		setRepoStudents,
-		reorderRepoStudents
-	}), [repoStudents, reorderRepoStudents]);
+		reorderRepoStudents,
+		isInitialized,
+		setIsInitialized
+	}), [repoStudents, reorderRepoStudents, isInitialized]);
 
 	// Calculate total counts for each category
 	const counts = useMemo(() => {
@@ -129,6 +137,7 @@ function RepoResults({ data }: RepoResultsProps) {
 		// 组件卸载时清理
 		return () => {
 			setRepoStudents([]);
+			setIsInitialized(false);
 		};
 	}, []);
 
@@ -142,11 +151,34 @@ function RepoResults({ data }: RepoResultsProps) {
 		};
 	}, [handleKeyNavigation]);
 	
-	// 确保data变更时重置学生列表，防止数据混合
+	// 确保数据变更时重置初始化状态，但保留现有学生顺序直到SummaryTab重新初始化
 	useEffect(() => {
-		// 每当数据源变化时，重置学生列表
-		setRepoStudents([]);
+		// 当数据源改变但不是第一次加载时
+		setIsInitialized(false);
 	}, [data]);
+	
+	// 自动初始化学生顺序，确保即使不打开Summary标签也能显示正确的学生顺序
+	useEffect(() => {
+		// 只在未初始化且没有学生数据时自动初始化
+		if (!isInitialized && repoStudents.length === 0) {
+			// 获取贡献者列表
+			const actualContributors = Array.from(
+				new Set([
+					...Object.keys(data.commits),
+					...Object.keys(data.issues),
+					...Object.keys(data.prs),
+				])
+			);
+
+			// 如果有贡献者，初始化学生顺序
+			if (actualContributors.length > 0) {
+				// 最多只包含7个贡献者
+				const updatedOrder = actualContributors.slice(0, 7);
+				setRepoStudents(updatedOrder);
+				setIsInitialized(true);
+			}
+		}
+	}, [data, isInitialized, repoStudents.length, setRepoStudents]);
 
 	return (
 		<RepoContext.Provider value={repoContextValue}>

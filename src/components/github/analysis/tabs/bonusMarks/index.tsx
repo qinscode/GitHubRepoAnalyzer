@@ -2,57 +2,38 @@ import { Box } from "@mui/material";
 import { EmojiEvents as BonusIcon } from "@mui/icons-material";
 import { bonusMarksTheme } from "../../components/AnalysisThemes";
 import AnalysisTabLayout from "../../components/layout/AnalysisTabLayout.tsx";
-import { useStudentStore } from "@/store/useStudentStore";
+import { RepoContext } from "../../../repo-analysis/RepoResults";
 import { BonusMarksTabProps } from "./types";
 import { useContributors } from "./useContributors";
 import { useBonusMarks } from "./useBonusMarks";
 import { menuProps, selectStyles } from "./styles";
 import WarningAlert from "./WarningAlert";
 import ContributorsTable from "./ContributorsTable";
-import { useCallback, useEffect } from "react";
+import { useCallback, useContext } from "react";
 
 function BonusMarksTab({ data }: BonusMarksTabProps) {
-  const { studentOrder, updateStudentOrder, setStudentOrder, reorderStudents } = useStudentStore();
-  const contributors = useContributors(data, studentOrder);
+  // 使用RepoContext获取仓库特定的学生顺序
+  const { repoStudents, reorderRepoStudents } = useContext(RepoContext);
+  
+  // 获取所有可能的贡献者
+  const contributors = useContributors(data, repoStudents);
+  
+  // 使用所有贡献者初始化bonus marks
   const { bonusMarks, totalBonusMarks, handleMarkChange } = useBonusMarks(contributors);
 
-  // Initialize student order if empty
-  useEffect(() => {
-    if (studentOrder.length === 0 && contributors.length > 0) {
-      setStudentOrder(contributors);
-    } else if (contributors.length > 0) {
-      // Make sure all contributors are in the student order
-      const newContributors = contributors.filter(
-        (contributor) => !studentOrder.includes(contributor)
-      );
-      
-      if (newContributors.length > 0) {
-        updateStudentOrder([...studentOrder, ...newContributors]);
-      }
-    }
-  }, [contributors, studentOrder, setStudentOrder, updateStudentOrder]);
-
-  // Handle reordering of contributors
+  // 处理重新排序
   const handleReorder = useCallback((activeId: string, overId: string) => {
     if (activeId === overId) return;
 
-    // Find indices in studentOrder
-    const oldIndex = studentOrder.indexOf(activeId);
-    const newIndex = studentOrder.indexOf(overId);
+    // 在repoStudents中找到索引
+    const oldIndex = repoStudents.indexOf(activeId);
+    const newIndex = repoStudents.indexOf(overId);
 
     if (oldIndex !== -1 && newIndex !== -1) {
-      // Use the reorderStudents method to update the order
-      reorderStudents(oldIndex, newIndex);
-    } else if (oldIndex === -1 && newIndex !== -1) {
-      // If activeId is not in the order, add it and then reorder
-      const updatedOrder = [...studentOrder, activeId];
-      updateStudentOrder(updatedOrder);
-      
-      // Reorder from the end to the target position
-      const newOldIndex = updatedOrder.length - 1;
-      reorderStudents(newOldIndex, newIndex);
+      // 使用重排序函数更新顺序
+      reorderRepoStudents(oldIndex, newIndex);
     }
-  }, [studentOrder, reorderStudents, updateStudentOrder]);
+  }, [repoStudents, reorderRepoStudents]);
 
   return (
     <AnalysisTabLayout
@@ -79,7 +60,7 @@ function BonusMarksTab({ data }: BonusMarksTabProps) {
           bonusMarks={bonusMarks}
           totalBonusMarks={totalBonusMarks}
           handleMarkChange={handleMarkChange}
-          studentOrder={studentOrder}
+          studentOrder={repoStudents}
           menuProps={menuProps}
           selectStyles={selectStyles}
           onReorder={handleReorder}
