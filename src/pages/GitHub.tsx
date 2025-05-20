@@ -29,21 +29,7 @@ export const GitHub = () => {
 							"0 2px 10px rgba(79,70,229,0.4), 0 0 20px rgba(59,130,246,0.12)",
 						letterSpacing: "-0.5px",
 						marginBottom: "0.5rem",
-						animation: "pulse 2s infinite ease-in-out",
-						"@keyframes pulse": {
-							"0%": {
-								textShadow:
-									"0 2px 10px rgba(79,70,229,0.4), 0 0 20px rgba(59,130,246,0.2)",
-							},
-							"50%": {
-								textShadow:
-									"0 2px 20px rgba(79,70,229,0.6), 0 0 30px rgba(59,130,246,0.4)",
-							},
-							"100%": {
-								textShadow:
-									"0 2px 10px rgba(79,70,229,0.4), 0 0 20px rgba(59,130,246,0.2)",
-							},
-						},
+
 					}}
 				>
 					GitHub Repository Analyzer
