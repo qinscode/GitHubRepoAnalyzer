@@ -1,5 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import type { TokenMessage } from "@/types";
+
+// Debounce timeout in milliseconds
+const DEBOUNCE_DELAY = 800;
 
 export interface UseRepoUrlsManagementReturn {
 	repoUrls: string;
@@ -20,6 +23,9 @@ export function useRepoUrlsManagement(
 		const savedAutoSave = localStorage.getItem("githubAutoSave");
 		return savedAutoSave === null ? true : savedAutoSave === "true";
 	});
+	
+	// Debounce timer reference
+	const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
 	// Load saved URLs from localStorage on component mount
 	useEffect(() => {
@@ -30,13 +36,38 @@ export function useRepoUrlsManagement(
 		}
 	}, []);
 
-	// Effect for auto-saving
-	useEffect(() => {
-		if (autoSave && repoUrls.trim()) {
-			localStorage.setItem("githubRepoUrls", repoUrls);
-			setHasSavedUrls(!!repoUrls.trim());
+	// Debounced save function
+	const debouncedSave = useCallback((urlsToSave: string) => {
+		// Clear any existing timer
+		if (debounceTimerRef.current) {
+			clearTimeout(debounceTimerRef.current);
 		}
-	}, [repoUrls, autoSave]);
+
+		// Set new timer
+		debounceTimerRef.current = setTimeout(() => {
+			// Always save the value, even if it's empty
+			localStorage.setItem("githubRepoUrls", urlsToSave);
+			setHasSavedUrls(!!urlsToSave.trim());
+			debounceTimerRef.current = null;
+		}, DEBOUNCE_DELAY);
+	}, []);
+
+	// Effect for auto-saving with debounce
+	useEffect(() => {
+		if (autoSave) {
+			// Always call debouncedSave, even if repoUrls is empty
+			debouncedSave(repoUrls);
+		}
+	}, [repoUrls, autoSave, debouncedSave]);
+
+	// Cleanup the debounce timer on unmount
+	useEffect(() => {
+		return () => {
+			if (debounceTimerRef.current) {
+				clearTimeout(debounceTimerRef.current);
+			}
+		};
+	}, []);
 
 	// Initialize autoSave preference in localStorage if not set
 	useEffect(() => {
@@ -60,24 +91,9 @@ export function useRepoUrlsManagement(
 		localStorage.setItem("githubAutoSave", newAutoSave.toString());
 		
 		if (newAutoSave) {
-			if (repoUrls.trim()) {
-				localStorage.setItem("githubRepoUrls", repoUrls);
-				setHasSavedUrls(true);
-				setTokenMessage({
-					message: "Auto-save enabled. Repository URLs saved to browser storage",
-					severity: "success",
-				});
-			} else {
-				setTokenMessage({
-					message: "Auto-save enabled",
-					severity: "success",
-				});
-			}
-		} else {
-			setTokenMessage({
-				message: "Auto-save disabled",
-				severity: "info",
-			});
+			// Always save immediately when enabling auto-save, even if empty
+			localStorage.setItem("githubRepoUrls", repoUrls);
+			setHasSavedUrls(!!repoUrls.trim());
 		}
 	};
 
