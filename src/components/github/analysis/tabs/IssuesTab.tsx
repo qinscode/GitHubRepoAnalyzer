@@ -1,11 +1,11 @@
-import { useMemo } from "react";
+import { useMemo, useContext } from "react";
 import { BugReport as IssueIcon } from "@mui/icons-material";
 import type { Issue, RepoData } from "@/services/github";
 import UserTabItem from "../components/UserTabItem";
 import TabDataTable from "../components/TabDataTable";
 import { issuesTheme } from "../components/AnalysisThemes";
 import AnalysisTabLayout from "../components/layout/AnalysisTabLayout";
-import { useStudentStore } from "@/store/useStudentStore";
+import { RepoContext } from "@/components/github/repo-analysis/RepoResults";
 
 interface IssuesTabProps {
 	data: RepoData;
@@ -40,7 +40,7 @@ function UserIssues({
 }
 
 function IssuesTab({ data }: IssuesTabProps) {
-	const { studentOrder } = useStudentStore();
+	const { repoStudents } = useContext(RepoContext);
 
 	const issuesByUser = useMemo(() => {
 		// Define IssueWithDate as an extension of Issue with a required date property
@@ -58,18 +58,18 @@ function IssuesTab({ data }: IssuesTabProps) {
 			}));
 		});
 
-		// Add empty arrays for students in studentOrder who don't have issues
-		studentOrder.forEach((student) => {
+		// Add empty arrays for students in repoStudents who don't have issues
+		repoStudents.forEach((student) => {
 			if (!users[student]) {
 				users[student] = [];
 			}
 		});
 
-		// Custom sort function based on studentOrder
+		// Custom sort function based on repoStudents
 		return Object.entries(users).sort(([userA, issuesA], [userB, issuesB]) => {
 			// Get indices from student order
-			const indexA = studentOrder.indexOf(userA);
-			const indexB = studentOrder.indexOf(userB);
+			const indexA = repoStudents.indexOf(userA);
+			const indexB = repoStudents.indexOf(userB);
 			
 			// If both users are in the student order
 			if (indexA !== -1 && indexB !== -1) {
@@ -83,7 +83,7 @@ function IssuesTab({ data }: IssuesTabProps) {
 			// For users not in the student order, sort by issue count
 			return issuesB.length - issuesA.length;
 		});
-	}, [data.issues, studentOrder]);
+	}, [data.issues, repoStudents]);
 
 	return (
 		<AnalysisTabLayout

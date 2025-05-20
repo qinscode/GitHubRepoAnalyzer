@@ -73,10 +73,16 @@ const ProgressTracker = ({
 				<Card className="form-card">
 					<CardContent className="p-5">
 						<Box className="flex justify-between items-center mb-3">
-							<Typography className="font-semibold text-gray-700">
+							<Typography
+								className="font-semibold text-gray-700"
+								sx={{ cursor: "default" }}
+							>
 								Analysis Progress
 							</Typography>
-							<Typography className="text-sm text-gray-600">
+							<Typography
+								className="text-sm text-gray-600"
+								sx={{ cursor: "default" }}
+							>
 								{`${currentIndex + 1} of ${repoItems.length} repositories (${progress}%)`}
 							</Typography>
 						</Box>
@@ -124,7 +130,7 @@ const ProgressTracker = ({
 										<Typography
 											noWrap
 											className="text-sm text-gray-700 font-medium"
-											sx={{ maxWidth: 250 }}
+											sx={{ maxWidth: 250, cursor: "default" }}
 										>
 											{repo.url.replace("https://github.com/", "")}
 										</Typography>

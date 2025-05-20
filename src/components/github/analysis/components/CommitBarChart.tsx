@@ -76,7 +76,11 @@ const CommitBarChart = ({
 					width: "100%",
 				}}
 			>
-				<Typography color="text.secondary" variant="body2">
+				<Typography
+					color="text.secondary"
+					sx={{ cursor: "default" }}
+					variant="body2"
+				>
 					No weekly commit data available for this contributor.
 				</Typography>
 			</Box>

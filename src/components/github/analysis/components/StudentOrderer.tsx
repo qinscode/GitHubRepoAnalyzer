@@ -15,7 +15,7 @@ import {
 	horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { useContext } from 'react';
-import { RepoContext } from "../../repo-analysis/RepoResults";
+import { RepoContext } from "@/components/github/repo-analysis/RepoResults";
 import StudentCard from "./StudentCard";
 import { DragIndicator as DragIcon } from "@mui/icons-material";
 

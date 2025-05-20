@@ -37,6 +37,8 @@ export const GitHub = () => {
 					color="text.secondary"
 					variant="subtitle1"
 					sx={{
+						cursor: "default",
+
 						fontSize: "0.9rem",
 						opacity: 0.8,
 						marginTop: "-0.5rem",

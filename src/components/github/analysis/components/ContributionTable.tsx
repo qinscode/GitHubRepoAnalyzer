@@ -71,6 +71,8 @@ const ContributionTable: React.FC<ContributionTableProps> = ({
 					position: "relative",
 					color: selectedColor.main,
 					paddingLeft: "16px",
+					cursor: "default",
+
 					"&::before": {
 						content: '""',
 						position: "absolute",
@@ -201,6 +203,7 @@ const ContributionTable: React.FC<ContributionTableProps> = ({
 												fontWeight: 500,
 												fontSize: "0.875rem",
 												color: "rgba(55, 65, 81, 0.9)",
+												cursor: "default",
 											}}
 										>
 											{user}
@@ -257,4 +260,4 @@ const ContributionTable: React.FC<ContributionTableProps> = ({
 	);
 };
 
-export default ContributionTable; 
+export default ContributionTable;

@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useContext } from "react";
 import { MergeType as PRIcon } from "@mui/icons-material";
 
 import type { PullRequest, RepoData } from "@/services/github";
@@ -6,7 +6,7 @@ import UserTabItem from "../components/UserTabItem";
 import AnalysisTabLayout from "../components/layout/AnalysisTabLayout.tsx";
 import TabDataTable from "../components/TabDataTable";
 import { pullRequestsTheme } from "../components/AnalysisThemes";
-import { useStudentStore } from "@/store/useStudentStore";
+import { RepoContext } from "@/components/github/repo-analysis/RepoResults";
 
 interface PullRequestsTabProps {
 	data: RepoData;
@@ -41,7 +41,7 @@ function UserPullRequests({
 }
 
 function PullRequestsTab({ data }: PullRequestsTabProps) {
-	const { studentOrder } = useStudentStore();
+	const { repoStudents } = useContext(RepoContext);
 
 	const prsByUser = useMemo(() => {
 		const users: Record<string, Array<PullRequest>> = {};
@@ -54,18 +54,18 @@ function PullRequestsTab({ data }: PullRequestsTabProps) {
 			}));
 		});
 
-		// Add empty arrays for students in studentOrder who don't have PRs
-		studentOrder.forEach((student) => {
+		// Add empty arrays for students in repoStudents who don't have PRs
+		repoStudents.forEach((student) => {
 			if (!users[student]) {
 				users[student] = [];
 			}
 		});
 
-		// Custom sort function based on studentOrder
+		// Custom sort function based on repoStudents
 		return Object.entries(users).sort(([userA, prsA], [userB, prsB]) => {
 			// Get indices from student order
-			const indexA = studentOrder.indexOf(userA);
-			const indexB = studentOrder.indexOf(userB);
+			const indexA = repoStudents.indexOf(userA);
+			const indexB = repoStudents.indexOf(userB);
 			
 			// If both users are in the student order
 			if (indexA !== -1 && indexB !== -1) {
@@ -79,7 +79,7 @@ function PullRequestsTab({ data }: PullRequestsTabProps) {
 			// For users not in the student order, sort by PR count
 			return prsB.length - prsA.length;
 		});
-	}, [data.prs, studentOrder]);
+	}, [data.prs, repoStudents]);
 
 	return (
 		<AnalysisTabLayout

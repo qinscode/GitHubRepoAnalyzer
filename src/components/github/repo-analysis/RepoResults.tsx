@@ -1,4 +1,10 @@
-import { useState, useEffect, useMemo, useCallback, createContext } from "react";
+import {
+	useState,
+	useEffect,
+	useMemo,
+	useCallback,
+	createContext,
+} from "react";
 import {
 	Box,
 	Paper,
@@ -21,8 +27,8 @@ import TeamworkTab from "@components/github/analysis/tabs/TeamworkTab.tsx";
 
 // 创建独立的仓库数据上下文
 export const RepoContext = createContext<{
-	repoStudents: string[];
-	setRepoStudents: (students: string[]) => void;
+	repoStudents: Array<string>;
+	setRepoStudents: (students: Array<string>) => void;
 	reorderRepoStudents: (fromIndex: number, toIndex: number) => void;
 	isInitialized: boolean;
 	setIsInitialized: (value: boolean) => void;
@@ -39,44 +45,50 @@ function RepoResults({ data }: RepoResultsProps) {
 	const [tabTransition, setTabTransition] = useState(false);
 	const theme = useTheme();
 	const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-	
+
 	// 为每个仓库创建独立的学生顺序状态
-	const [repoStudents, setRepoStudents] = useState<string[]>([]);
+	const [repoStudents, setRepoStudents] = useState<Array<string>>([]);
 	// 跟踪是否已完成初始化
 	const [isInitialized, setIsInitialized] = useState(false);
 
 	// 重新排序学生的函数
-	const reorderRepoStudents = useCallback((fromIndex: number, toIndex: number) => {
-		setRepoStudents(prevOrder => {
-			// 验证索引有效性
-			if (
-				fromIndex < 0 || 
-				toIndex < 0 || 
-				fromIndex >= prevOrder.length || 
-				toIndex >= prevOrder.length
-			) {
-				return prevOrder;
-			}
-			
-			// 创建新数组并重新排序
-			const newOrder = [...prevOrder];
-			const removed = newOrder.splice(fromIndex, 1)[0];
-			if (removed !== undefined) {
-				newOrder.splice(toIndex, 0, removed);
-			}
-			
-			return newOrder;
-		});
-	}, []);
+	const reorderRepoStudents = useCallback(
+		(fromIndex: number, toIndex: number) => {
+			setRepoStudents((previousOrder) => {
+				// 验证索引有效性
+				if (
+					fromIndex < 0 ||
+					toIndex < 0 ||
+					fromIndex >= previousOrder.length ||
+					toIndex >= previousOrder.length
+				) {
+					return previousOrder;
+				}
+
+				// 创建新数组并重新排序
+				const newOrder = [...previousOrder];
+				const removed = newOrder.splice(fromIndex, 1)[0];
+				if (removed !== undefined) {
+					newOrder.splice(toIndex, 0, removed);
+				}
+
+				return newOrder;
+			});
+		},
+		[]
+	);
 
 	// 为仓库上下文提供值
-	const repoContextValue = useMemo(() => ({
-		repoStudents,
-		setRepoStudents,
-		reorderRepoStudents,
-		isInitialized,
-		setIsInitialized
-	}), [repoStudents, reorderRepoStudents, isInitialized]);
+	const repoContextValue = useMemo(
+		() => ({
+			repoStudents,
+			setRepoStudents,
+			reorderRepoStudents,
+			isInitialized,
+			setIsInitialized,
+		}),
+		[repoStudents, reorderRepoStudents, isInitialized]
+	);
 
 	// Calculate total counts for each category
 	const counts = useMemo(() => {
@@ -133,7 +145,7 @@ function RepoResults({ data }: RepoResultsProps) {
 	// 组件初始化时设置过渡状态
 	useEffect(() => {
 		setTabTransition(true);
-		
+
 		// 组件卸载时清理
 		return () => {
 			setRepoStudents([]);
@@ -144,19 +156,19 @@ function RepoResults({ data }: RepoResultsProps) {
 	// 组件挂载时添加键盘事件监听器
 	useEffect(() => {
 		window.addEventListener("keydown", handleKeyNavigation);
-		
+
 		// 组件卸载时移除事件监听器
 		return () => {
 			window.removeEventListener("keydown", handleKeyNavigation);
 		};
 	}, [handleKeyNavigation]);
-	
+
 	// 确保数据变更时重置初始化状态，但保留现有学生顺序直到SummaryTab重新初始化
 	useEffect(() => {
 		// 当数据源改变但不是第一次加载时
 		setIsInitialized(false);
 	}, [data]);
-	
+
 	// 自动初始化学生顺序，确保即使不打开Summary标签也能显示正确的学生顺序
 	useEffect(() => {
 		// 只在未初始化且没有学生数据时自动初始化
@@ -204,6 +216,7 @@ function RepoResults({ data }: RepoResultsProps) {
 									"0 20px 25px -5px rgba(0, 0, 0, 0.06), 0 10px 10px -5px rgba(0, 0, 0, 0.03)",
 							},
 							position: "relative",
+							cursor: "default",
 						}}
 					>
 						<RepoTabBar
@@ -222,6 +235,7 @@ function RepoResults({ data }: RepoResultsProps) {
 						textAlign: "left",
 						fontSize: "0.75rem",
 						fontStyle: "italic",
+						cursor: "default",
 					}}
 				>
 					Tips: Use left and right arrow keys to navigate between tabs

@@ -4,7 +4,7 @@ import { RepoData } from "@/services/github/types";
 import ContributionTable from "../components/ContributionTable";
 import StudentOrderer from "../components/StudentOrderer";
 import { calculateContributionStats } from "../utils/contributionUtils";
-import { RepoContext } from "../../repo-analysis/RepoResults";
+import { RepoContext } from "@/components/github/repo-analysis/RepoResults";
 
 interface SummaryTabProps {
 	data: RepoData;

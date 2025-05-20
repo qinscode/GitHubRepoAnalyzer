@@ -361,7 +361,7 @@ function RepoTabBar({
 				<Tab
 					icon={tabIcons.teamwork}
 					iconPosition="start"
-					label={getCompactLabel("Teamwork", "Team")}
+					label={getCompactLabel("Team Work", "Team")}
 					sx={getTabSx(4)}
 				/>
 				<Tab
