@@ -130,11 +130,12 @@ const StudentOrderer: React.FC<StudentOrdererProps> = ({ onReorder }) => {
 					color: "text.secondary",
 					mb: 3,
 					ml: 0.5,
-					fontSize: "0.9rem",
+					fontSize: "0.7rem",
 					fontStyle: "italic",
 				}}
 			>
 				Drag cards to change display order. All data will follow this order.
+				Easier to record bonus marks.
 			</Typography>
 
 			<DndContext
