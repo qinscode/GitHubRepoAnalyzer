@@ -1,4 +1,8 @@
-# GitHub Repository Analyzer
+<p align="center">
+  <img src="https://raw.githubusercontent.com/qinscode/GitHubRepoAnalyzer/main/public/icon.png" alt="GitHub Repository Analyzer Logo" width="180" height="180">
+</p>
+
+<h1 align="center">GitHub Repository Analyzer</h1>
 
 <p align="center">
   <a href="https://github.com/qinscode/GitHubRepoAnalyzer/releases/latest">
@@ -29,10 +33,6 @@
   <a href="https://vitejs.dev/">
     <img src="https://img.shields.io/badge/Vite-6.3-646CFF?style=flat-square&logo=vite" alt="Vite">
   </a>
-</p>
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/qinscode/GitHubRepoAnalyzer/main/public/icon.png" alt="GitHub Repository Analyzer Logo" width="128" height="128">
 </p>
 
 A powerful desktop application built with React and Tauri that provides comprehensive analysis of GitHub repositories, individually or in batch.
