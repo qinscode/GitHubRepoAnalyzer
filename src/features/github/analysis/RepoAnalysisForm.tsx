@@ -83,11 +83,11 @@ const RepoAnalysisForm = () => {
 
 							{/* Repository URLs Input */}
 							<RepoUrlsInput
+								autoSave={autoSave}
 								hasSavedUrls={hasSavedUrls}
 								repoUrls={repoUrls}
-								onRepoUrlsChange={handleRepoUrlsChange}
-								autoSave={autoSave}
 								onAutoSaveChange={handleAutoSaveChange}
+								onRepoUrlsChange={handleRepoUrlsChange}
 							/>
 
 							{/* GitHub Token Input */}
