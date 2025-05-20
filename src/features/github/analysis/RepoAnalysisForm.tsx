@@ -77,7 +77,7 @@ const RepoAnalysisForm = () => {
 				<Card className="transparent-bg">
 					<CardContent className="p-6">
 						<form onSubmit={handleRepoSubmit}>
-							<Typography className="form-title">
+							<Typography className="form-title" sx={{ userSelect: "none" }}>
 								Repository Analysis
 							</Typography>
 
