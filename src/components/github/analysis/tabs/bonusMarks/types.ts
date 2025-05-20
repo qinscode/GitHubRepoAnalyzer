@@ -28,11 +28,11 @@ export interface WarningAlertProps {
 }
 
 export interface ContributorsTableProps {
-	contributors: string[];
+	contributors: Array<string>;
 	bonusMarks: Record<string, BonusMark>;
 	totalBonusMarks: number;
 	handleMarkChange: (user: string, value: number) => void;
-	studentOrder: string[];
+	studentOrder: Array<string>;
 	menuProps: any;
 	selectStyles: any;
 	onReorder?: (activeId: string, overId: string) => void;
@@ -46,4 +46,4 @@ export interface DraggableRowProps {
 export interface ContributorCellProps {
 	value: string;
 	isDragging: boolean;
-} 
+}
