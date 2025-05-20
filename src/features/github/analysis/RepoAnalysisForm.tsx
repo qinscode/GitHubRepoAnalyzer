@@ -47,9 +47,9 @@ const RepoAnalysisForm = () => {
 	const {
 		repoUrls,
 		hasSavedUrls,
+		autoSave,
 		handleRepoUrlsChange,
-		handleRepoUrlsSave,
-		handleRepoUrlsDelete,
+		handleAutoSaveChange,
 	} = useRepoUrlsManagement(setLocalTokenMessage);
 
 	// Repository analysis
@@ -86,8 +86,8 @@ const RepoAnalysisForm = () => {
 								hasSavedUrls={hasSavedUrls}
 								repoUrls={repoUrls}
 								onRepoUrlsChange={handleRepoUrlsChange}
-								onRepoUrlsDelete={handleRepoUrlsDelete}
-								onRepoUrlsSave={handleRepoUrlsSave}
+								autoSave={autoSave}
+								onAutoSaveChange={handleAutoSaveChange}
 							/>
 
 							{/* GitHub Token Input */}

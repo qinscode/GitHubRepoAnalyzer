@@ -25,6 +25,7 @@ export const fetchIssues = async (owner: string, repo: string, token: string): P
             title
             body
             url
+            createdAt
             author {
               login
             }
@@ -79,7 +80,8 @@ export const fetchIssues = async (owner: string, repo: string, token: string): P
           issuesByUser[author].push({
             title: issue.title,
             body: issue.body || '',
-            url: issue.url
+            url: issue.url,
+            date: issue.createdAt ? new Date(issue.createdAt).toLocaleString() : undefined
           });
         }
         

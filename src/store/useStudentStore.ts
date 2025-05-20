@@ -7,7 +7,7 @@ interface StudentState {
 }
 
 export const useStudentStore = create<StudentState>((set) => ({
-  studentOrder: ["Student 1", "Student 2", "Student 3", "Student 4"],
+  studentOrder: [], // Start with empty array, will be populated with actual contributors
   setStudentOrder: (studentOrder) => { set({ studentOrder }); },
   reorderStudents: (fromIndex, toIndex) => 
     { set((state) => {

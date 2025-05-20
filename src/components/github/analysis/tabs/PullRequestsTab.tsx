@@ -50,7 +50,7 @@ function PullRequestsTab({ data }: PullRequestsTabProps) {
 			// Add default date if missing
 			users[user] = prs.map((pr) => ({
 				...pr,
-				date: pr.date || "18/05/2025 14:30", // Default date
+				date: pr.date || new Date().toLocaleString(), // Use current date as fallback instead of hardcoded future date
 			}));
 		});
 

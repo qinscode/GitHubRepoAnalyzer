@@ -29,31 +29,29 @@ const SummaryTab: React.FC<SummaryTabProps> = ({ data }) => {
 			])
 		);
 
-		// If we have actual contributors, update the generic student names
+		// If we have actual contributors, update the student order with only actual contributors
 		if (actualContributors.length > 0) {
-			const updatedOrder = [...studentOrder];
-			for (
-				let index = 0;
-				index < Math.min(actualContributors.length, 4);
-				index++
-			) {
-				updatedOrder[index] =
-					actualContributors[index] || `Student ${index + 1}`;
-			}
+			// Only include actual contributors, up to maximum of 7
+			const updatedOrder = actualContributors.slice(0, 7);
 			setStudentOrder(updatedOrder);
-			// Mark as initialized
-			initializedRef.current = true;
+		} else {
+			// If no contributors, set empty array
+			setStudentOrder([]);
 		}
-	}, [data, studentOrder, setStudentOrder]); // Include all dependencies but prevent infinite loop with ref
+		
+		// Mark as initialized
+		initializedRef.current = true;
+	}, [data, setStudentOrder]); // Removed studentOrder from dependencies to prevent loop
 
 	// Calculate statistics data
 	const { commitsByUser, issuesByUser, prsByUser } = useMemo(() => {
 		return calculateContributionStats(data, studentOrder);
 	}, [data, studentOrder]);
 
+	// Only show StudentOrderer if there are actual students
 	return (
 		<Box className="flex flex-col">
-			<StudentOrderer />
+			{studentOrder.length > 0 && <StudentOrderer />}
 			<Box>
 				<ContributionTable
 					color="primary"

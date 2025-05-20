@@ -24,6 +24,7 @@ export const fetchPullRequests = async (owner: string, repo: string, token: stri
             title
             body
             url
+            createdAt
             author {
               login
             }
@@ -75,7 +76,8 @@ export const fetchPullRequests = async (owner: string, repo: string, token: stri
           prsByUser[author].push({
             title: pr.title,
             body: pr.body || '',
-            url: pr.url
+            url: pr.url,
+            date: pr.createdAt ? new Date(pr.createdAt).toLocaleString() : undefined
           });
         }
         
