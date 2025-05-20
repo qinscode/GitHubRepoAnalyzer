@@ -31,6 +31,7 @@ interface ContributorStat {
 interface AllContributorsCommitChartProps {
 	contributorStats: Array<ContributorStat> | undefined;
 	primaryColor: string;
+	maxContributors?: number;
 }
 
 // Material Design-inspired colors for better visual distinction
@@ -58,6 +59,7 @@ const DASH_PATTERNS = ["", "5 5", "3 3", "5 2 2 2", "8 3 2 3"];
 const AllContributorsCommitChart = ({
 	contributorStats,
 	primaryColor,
+	maxContributors = 7, // Default to 7 max contributors
 }: AllContributorsCommitChartProps) => {
 	const theme = useTheme();
 	// State to track which contributors are visible
@@ -75,8 +77,8 @@ const AllContributorsCommitChart = ({
 		return `${date.getDate()} ${date.toLocaleString("default", { month: "short" })}`;
 	};
 
-	const chartData = useMemo<Array<Record<string, number | string>>>(() => {
-		// If no stats are available, return empty array
+	// Limit the number of contributors to display
+	const limitedContributorStats = useMemo(() => {
 		if (!contributorStats || contributorStats.length === 0) {
 			return [];
 		}
@@ -89,14 +91,24 @@ const AllContributorsCommitChart = ({
 				)
 		);
 
-		// If we have no valid contributors, return empty array
-		if (validContributors.length === 0) {
+		// Sort contributors by total commits (most active first)
+		const sortedContributors = [...validContributors].sort(
+			(a, b) => b.total - a.total
+		);
+
+		// Limit to the maximum number of contributors
+		return sortedContributors.slice(0, maxContributors);
+	}, [contributorStats, maxContributors]);
+
+	const chartData = useMemo<Array<Record<string, number | string>>>(() => {
+		// If no stats are available, return empty array
+		if (limitedContributorStats.length === 0) {
 			return [];
 		}
 
 		// Get all timestamps from all contributors
 		const allTimestamps = new Set<number>();
-		validContributors.forEach((contributor) => {
+		limitedContributorStats.forEach((contributor) => {
 			contributor.weeks.forEach((week) => {
 				allTimestamps.add(week.w);
 			});
@@ -115,7 +127,7 @@ const AllContributorsCommitChart = ({
 		const deletionsData: Record<string, Record<number, number>> = {};
 
 		// Initialize data structure for each contributor
-		validContributors.forEach((contributor) => {
+		limitedContributorStats.forEach((contributor) => {
 			// With the type guard above, TypeScript should know login exists
 			const login = contributor.author.login;
 
@@ -161,22 +173,16 @@ const AllContributorsCommitChart = ({
 
 			return dataPoint;
 		});
-	}, [contributorStats]);
+	}, [limitedContributorStats]);
 
 	// Generate unique colors for each contributor
 	const contributorColors = useMemo(() => {
-		if (!contributorStats) return {};
-
-		// Filter out contributors without proper data
-		const validContributors = contributorStats.filter(
-			(contrib): contrib is ContributorStat & { author: { login: string } } =>
-				Boolean(contrib && contrib.author && contrib.author.login)
-		);
+		if (limitedContributorStats.length === 0) return {};
 
 		const colors: Record<string, string> = {};
 
 		// Use Material Design colors first, then fall back to generated colors if needed
-		validContributors.forEach((contributor, index) => {
+		limitedContributorStats.forEach((contributor, index) => {
 			// TypeScript类型保护已经确保这里的login是string
 			const login = contributor.author.login;
 			if (index < MATERIAL_COLORS.length) {
@@ -189,29 +195,23 @@ const AllContributorsCommitChart = ({
 		});
 
 		return colors;
-	}, [contributorStats, primaryColor]);
+	}, [limitedContributorStats, primaryColor]);
 
 	// Get dash pattern for each contributor
 	const contributorDashPatterns = useMemo(() => {
-		if (!contributorStats) return {};
-
-		// Filter out contributors without proper data
-		const validContributors = contributorStats.filter(
-			(contrib): contrib is ContributorStat & { author: { login: string } } =>
-				Boolean(contrib && contrib.author && contrib.author.login)
-		);
+		if (limitedContributorStats.length === 0) return {};
 
 		const patterns: Record<string, string> = {};
 
 		// 使用类型过滤器确保login是string
-		validContributors.forEach((contributor, index) => {
+		limitedContributorStats.forEach((contributor, index) => {
 			// TypeScript类型保护已经确保这里的login是string
 			const login = contributor.author.login;
 			patterns[login] = DASH_PATTERNS[index % DASH_PATTERNS.length] || "";
 		});
 
 		return patterns;
-	}, [contributorStats]);
+	}, [limitedContributorStats]);
 
 	// Handle legend click to toggle visibility
 	const handleLegendClick = (data: any) => {
@@ -237,11 +237,7 @@ const AllContributorsCommitChart = ({
 	};
 
 	// If no data available, show a message with a nice illustration
-	if (
-		chartData.length === 0 ||
-		!contributorStats ||
-		contributorStats.length === 0
-	) {
+	if (chartData.length === 0 || limitedContributorStats.length === 0) {
 		return (
 			<Box
 				sx={{
@@ -286,26 +282,16 @@ const AllContributorsCommitChart = ({
 		);
 	}
 
-	// Filter out contributors without proper data
-	const validContributors = contributorStats.filter(
-		(contrib): contrib is ContributorStat & { author: { login: string } } =>
-			Boolean(contrib && contrib.author && contrib.author.login)
-	);
-
 	// Find the max commit count to set a better Y-axis
 	const maxCommitCount = Math.max(
-		1, // 默认最小值为1
 		...chartData.flatMap((point) => {
-			// 使用显式的类型转换和过滤
 			const commitCounts: Array<number> = [];
 
-			// 遍历有效的贡献者
-			validContributors
+			limitedContributorStats
 				.filter((c) => !hiddenContributors.has(c.author.login))
 				.forEach((c) => {
 					const login = c.author.login;
 					const value = point[login];
-					// 只添加number类型的值
 					if (typeof value === "number") {
 						commitCounts.push(value);
 					} else {
@@ -339,7 +325,7 @@ const AllContributorsCommitChart = ({
 					onMouseLeave={handleLineMouseLeave}
 				>
 					<defs>
-						{validContributors.map((contributor) => (
+						{limitedContributorStats.map((contributor) => (
 							<linearGradient
 								key={`gradient-${contributor.author.login}`}
 								id={`colorGradient-${contributor.author.login}`}
@@ -471,7 +457,7 @@ const AllContributorsCommitChart = ({
 						onClick={handleLegendClick}
 					/>
 
-					{validContributors.map((contributor, _index) => {
+					{limitedContributorStats.map((contributor, _index) => {
 						const login = contributor.author.login;
 						const color = contributorColors[login] || primaryColor;
 						const dashPattern = contributorDashPatterns[login];
@@ -513,7 +499,7 @@ const AllContributorsCommitChart = ({
 						);
 					})}
 
-					{validContributors.map((contributor, _index) => {
+					{limitedContributorStats.map((contributor, _index) => {
 						const login = contributor.author.login;
 						const isHidden = hiddenContributors.has(login);
 
