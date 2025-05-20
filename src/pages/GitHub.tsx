@@ -46,7 +46,7 @@ export const GitHub = () => {
 						marginBottom: "1rem",
 					}}
 				>
-					v0.3.7
+					v0.3.9
 				</Typography>
 			</Box>
 
