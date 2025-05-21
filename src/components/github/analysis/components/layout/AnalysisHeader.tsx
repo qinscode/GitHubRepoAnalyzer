@@ -26,6 +26,7 @@ const AnalysisHeader = ({
 			enterDelay={500}
 			leaveDelay={200}
 			placement="top"
+			sx={{ cursor: "default" }}
 			title={`${title}${description ? ` - ${description}` : ""}${headerTitle ? ` (${headerTitle})` : ""}`}
 		>
 			<Box
@@ -62,6 +63,7 @@ const AnalysisHeader = ({
 							mb: description ? 1 : 0,
 							position: "relative",
 							zIndex: 1,
+							cursor: "default",
 						}}
 					>
 						{title}
@@ -74,6 +76,7 @@ const AnalysisHeader = ({
 							color: "rgba(107, 114, 128, 0.9)",
 							position: "relative",
 							zIndex: 1,
+							cursor: "default",
 						}}
 					>
 						{description}

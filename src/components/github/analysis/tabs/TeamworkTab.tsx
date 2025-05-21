@@ -2,9 +2,9 @@ import { useMemo, useContext } from "react";
 import { Box, Typography, Fade, alpha, useTheme } from "@mui/material";
 import { RepoData } from "@/services/github";
 import { RepoContext } from "@/components/github/repo-analysis/RepoResults";
-import { 
-  TeamworkTable, 
-  TeamworkInteractionsTable 
+import {
+	TeamworkTable,
+	TeamworkInteractionsTable,
 } from "../components/teamwork";
 
 interface TeamworkTabProps {
@@ -97,6 +97,7 @@ function TeamworkTab({ data }: TeamworkTabProps) {
 						color: alpha(theme.palette.primary.main, 0.7),
 						mb: 2,
 						fontWeight: 500,
+						cursor: "default",
 					}}
 				>
 					No teamwork data available for this repository
@@ -107,6 +108,7 @@ function TeamworkTab({ data }: TeamworkTabProps) {
 						color: alpha(theme.palette.text.secondary, 0.7),
 						maxWidth: "600px",
 						mx: "auto",
+						cursor: "default",
 					}}
 				>
 					This repository doesn't have any recorded issue comments or pull
@@ -169,4 +171,4 @@ function TeamworkTab({ data }: TeamworkTabProps) {
 	);
 }
 
-export default TeamworkTab; 
+export default TeamworkTab;

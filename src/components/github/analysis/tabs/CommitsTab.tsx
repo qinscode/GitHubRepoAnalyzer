@@ -78,8 +78,12 @@ function UserCommits({
 							sx={{ color: commitsTheme.main, mr: 1, fontSize: "1.1rem" }}
 						/>
 						<Typography
-							sx={{ color: "rgba(55, 65, 81, 0.9)", fontWeight: 600 }}
 							variant="subtitle2"
+							sx={{
+								color: "rgba(55, 65, 81, 0.9)",
+								fontWeight: 600,
+								cursor: "default",
+							}}
 						>
 							Weekly Commit Frequency
 						</Typography>
@@ -182,8 +186,12 @@ function CommitsTab({ data }: CommitsTabProps) {
 								sx={{ color: commitsTheme.main, mr: 1, fontSize: "1.2rem" }}
 							/>
 							<Typography
-								sx={{ color: "rgba(55, 65, 81, 0.9)", fontWeight: 600 }}
 								variant="h6"
+								sx={{
+									color: "rgba(55, 65, 81, 0.9)",
+									fontWeight: 600,
+									cursor: "default",
+								}}
 							>
 								Contributor Commit Timeline
 							</Typography>
