@@ -14,7 +14,7 @@ import {
 	sortableKeyboardCoordinates,
 	horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { useContext } from 'react';
+import { useContext } from "react";
 import { RepoContext } from "@/components/github/repo-analysis/RepoResults";
 import StudentCard from "./StudentCard";
 import { DragIndicator as DragIcon } from "@mui/icons-material";
@@ -141,6 +141,7 @@ const StudentOrderer: React.FC<StudentOrdererProps> = ({ onReorder }) => {
 					ml: 0.5,
 					fontSize: "0.7rem",
 					fontStyle: "italic",
+					cursor: "default",
 				}}
 			>
 				Drag cards to change display order. All data will follow this order.

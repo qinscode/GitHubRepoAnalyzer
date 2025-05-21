@@ -74,6 +74,7 @@ const DataTable: React.FC<DataTableProps> = ({
 				<TableHead
 					sx={{
 						background: `linear-gradient(to right, ${lighterColor}, rgba(248, 250, 252, 0.8))`,
+						cursor: "default",
 					}}
 				>
 					<TableRow>
@@ -96,7 +97,7 @@ const DataTable: React.FC<DataTableProps> = ({
 					</TableRow>
 				</TableHead>
 				<TableBody>
-					{data.map((row, rowIndex) => 
+					{data.map((row, rowIndex) =>
 						renderRow ? (
 							renderRow(row, columns)
 						) : (
