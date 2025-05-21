@@ -69,8 +69,8 @@ function BatchResults({ results }: BatchResultsProps) {
 			<Box sx={{ mb: 4 }}>
 				<Typography
 					color="text.secondary"
-					variant="body1"
 					sx={{ mb: 3, maxWidth: "800px", cursor: "default" }}
+					variant="body1"
 				>
 					Analyzed {results.length} repositories. Click on "View Details" to see
 					comprehensive analysis for each repository.

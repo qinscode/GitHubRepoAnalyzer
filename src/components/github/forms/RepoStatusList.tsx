@@ -22,13 +22,13 @@ const RepoStatusList: React.FC<RepoStatusListProps> = ({
 			}}
 		>
 			<Typography
+				variant="subtitle2"
 				sx={{
 					mb: 1.5,
 					fontWeight: 600,
 					color: "text.primary",
 					cursor: "default",
 				}}
-				variant="subtitle2"
 			>
 				Repository Status
 			</Typography>
