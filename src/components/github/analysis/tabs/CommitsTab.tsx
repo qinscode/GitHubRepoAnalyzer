@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useContext } from "react";
 import { Box, Typography, Paper } from "@mui/material";
 import {
 	Commit as CommitIcon,
@@ -12,7 +12,7 @@ import { commitsTheme } from "../components/AnalysisThemes";
 import AllContributorsCommitChart from "../components/AllContributorsCommitChart";
 import { RepoData } from "@/services/github";
 import AnalysisTabLayout from "../components/layout/AnalysisTabLayout.tsx";
-import { useStudentStore } from "@/store/useStudentStore";
+import { RepoContext } from "@/components/github/repo-analysis/RepoResults";
 
 interface CommitsTabProps {
 	data: RepoData;
@@ -104,7 +104,7 @@ function UserCommits({
 }
 
 function CommitsTab({ data }: CommitsTabProps) {
-	const { studentOrder } = useStudentStore();
+	const { repoStudents } = useContext(RepoContext);
 
 	// Transform commits data for display
 	const commitsByUser = useMemo(() => {
@@ -115,19 +115,19 @@ function CommitsTab({ data }: CommitsTabProps) {
 			users[user] = commits;
 		});
 
-		// Add empty arrays for students in studentOrder who don't have commits
-		studentOrder.forEach((student) => {
+		// Add empty arrays for students in repoStudents who don't have commits
+		repoStudents.forEach((student) => {
 			if (!users[student]) {
 				users[student] = [];
 			}
 		});
 
-		// Custom sort function based on studentOrder
+		// Custom sort function based on repoStudents
 		return Object.entries(users).sort(
 			([userA, commitsA], [userB, commitsB]) => {
 				// Get indices from student order
-				const indexA = studentOrder.indexOf(userA);
-				const indexB = studentOrder.indexOf(userB);
+				const indexA = repoStudents.indexOf(userA);
+				const indexB = repoStudents.indexOf(userB);
 
 				// If both users are in the student order
 				if (indexA !== -1 && indexB !== -1) {
@@ -142,7 +142,7 @@ function CommitsTab({ data }: CommitsTabProps) {
 				return commitsB.length - commitsA.length;
 			}
 		);
-	}, [data.commits, studentOrder]);
+	}, [data.commits, repoStudents]);
 
 	return (
 		<AnalysisTabLayout

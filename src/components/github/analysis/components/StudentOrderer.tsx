@@ -14,7 +14,8 @@ import {
 	sortableKeyboardCoordinates,
 	horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { useStudentStore } from "@/store/useStudentStore";
+import { useContext } from "react";
+import { RepoContext } from "@/components/github/repo-analysis/RepoResults";
 import StudentCard from "./StudentCard";
 import { DragIndicator as DragIcon } from "@mui/icons-material";
 
@@ -23,7 +24,7 @@ interface StudentOrdererProps {
 }
 
 const StudentOrderer: React.FC<StudentOrdererProps> = ({ onReorder }) => {
-	const { studentOrder, reorderStudents } = useStudentStore();
+	const { repoStudents, reorderRepoStudents } = useContext(RepoContext);
 
 	// Set up DnD sensors with improved settings
 	const sensors = useSensors(
@@ -38,20 +39,23 @@ const StudentOrderer: React.FC<StudentOrdererProps> = ({ onReorder }) => {
 		})
 	);
 
+	// Create sortable item IDs from student order
+	const sortableItems = repoStudents.map((student) => `student-${student}`);
+
 	// Handle drag end event
 	const handleDragEnd = (event: DragEndEvent) => {
 		const { active, over } = event;
 
 		if (over && active.id !== over.id) {
-			const activeIndex = studentOrder.findIndex(
+			const activeIndex = repoStudents.findIndex(
 				(student) => `student-${student}` === active.id
 			);
-			const overIndex = studentOrder.findIndex(
+			const overIndex = repoStudents.findIndex(
 				(student) => `student-${student}` === over.id
 			);
 
 			if (activeIndex !== -1 && overIndex !== -1) {
-				reorderStudents(activeIndex, overIndex);
+				reorderRepoStudents(activeIndex, overIndex);
 
 				// Call the optional callback if provided
 				if (onReorder) {
@@ -67,6 +71,11 @@ const StudentOrderer: React.FC<StudentOrdererProps> = ({ onReorder }) => {
 			strategy: MeasuringStrategy.Always,
 		},
 	};
+
+	// If student order is empty, don't render anything
+	if (!repoStudents || repoStudents.length === 0) {
+		return null;
+	}
 
 	return (
 		<Box>
@@ -132,6 +141,7 @@ const StudentOrderer: React.FC<StudentOrdererProps> = ({ onReorder }) => {
 					ml: 0.5,
 					fontSize: "0.7rem",
 					fontStyle: "italic",
+					cursor: "default",
 				}}
 			>
 				Drag cards to change display order. All data will follow this order.
@@ -145,7 +155,7 @@ const StudentOrderer: React.FC<StudentOrdererProps> = ({ onReorder }) => {
 				onDragEnd={handleDragEnd}
 			>
 				<SortableContext
-					items={studentOrder.map((student) => `student-${student}`)}
+					items={sortableItems}
 					strategy={horizontalListSortingStrategy}
 				>
 					<Box
@@ -158,7 +168,7 @@ const StudentOrderer: React.FC<StudentOrdererProps> = ({ onReorder }) => {
 							paddingBottom: "24px",
 						}}
 					>
-						{studentOrder.map((student, index) => (
+						{repoStudents.map((student, index) => (
 							<StudentCard
 								key={`student-${student}`}
 								id={`student-${student}`}

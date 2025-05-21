@@ -1,7 +1,7 @@
-import { useMemo } from "react";
+import { useMemo, useContext } from "react";
 import { Box, Typography, Fade, alpha, useTheme } from "@mui/material";
 import { RepoData } from "@/services/github";
-import { useStudentStore } from "@/store/useStudentStore";
+import { RepoContext } from "@/components/github/repo-analysis/RepoResults";
 import { 
   TeamworkTable, 
   TeamworkInteractionsTable 
@@ -17,7 +17,7 @@ interface TeamworkTabProps {
 function TeamworkTab({ data }: TeamworkTabProps) {
 	const { teamwork } = data || {};
 	const theme = useTheme();
-	const { studentOrder } = useStudentStore();
+	const { repoStudents } = useContext(RepoContext);
 
 	// Process issue comments data with student order
 	const issueCommentsData = useMemo(() => {
@@ -28,8 +28,8 @@ function TeamworkTab({ data }: TeamworkTabProps) {
 		// Sort based on student order and then by count
 		const sorted = entries.sort((a, b) => {
 			// Get indices from student order
-			const indexA = studentOrder.indexOf(a.user);
-			const indexB = studentOrder.indexOf(b.user);
+			const indexA = repoStudents.indexOf(a.user);
+			const indexB = repoStudents.indexOf(b.user);
 
 			// If both users are in the student order
 			if (indexA !== -1 && indexB !== -1) {
@@ -48,7 +48,7 @@ function TeamworkTab({ data }: TeamworkTabProps) {
 		return sorted
 			.slice(0, 5)
 			.map((entry) => [entry.user, entry.count] as [string, number]);
-	}, [teamwork?.issueComments, studentOrder]);
+	}, [teamwork?.issueComments, repoStudents]);
 
 	// Process PR reviews data with student order
 	const prReviewsData = useMemo(() => {
@@ -59,8 +59,8 @@ function TeamworkTab({ data }: TeamworkTabProps) {
 		// Sort based on student order and then by count
 		const sorted = entries.sort((a, b) => {
 			// Get indices from student order
-			const indexA = studentOrder.indexOf(a.user);
-			const indexB = studentOrder.indexOf(b.user);
+			const indexA = repoStudents.indexOf(a.user);
+			const indexB = repoStudents.indexOf(b.user);
 
 			// If both users are in the student order
 			if (indexA !== -1 && indexB !== -1) {
@@ -79,7 +79,7 @@ function TeamworkTab({ data }: TeamworkTabProps) {
 		return sorted
 			.slice(0, 5)
 			.map((entry) => [entry.user, entry.count] as [string, number]);
-	}, [teamwork?.prReviews, studentOrder]);
+	}, [teamwork?.prReviews, repoStudents]);
 
 	// Check if there is data to display
 	const hasData =

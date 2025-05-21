@@ -1,4 +1,10 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import {
+	useState,
+	useEffect,
+	useMemo,
+	useCallback,
+	createContext,
+} from "react";
 import {
 	Box,
 	Paper,
@@ -19,11 +25,70 @@ import RepoTabBar from "./RepoTabBar";
 import RepoResultsContainer from "./RepoResultsContainer";
 import TeamworkTab from "@components/github/analysis/tabs/TeamworkTab.tsx";
 
+// 创建独立的仓库数据上下文
+export const RepoContext = createContext<{
+	repoStudents: Array<string>;
+	setRepoStudents: (students: Array<string>) => void;
+	reorderRepoStudents: (fromIndex: number, toIndex: number) => void;
+	isInitialized: boolean;
+	setIsInitialized: (value: boolean) => void;
+}>({
+	repoStudents: [],
+	setRepoStudents: () => {},
+	reorderRepoStudents: () => {},
+	isInitialized: false,
+	setIsInitialized: () => {},
+});
+
 function RepoResults({ data }: RepoResultsProps) {
 	const [tabValue, setTabValue] = useState(0);
 	const [tabTransition, setTabTransition] = useState(false);
 	const theme = useTheme();
 	const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+	// 为每个仓库创建独立的学生顺序状态
+	const [repoStudents, setRepoStudents] = useState<Array<string>>([]);
+	// 跟踪是否已完成初始化
+	const [isInitialized, setIsInitialized] = useState(false);
+
+	// 重新排序学生的函数
+	const reorderRepoStudents = useCallback(
+		(fromIndex: number, toIndex: number) => {
+			setRepoStudents((previousOrder) => {
+				// 验证索引有效性
+				if (
+					fromIndex < 0 ||
+					toIndex < 0 ||
+					fromIndex >= previousOrder.length ||
+					toIndex >= previousOrder.length
+				) {
+					return previousOrder;
+				}
+
+				// 创建新数组并重新排序
+				const newOrder = [...previousOrder];
+				const removed = newOrder.splice(fromIndex, 1)[0];
+				if (removed !== undefined) {
+					newOrder.splice(toIndex, 0, removed);
+				}
+
+				return newOrder;
+			});
+		},
+		[]
+	);
+
+	// 为仓库上下文提供值
+	const repoContextValue = useMemo(
+		() => ({
+			repoStudents,
+			setRepoStudents,
+			reorderRepoStudents,
+			isInitialized,
+			setIsInitialized,
+		}),
+		[repoStudents, reorderRepoStudents, isInitialized]
+	);
 
 	// Calculate total counts for each category
 	const counts = useMemo(() => {
@@ -77,97 +142,138 @@ function RepoResults({ data }: RepoResultsProps) {
 		[tabValue]
 	);
 
+	// 组件初始化时设置过渡状态
 	useEffect(() => {
 		setTabTransition(true);
+
+		// 组件卸载时清理
+		return () => {
+			setRepoStudents([]);
+			setIsInitialized(false);
+		};
 	}, []);
 
+	// 组件挂载时添加键盘事件监听器
 	useEffect(() => {
-		// Add keyboard event listener when component mounts
 		window.addEventListener("keydown", handleKeyNavigation);
-		// Remove event listener when component unmounts
+
+		// 组件卸载时移除事件监听器
 		return () => {
 			window.removeEventListener("keydown", handleKeyNavigation);
 		};
 	}, [handleKeyNavigation]);
 
+	// 确保数据变更时重置初始化状态，但保留现有学生顺序直到SummaryTab重新初始化
+	useEffect(() => {
+		// 当数据源改变但不是第一次加载时
+		setIsInitialized(false);
+	}, [data]);
+
+	// 自动初始化学生顺序，确保即使不打开Summary标签也能显示正确的学生顺序
+	useEffect(() => {
+		// 只在未初始化且没有学生数据时自动初始化
+		if (!isInitialized && repoStudents.length === 0) {
+			// 获取贡献者列表
+			const actualContributors = Array.from(
+				new Set([
+					...Object.keys(data.commits),
+					...Object.keys(data.issues),
+					...Object.keys(data.prs),
+				])
+			);
+
+			// 如果有贡献者，初始化学生顺序
+			if (actualContributors.length > 0) {
+				// 最多只包含7个贡献者
+				const updatedOrder = actualContributors.slice(0, 7);
+				setRepoStudents(updatedOrder);
+				setIsInitialized(true);
+			}
+		}
+	}, [data, isInitialized, repoStudents.length, setRepoStudents]);
+
 	return (
-		<RepoResultsContainer>
-			<Grow in timeout={800}>
-				<Paper
-					elevation={2}
-					sx={{
-						mb: 6,
-						borderRadius: "16px",
-						overflow: "hidden",
-						background:
-							"linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(249, 250, 251, 0.9))",
-						backdropFilter: "blur(8px)",
-						transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-						borderLeft: "1px solid rgba(255, 255, 255, 0.5)",
-						borderTop: "1px solid rgba(255, 255, 255, 0.5)",
-						boxShadow:
-							"0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025)",
-						"&:hover": {
-							transform: "translateY(-2px)",
+		<RepoContext.Provider value={repoContextValue}>
+			<RepoResultsContainer>
+				<Grow in timeout={800}>
+					<Paper
+						elevation={2}
+						sx={{
+							mb: 6,
+							borderRadius: "16px",
+							overflow: "hidden",
+							background:
+								"linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(249, 250, 251, 0.9))",
+							backdropFilter: "blur(8px)",
+							transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+							borderLeft: "1px solid rgba(255, 255, 255, 0.5)",
+							borderTop: "1px solid rgba(255, 255, 255, 0.5)",
 							boxShadow:
-								"0 20px 25px -5px rgba(0, 0, 0, 0.06), 0 10px 10px -5px rgba(0, 0, 0, 0.03)",
-						},
-						position: "relative",
-					}}
-				>
-					<RepoTabBar
-						counts={counts}
-						handleTabChange={handleTabChange}
-						isMobile={isMobile}
-						tabValue={tabValue}
-					/>
-				</Paper>
-			</Grow>
-			<Typography
-				color="grey.600"
-				variant="caption"
-				sx={{
-					display: "block",
-					textAlign: "left",
-					fontSize: "0.75rem",
-					fontStyle: "italic",
-				}}
-			>
-				Tips: Use left and right arrow keys to navigate between tabs
-			</Typography>
-			<Fade in={tabTransition} timeout={400}>
-				<Box
+								"0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025)",
+							"&:hover": {
+								transform: "translateY(-2px)",
+								boxShadow:
+									"0 20px 25px -5px rgba(0, 0, 0, 0.06), 0 10px 10px -5px rgba(0, 0, 0, 0.03)",
+							},
+							position: "relative",
+							cursor: "default",
+						}}
+					>
+						<RepoTabBar
+							counts={counts}
+							handleTabChange={handleTabChange}
+							isMobile={isMobile}
+							tabValue={tabValue}
+						/>
+					</Paper>
+				</Grow>
+				<Typography
+					color="grey.600"
+					variant="caption"
 					sx={{
-						position: "relative",
-						minHeight: "300px",
+						display: "block",
+						textAlign: "left",
+						fontSize: "0.75rem",
+						fontStyle: "italic",
+						cursor: "default",
 					}}
 				>
-					<TabPanel index={0} value={tabValue}>
-						<SummaryTab data={data} />
-					</TabPanel>
+					Tips: Use left and right arrow keys to navigate between tabs
+				</Typography>
+				<Fade in={tabTransition} timeout={400}>
+					<Box
+						sx={{
+							position: "relative",
+							minHeight: "300px",
+						}}
+					>
+						<TabPanel index={0} value={tabValue}>
+							<SummaryTab data={data} />
+						</TabPanel>
 
-					<TabPanel index={1} value={tabValue}>
-						<CommitsTab data={data} />
-					</TabPanel>
+						<TabPanel index={1} value={tabValue}>
+							<CommitsTab data={data} />
+						</TabPanel>
 
-					<TabPanel index={2} value={tabValue}>
-						<IssuesTab data={data} />
-					</TabPanel>
+						<TabPanel index={2} value={tabValue}>
+							<IssuesTab data={data} />
+						</TabPanel>
 
-					<TabPanel index={3} value={tabValue}>
-						<PullRequestsTab data={data} />
-					</TabPanel>
+						<TabPanel index={3} value={tabValue}>
+							<PullRequestsTab data={data} />
+						</TabPanel>
 
-					<TabPanel index={4} value={tabValue}>
-						<TeamworkTab data={data} />
-					</TabPanel>
+						<TabPanel index={4} value={tabValue}>
+							<TeamworkTab data={data} />
+						</TabPanel>
 
-					<TabPanel index={5} value={tabValue}>
-						<BonusMarksTab data={data} />
-					</TabPanel>
-				</Box>
-			</Fade>
-		</RepoResultsContainer>
+						<TabPanel index={5} value={tabValue}>
+							<BonusMarksTab data={data} />
+						</TabPanel>
+					</Box>
+				</Fade>
+			</RepoResultsContainer>
+		</RepoContext.Provider>
 	);
 }
 

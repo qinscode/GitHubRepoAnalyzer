@@ -46,4 +46,6 @@ export interface DraggableRowProps {
 export interface ContributorCellProps {
 	value: string;
 	isDragging: boolean;
+	dragAttributes?: any;
+	dragListeners?: any;
 }

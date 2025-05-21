@@ -1,6 +1,7 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { DraggableRowProps } from "./types";
+import React from "react";
 
 const DraggableRow = ({ id, children }: DraggableRowProps) => {
   const {
@@ -20,15 +21,24 @@ const DraggableRow = ({ id, children }: DraggableRowProps) => {
     zIndex: isDragging ? 1 : 0,
   };
 
+  // Clone children and pass drag props only to the first cell (contributor cell)
+  const childrenWithProps = React.Children.map(children, (child, index) => {
+    if (index === 0) {
+      return React.cloneElement(child as React.ReactElement, {
+        dragAttributes: attributes,
+        dragListeners: listeners,
+      });
+    }
+    return child;
+  });
+
   return (
     <tr 
       ref={setNodeRef} 
       style={style} 
-      {...attributes}
-      {...listeners}
       data-id={id}
     >
-      {children}
+      {childrenWithProps}
     </tr>
   );
 };

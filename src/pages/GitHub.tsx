@@ -37,13 +37,15 @@ export const GitHub = () => {
 					color="text.secondary"
 					variant="subtitle1"
 					sx={{
+						cursor: "default",
+
 						fontSize: "0.9rem",
 						opacity: 0.8,
 						marginTop: "-0.5rem",
 						marginBottom: "1rem",
 					}}
 				>
-					v0.4.5
+					v0.4.7
 				</Typography>
 			</Box>
 

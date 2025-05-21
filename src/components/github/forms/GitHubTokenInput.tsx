@@ -27,7 +27,7 @@ const GitHubTokenInput = ({
 }: GitHubTokenInputProps) => {
 	return (
 		<Box className="mb-5">
-			<Typography className="form-subtitle">
+			<Typography className="form-subtitle" sx={{ cursor: "default" }}>
 				GitHub Personal Access Token
 			</Typography>
 			<TextField
@@ -55,7 +55,10 @@ const GitHubTokenInput = ({
 					onTokenChange(event.target.value);
 				}}
 			/>
-			<Typography className="text-xs text-gray-500 mt-2 ml-1 mb-2">
+			<Typography
+				className="text-xs text-gray-500 mt-2 ml-1 mb-2"
+				sx={{ cursor: "default" }}
+			>
 				{hasSavedToken && "Token loaded from browser storage"}
 			</Typography>
 

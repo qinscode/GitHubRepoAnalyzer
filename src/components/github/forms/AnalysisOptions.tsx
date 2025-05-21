@@ -39,6 +39,7 @@ const AnalysisOptions = ({
 						mr: 1,
 						color: "primary.main",
 						fontSize: "1.1rem",
+						cursor: "default",
 					}}
 				/>
 				Analysis Options

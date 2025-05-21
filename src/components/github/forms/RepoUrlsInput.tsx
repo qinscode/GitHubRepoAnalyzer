@@ -45,13 +45,16 @@ const RepoUrlsInput = ({
 
 	return (
 		<Box className="mb-5 relative">
-			<Typography className="form-subtitle">GitHub Repository URLs</Typography>
+			<Typography className="form-subtitle" sx={{ cursor: "default" }}>
+				GitHub Repository URLs
+			</Typography>
 			<TextField
 				fullWidth
 				multiline
 				className="enhanced-input"
 				placeholder="Enter GitHub repository URLs (one per line)"
 				rows={4}
+				sx={{ cursor: "default" }}
 				value={repoUrls}
 				variant="outlined"
 				InputProps={{
@@ -71,7 +74,10 @@ const RepoUrlsInput = ({
 					onRepoUrlsChange(event.target.value);
 				}}
 			/>
-			<Typography className="text-xs text-gray-500 mt-2 ml-1 mb-2">
+			<Typography
+				className="text-xs text-gray-500 mt-2 ml-1 mb-2"
+				sx={{ cursor: "default" }}
+			>
 				{hasSavedUrls && "URLs loaded from browser storage"}
 			</Typography>
 
