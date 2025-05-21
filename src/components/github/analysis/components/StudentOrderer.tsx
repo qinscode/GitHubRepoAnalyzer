@@ -117,6 +117,7 @@ const StudentOrderer: React.FC<StudentOrdererProps> = ({ onReorder }) => {
 						fontSize: "1.25rem",
 						color: "#3B82F6",
 						letterSpacing: "0.01em",
+						cursor: "default",
 					}}
 				>
 					Student Order{" "}

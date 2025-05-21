@@ -1,5 +1,22 @@
-import { Box, Typography, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Avatar, Chip, Card, Grow, alpha } from "@mui/material";
-import { ChatBubble as CommentIcon, RateReview as ReviewIcon } from "@mui/icons-material";
+import {
+	Box,
+	Typography,
+	TableContainer,
+	Table,
+	TableHead,
+	TableRow,
+	TableCell,
+	TableBody,
+	Avatar,
+	Chip,
+	Card,
+	Grow,
+	alpha,
+} from "@mui/material";
+import {
+	ChatBubble as CommentIcon,
+	RateReview as ReviewIcon,
+} from "@mui/icons-material";
 import { TeamworkColors } from "./TeamworkTheme";
 
 interface TeamworkTableProps {
@@ -19,7 +36,9 @@ const TeamworkTable: React.FC<TeamworkTableProps> = ({
 	index,
 }) => {
 	const isIssuesTable = title.includes("Issues");
-	const lightColor = isIssuesTable ? TeamworkColors.light : "rgba(139, 92, 246, 0.1)";
+	const lightColor = isIssuesTable
+		? TeamworkColors.light
+		: "rgba(139, 92, 246, 0.1)";
 	const lighterColor = isIssuesTable
 		? TeamworkColors.lighter
 		: "rgba(139, 92, 246, 0.05)";
@@ -72,18 +91,29 @@ const TeamworkTable: React.FC<TeamworkTableProps> = ({
 					>
 						{isIssuesTable ? (
 							<CommentIcon
-								sx={{ fontSize: "1.2rem", color: TeamworkColors.primaryText, marginRight: 1.5 }}
+								sx={{
+									fontSize: "1.2rem",
+									color: TeamworkColors.primaryText,
+									marginRight: 1.5,
+								}}
 							/>
 						) : (
 							<ReviewIcon
-								sx={{ fontSize: "1.2rem", color: TeamworkColors.secondaryText, marginRight: 1.5 }}
+								sx={{
+									fontSize: "1.2rem",
+									color: TeamworkColors.secondaryText,
+									marginRight: 1.5,
+								}}
 							/>
 						)}
 						<Typography
 							sx={{
 								fontSize: "1rem",
 								fontWeight: 600,
-								color: isIssuesTable ? TeamworkColors.primaryText : TeamworkColors.secondaryText,
+								color: isIssuesTable
+									? TeamworkColors.primaryText
+									: TeamworkColors.secondaryText,
+								cursor: "default",
 							}}
 						>
 							{title}
@@ -221,4 +251,4 @@ const TeamworkTable: React.FC<TeamworkTableProps> = ({
 	);
 };
 
-export default TeamworkTable; 
+export default TeamworkTable;
