@@ -61,6 +61,8 @@ A powerful desktop application built with React and Tauri that provides comprehe
 
 ### Backend
 - **Tauri** (Rust-based desktop framework)
+  - Used for cross-platform desktop packaging (Windows, macOS, Linux)
+  - Optional if you only need the web version without desktop integration
 - Tauri API and Plugin Opener
 
 ## 🔧 Development Setup
@@ -92,14 +94,14 @@ pnpm setup
 
 ```bash
 pnpm dev           # Web-only development
-pnpm tauri:dev     # Tauri app development
+pnpm tauri:dev     # Tauri app development (optional if you don't need desktop integration)
 ```
 
 ### Building
 
 ```bash
 pnpm build         # Web build
-pnpm tauri:build   # Tauri app build
+pnpm tauri:build   # Tauri app build (optional for desktop packaging)
 ```
 
 ## 📜 Available Scripts
