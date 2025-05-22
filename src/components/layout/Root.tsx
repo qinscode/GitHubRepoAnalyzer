@@ -144,7 +144,7 @@ export default function Root(): React.ReactElement {
 							sx={{ mt: 1, opacity: 0.7 }}
 							variant="body2"
 						>
-							© {new Date().getFullYear()} GitHub Repository Analyzer v0.4.7
+							© {new Date().getFullYear()} GitHub Repository Analyzer v0.5.0
 							Created with ❤️ by Jack Qin
 						</Typography>
 					</Box>
