@@ -277,7 +277,6 @@
   position: relative;
   z-index: 1;
   transition: all 0.3s ease;
-  border: 1.5px solid rgba(255, 255, 255, 0.5);
 }
 
 .tab-container::after {
