@@ -51,7 +51,7 @@ export default function Root(): React.ReactElement {
 						backgroundImage: "url('/background.jpg')",
 						backgroundSize: "cover",
 						backgroundPosition: "center",
-						opacity: 0.5,
+						opacity: 0.4,
 					}}
 				/>
 				<main className="flex-grow px-4">
