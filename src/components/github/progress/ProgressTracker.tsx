@@ -76,6 +76,7 @@ const ProgressTracker = ({
 							<Typography
 								className="font-semibold text-gray-700"
 								sx={{ cursor: "default" }}
+
 							>
 								Analysis Progress
 							</Typography>
