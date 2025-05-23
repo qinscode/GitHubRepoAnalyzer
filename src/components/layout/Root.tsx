@@ -145,7 +145,7 @@ export default function Root(): React.ReactElement {
 							variant="body2"
 						>
 							© {new Date().getFullYear()} GitHub Repository Analyzer v0.5.0
-							Created with ❤️ by Jack Qin
+							Developed by Jack Qin
 						</Typography>
 					</Box>
 				</footer>
