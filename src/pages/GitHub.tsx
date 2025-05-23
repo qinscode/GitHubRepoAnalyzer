@@ -45,7 +45,7 @@ export const GitHub = () => {
 						marginBottom: "1rem",
 					}}
 				>
-					v0.4.7
+					v0.5.0
 				</Typography>
 			</Box>
 
@@ -73,7 +73,7 @@ export const GitHub = () => {
 					},
 					position: "relative",
 
-					borderColor: "rgba(255,255,255,0.9)",
+					borderColor: "transparent",
 
 					transition: "all 0.3s ease-in-out",
 				}}

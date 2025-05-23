@@ -44,13 +44,14 @@ export default function Root(): React.ReactElement {
 		<ThemeProvider theme={theme}>
 			<CssBaseline />
 			<div className="relative min-h-screen flex flex-col">
-				{/* Light static background instead of heavy blur effect */}
+				{/* Background image */}
 				<div
 					className="absolute inset-0 -z-10"
 					style={{
-						background:
-							"linear-gradient(135deg, #f5f7ff 0%, #f0f1fe 40%, #f8f1ff 100%)",
-						opacity: 0.8,
+						backgroundImage: "url('/background.jpg')",
+						backgroundSize: "cover",
+						backgroundPosition: "center",
+						opacity: 0.4,
 					}}
 				/>
 				<main className="flex-grow px-4">
@@ -143,8 +144,8 @@ export default function Root(): React.ReactElement {
 							sx={{ mt: 1, opacity: 0.7 }}
 							variant="body2"
 						>
-							© {new Date().getFullYear()} GitHub Repository Analyzer v0.4.7
-							Created with ❤️ by Jack Qin
+							© {new Date().getFullYear()} GitHub Repository Analyzer v0.5.0
+							Developed by Jack Qin
 						</Typography>
 					</Box>
 				</footer>
