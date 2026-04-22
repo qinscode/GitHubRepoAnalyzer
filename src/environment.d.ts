@@ -6,6 +6,8 @@
 
 interface ImportMetaEnv {
 	readonly VITE_APP_TITLE: string;
+	readonly VITE_GITHUB_API_TOKEN: string;
+	readonly VITE_APP_ACCESS_KEY: string;
 	// more env variables...
 }
 

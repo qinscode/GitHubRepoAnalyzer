@@ -18,11 +18,13 @@ import {
 	useTokenManagement,
 	useRepoUrlsManagement,
 	useRepoAnalysis,
+	useAccessKeyManagement,
 } from "@/hooks";
 
 // Components
 import RepoUrlsInput from "@/components/github/forms/RepoUrlsInput";
 import GitHubTokenInput from "@/components/github/forms/GitHubTokenInput";
+import AccessKeyInput from "@/components/github/forms/AccessKeyInput";
 import AnalysisOptions from "@/components/github/forms/AnalysisOptions";
 import ErrorNotification from "@/components/github/notifications/ErrorNotification";
 import SuccessNotification from "@/components/github/notifications/SuccessNotification";
@@ -41,6 +43,19 @@ const RepoAnalysisForm = () => {
 		deleteToken,
 		handleTokenMessageClose,
 	} = useTokenManagement();
+
+	// Access key management
+	const {
+		accessKey,
+		accessKeyMessage,
+		hasSavedAccessKey,
+		isAccessKeyRequired,
+		handleAccessKeyChange,
+		saveAccessKey,
+		deleteAccessKey,
+		handleAccessKeyMessageClose,
+		validateAccessKey,
+	} = useAccessKeyManagement();
 
 	// URL management
 	const [localTokenMessage, setLocalTokenMessage] = useState(tokenMessage);
@@ -68,8 +83,22 @@ const RepoAnalysisForm = () => {
 		handleErrorClose,
 	} = useRepoAnalysis(repoUrls, token);
 
-	// Combine token messages from both hooks
-	const combinedTokenMessage = tokenMessage || localTokenMessage;
+	// Validate access key before submitting
+	const handleGuardedSubmit = (event: React.FormEvent): void => {
+		event.preventDefault();
+		if (!validateAccessKey()) return;
+		void handleRepoSubmit(event);
+	};
+
+	// Combine messages from all sources so a single notification component can render them
+	const combinedTokenMessage =
+		tokenMessage || localTokenMessage || accessKeyMessage;
+
+	const closeCombinedTokenMessage = (): void => {
+		handleTokenMessageClose();
+		handleAccessKeyMessageClose();
+		setLocalTokenMessage(null);
+	};
 
 	// 使用ref跟踪分析按钮点击次数，用于生成唯一key
 	const analysisCountRef = useRef(0);
@@ -86,7 +115,7 @@ const RepoAnalysisForm = () => {
 			<Grow in timeout={800}>
 				<Card className="transparent-bg">
 					<CardContent className="p-6">
-						<form onSubmit={handleRepoSubmit}>
+						<form onSubmit={handleGuardedSubmit}>
 							<Typography className="form-title" sx={{ cursor: "default" }}>
 								Repository Analysis
 							</Typography>
@@ -109,6 +138,17 @@ const RepoAnalysisForm = () => {
 								onTokenDelete={deleteToken}
 								onTokenSave={saveToken}
 							/>
+
+							{/* Access Key Input (only shown when VITE_APP_ACCESS_KEY is configured) */}
+							{isAccessKeyRequired && (
+								<AccessKeyInput
+									accessKey={accessKey}
+									hasSavedAccessKey={hasSavedAccessKey}
+									onAccessKeyChange={handleAccessKeyChange}
+									onAccessKeyDelete={deleteAccessKey}
+									onAccessKeySave={saveAccessKey}
+								/>
+							)}
 
 							{/* Analysis Options */}
 							<AnalysisOptions
@@ -167,10 +207,10 @@ const RepoAnalysisForm = () => {
 			)}
 			{/* Success Notification */}
 			<SuccessNotification open={success} onClose={handleCloseSnackbar} />
-			{/* Token Management Notification */}
+			{/* Token / Access Key Management Notification */}
 			<TokenNotification
 				tokenMessage={combinedTokenMessage}
-				onClose={handleTokenMessageClose}
+				onClose={closeCombinedTokenMessage}
 			/>
 		</Box>
 	);
