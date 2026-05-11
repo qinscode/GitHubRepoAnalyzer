@@ -29,10 +29,17 @@ export const fetchRepositoryData = async (
     const commits = await fetchCommits(owner, repo, token, options);
 
     // 2. Fetch issues data
-    const { issuesByUser, issueCommentsByUser } = await fetchIssues(owner, repo, token);
+    const { issuesByUser, issueCommentsByUser, commentedIssuesByUser } =
+      await fetchIssues(owner, repo, token);
 
     // 3. Fetch PR data
-    const { prsByUser, prReviewsByUser } = await fetchPullRequests(owner, repo, token);
+    const {
+      prsByUser,
+      prReviewsByUser,
+      commentedReviewsByUser,
+      substantiveReviewedPrsByUser,
+    } =
+      await fetchPullRequests(owner, repo, token);
     
     // 4. Fetch contributor statistics with weekly commit data
     let contributorStats: Array<ContributorStats> = [];
@@ -46,7 +53,10 @@ export const fetchRepositoryData = async (
     // 5. Build teamwork data
     const teamwork = {
       issueComments: issueCommentsByUser,
-      prReviews: prReviewsByUser
+      prReviews: prReviewsByUser,
+      commentedReviews: commentedReviewsByUser,
+      issuesCommented: commentedIssuesByUser,
+      substantivePrReviews: substantiveReviewedPrsByUser,
     };
 
     return {

@@ -84,6 +84,7 @@ export const calculateContributionStats = (
 		...Object.keys(data.prs),
 		...Object.keys(data.teamwork.issueComments),
 		...Object.keys(data.teamwork.prReviews),
+		...Object.keys(data.teamwork.commentedReviews),
 	]).size;
 
 	// Calculate contribution percentage for each user

@@ -51,6 +51,7 @@ export interface TeamworkStats {
   user: string;
   issueComments: number;
   prReviews: number;
+  commentedReviews: number;
   total: number;
 }
 
