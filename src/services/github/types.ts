@@ -24,6 +24,9 @@ export interface RepoData {
   teamwork: {
     issueComments: Record<string, number>;
     prReviews: Record<string, number>;
+    commentedReviews: Record<string, number>;
+    issuesCommented: Record<string, Array<Issue>>;
+    substantivePrReviews: Record<string, Array<PullRequest>>;
   };
   contributorStats?: Array<ContributorStats>;
 }
@@ -67,4 +70,7 @@ export interface PullRequest {
 export interface TeamworkData {
   issueComments: Record<string, number>;
   prReviews: Record<string, number>;
+  commentedReviews: Record<string, number>;
+  issuesCommented: Record<string, Array<Issue>>;
+  substantivePrReviews: Record<string, Array<PullRequest>>;
 } 
