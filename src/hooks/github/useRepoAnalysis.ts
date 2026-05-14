@@ -12,6 +12,8 @@ export interface UseRepoAnalysisReturn {
 	progress: number;
 	hideMergeCommits: boolean;
 	setHideMergeCommits: (value: boolean) => void;
+	substantivePrWordThreshold: number;
+	setSubstantivePrWordThreshold: (value: number) => void;
 	handleRepoSubmit: (event: React.FormEvent) => Promise<void>;
 	handleCloseSnackbar: () => void;
 	handleErrorClose: () => void;
@@ -30,6 +32,8 @@ export function useRepoAnalysis(
 	const [currentIndex, setCurrentIndex] = useState<number>(-1);
 	const [progress, setProgress] = useState<number>(0);
 	const [hideMergeCommits, setHideMergeCommits] = useState<boolean>(true);
+	const [substantivePrWordThreshold, setSubstantivePrWordThreshold] =
+		useState<number>(15);
 
 	const extractRepoName = (url: string): string => {
 		const match = url.match(/github\.com\/([^/]+)\/([^/]+)/);
@@ -149,6 +153,7 @@ export function useRepoAnalysis(
 					const currentUrl = currentItem.url;
 					const repoData = await fetchRepositoryData(currentUrl, token, {
 						hideMergeCommits,
+						substantivePrWordThreshold,
 					});
 
 					// Calculate repository statistics
@@ -260,6 +265,8 @@ export function useRepoAnalysis(
 		progress,
 		hideMergeCommits,
 		setHideMergeCommits,
+		substantivePrWordThreshold,
+		setSubstantivePrWordThreshold,
 		handleRepoSubmit,
 		handleCloseSnackbar,
 		handleErrorClose,

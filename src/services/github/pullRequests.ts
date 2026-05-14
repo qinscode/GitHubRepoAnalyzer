@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { PullRequest } from './types';
+import type { PullRequest, FetchOptions } from './types';
 import { graphqlRequest } from './api';
 
 interface GitHubPullRequestNode {
@@ -42,6 +42,8 @@ interface GitHubReviewComment {
 const REST_HEADERS = {
   Accept: 'application/vnd.github+json',
 };
+
+const DEFAULT_SUBSTANTIVE_PR_WORD_THRESHOLD = 15;
 
 const countWords = (text: string): number => {
   const normalizedText = text
@@ -86,7 +88,8 @@ const fetchPullRequestReviewMetrics = async (
   repo: string,
   pullRequestNumber: number,
   pullRequestAuthor: string,
-  token: string
+  token: string,
+  substantivePrWordThreshold: number
 ): Promise<{
   reviewers: Set<string>;
   substantiveReviewers: Set<string>;
@@ -132,7 +135,7 @@ const fetchPullRequestReviewMetrics = async (
 
   const substantiveReviewers = new Set(
     [...wordCountsByReviewer.entries()]
-      .filter(([, wordCount]) => wordCount > 30)
+      .filter(([, wordCount]) => wordCount >= substantivePrWordThreshold)
       .map(([reviewer]) => reviewer)
   );
 
@@ -148,12 +151,22 @@ const fetchPullRequestReviewMetrics = async (
  * @param token GitHub access token
  * @returns Object containing PRs and review statistics
  */
-export const fetchPullRequests = async (owner: string, repo: string, token: string): Promise<{
+export const fetchPullRequests = async (
+  owner: string,
+  repo: string,
+  token: string,
+  options: FetchOptions = {}
+): Promise<{
   prsByUser: Record<string, Array<PullRequest>>;
   prReviewsByUser: Record<string, number>;
   commentedReviewsByUser: Record<string, number>;
   substantiveReviewedPrsByUser: Record<string, Array<PullRequest>>;
 }> => {
+  const substantivePrWordThreshold = Math.max(
+    1,
+    options.substantivePrWordThreshold ?? DEFAULT_SUBSTANTIVE_PR_WORD_THRESHOLD
+  );
+
   const query = `
     query GetPullRequests($owner: String!, $repo: String!, $cursor: String) {
       repository(owner: $owner, name: $repo) {
@@ -224,7 +237,8 @@ export const fetchPullRequests = async (owner: string, repo: string, token: stri
           repo,
           pr.number,
           author,
-          token
+          token,
+          substantivePrWordThreshold
         );
 
         reviewers.forEach((reviewer) => {

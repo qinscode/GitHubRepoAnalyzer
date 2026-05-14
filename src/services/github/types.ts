@@ -40,6 +40,7 @@ export interface RepoInfo {
 // Options for data fetching
 export interface FetchOptions {
   hideMergeCommits?: boolean;
+  substantivePrWordThreshold?: number;
 }
 
 // Commit data structure

@@ -39,7 +39,7 @@ export const fetchRepositoryData = async (
       commentedReviewsByUser,
       substantiveReviewedPrsByUser,
     } =
-      await fetchPullRequests(owner, repo, token);
+      await fetchPullRequests(owner, repo, token, options);
     
     // 4. Fetch contributor statistics with weekly commit data
     let contributorStats: Array<ContributorStats> = [];

@@ -63,6 +63,8 @@ const RepoAnalysisForm = () => {
 		progress,
 		hideMergeCommits,
 		setHideMergeCommits,
+		substantivePrWordThreshold,
+		setSubstantivePrWordThreshold,
 		handleRepoSubmit,
 		handleCloseSnackbar,
 		handleErrorClose,
@@ -114,6 +116,10 @@ const RepoAnalysisForm = () => {
 							<AnalysisOptions
 								hideMergeCommits={hideMergeCommits}
 								onHideMergeCommitsChange={setHideMergeCommits}
+								substantivePrWordThreshold={substantivePrWordThreshold}
+								onSubstantivePrWordThresholdChange={
+									setSubstantivePrWordThreshold
+								}
 							/>
 
 							{/* Error Notification */}
