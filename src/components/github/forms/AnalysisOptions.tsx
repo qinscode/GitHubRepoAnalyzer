@@ -1,15 +1,36 @@
-import { Box, Typography, FormControlLabel, Switch } from "@mui/material";
+import {
+	Box,
+	Typography,
+	FormControlLabel,
+	Switch,
+	TextField,
+} from "@mui/material";
+import type { ChangeEvent } from "react";
 import PlaylistAddCheckIcon from "@mui/icons-material/PlaylistAddCheck";
 
 interface AnalysisOptionsProps {
 	hideMergeCommits: boolean;
 	onHideMergeCommitsChange: (checked: boolean) => void;
+	substantivePrWordThreshold: number;
+	onSubstantivePrWordThresholdChange: (value: number) => void;
 }
 
 const AnalysisOptions = ({
 	hideMergeCommits,
 	onHideMergeCommitsChange,
+	substantivePrWordThreshold,
+	onSubstantivePrWordThresholdChange,
 }: AnalysisOptionsProps) => {
+	const handleThresholdChange = (
+		event: ChangeEvent<HTMLInputElement>
+	): void => {
+		const value = Number.parseInt(event.target.value, 10);
+
+		if (Number.isFinite(value) && value > 0) {
+			onSubstantivePrWordThresholdChange(value);
+		}
+	};
+
 	return (
 		<Box
 			sx={{
@@ -44,7 +65,23 @@ const AnalysisOptions = ({
 				/>
 				Analysis Options
 			</Typography>
-			<Box sx={{ ml: "auto" }}>
+			<Box sx={{ ml: "auto", display: "flex", alignItems: "center", gap: 2 }}>
+				<TextField
+					label="# words for substantive PR review"
+					type="number"
+					size="small"
+					value={substantivePrWordThreshold}
+					onChange={handleThresholdChange}
+					slotProps={{
+						input: {
+							inputProps: {
+								min: 1,
+								step: 1,
+							},
+						},
+					}}
+					sx={{ width: 250 }}
+				/>
 				<FormControlLabel
 					sx={{ mr: 0 }}
 					control={
