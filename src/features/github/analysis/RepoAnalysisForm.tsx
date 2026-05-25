@@ -36,6 +36,9 @@ const RepoAnalysisForm = () => {
 		tokenMessage,
 		hasSavedToken,
 		hasPresetToken,
+		rateLimitRemaining,
+		rateLimitResetAt,
+		rateLimitLoading,
 		handleTokenChange,
 		saveToken,
 		deleteToken,
@@ -106,6 +109,9 @@ const RepoAnalysisForm = () => {
 							<GitHubTokenInput
 								hasPresetToken={hasPresetToken}
 								hasSavedToken={hasSavedToken}
+								rateLimitLoading={rateLimitLoading}
+								rateLimitRemaining={rateLimitRemaining}
+								rateLimitResetAt={rateLimitResetAt}
 								token={token}
 								onTokenChange={handleTokenChange}
 								onTokenDelete={deleteToken}

@@ -16,6 +16,9 @@ interface GitHubTokenInputProps {
 	onTokenDelete: () => void;
 	hasSavedToken: boolean;
 	hasPresetToken: boolean;
+	rateLimitRemaining: number | null;
+	rateLimitResetAt: number | null;
+	rateLimitLoading: boolean;
 }
 
 const GitHubTokenInput = ({
@@ -24,7 +27,38 @@ const GitHubTokenInput = ({
 	onTokenSave,
 	onTokenDelete,
 	hasSavedToken,
+	rateLimitRemaining,
+	rateLimitResetAt,
+	rateLimitLoading,
 }: GitHubTokenInputProps) => {
+	const getResetCountdownText = (): string => {
+		if (rateLimitResetAt === null) {
+			return "resets soon";
+		}
+
+		const nowInSeconds = Math.floor(Date.now() / 1000);
+		const remainingSeconds = Math.max(0, rateLimitResetAt - nowInSeconds);
+		const remainingMinutes = Math.ceil(remainingSeconds / 60);
+
+		return `resets in ${remainingMinutes}m`;
+	};
+
+	const renderRateLimitCounter = (): string => {
+		if (!token.trim()) {
+			return "Hourly calls remaining: —";
+		}
+
+		if (rateLimitLoading) {
+			return "Hourly calls remaining: loading...";
+		}
+
+		if (rateLimitRemaining === null) {
+			return "Hourly calls remaining: unavailable";
+		}
+
+		return `Hourly calls remaining: ${rateLimitRemaining} • ${getResetCountdownText()}`;
+	};
+
 	return (
 		<Box className="mb-5">
 			<Typography className="form-subtitle" sx={{ cursor: "default" }}>
@@ -63,6 +97,16 @@ const GitHubTokenInput = ({
 			</Typography>
 
 			<Box sx={{ display: "flex", gap: 3, mt: 2 }}>
+				<Typography
+					className="text-xs text-gray-500"
+					sx={{
+						display: "flex",
+						alignItems: "center",
+						whiteSpace: "nowrap",
+					}}
+				>
+					{renderRateLimitCounter()}
+				</Typography>
 				<Button
 					className="submit-button"
 					color="primary"
